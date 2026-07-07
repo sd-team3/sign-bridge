@@ -23,6 +23,3 @@
 hs_err_pid*
 replay_pid*
 
-# Config files with sensitive info
-*.properties
-!application.properties.example
