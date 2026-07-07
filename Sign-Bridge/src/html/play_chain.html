@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 수어 끝말잇기</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* 게임 전용: 다크 아레나 */
+.game-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr 240px;
+  gap: 0;
+  border: 1.5px solid var(--border-strong);
+  min-height: calc(100vh - 62px - 60px - 80px);
+}
+
+/* 왼쪽: 게임 상태 패널 */
+.side-panel {
+  background: #0d1f17;
+  color: #fff;
+  display: flex; flex-direction: column;
+  border-right: 1.5px solid #1a3828;
+}
+.side-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid #1a3828;
+  font-size: 10px; font-weight: 900; letter-spacing: 2.5px;
+  text-transform: uppercase; color: rgba(255,255,255,.4);
+}
+.round-display {
+  padding: 28px 22px;
+  border-bottom: 1px solid #1a3828;
+}
+.round-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 8px; }
+.round-num { font-size: 52px; font-weight: 900; color: #fff; letter-spacing: -2px; line-height: 1; }
+.round-sub { font-size: 13px; color: rgba(255,255,255,.4); margin-top: 6px; }
+
+.score-display {
+  padding: 22px 22px;
+  border-bottom: 1px solid #1a3828;
+}
+.score-big { font-size: 38px; font-weight: 900; color: var(--accent2); letter-spacing: -1px; }
+
+.timer-display {
+  padding: 22px 22px;
+  border-bottom: 1px solid #1a3828;
+}
+.timer-track { height: 6px; background: #1a3828; margin-top: 12px; }
+.timer-fill { height: 100%; background: var(--accent); width: 70%; transition: width 1s linear; }
+.timer-num { font-size: 32px; font-weight: 900; color: #fff; margin-top: 10px; letter-spacing: -1px; }
+.timer-unit { font-size: 13px; color: rgba(255,255,255,.35); margin-top: 2px; }
+
+.history-section {
+  flex: 1; padding: 18px 22px; overflow-y: auto;
+}
+.history-section h4 { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 14px; }
+.history-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid #1a3828;
+  font-size: 14px; font-weight: 700;
+}
+.history-item:last-child { border-bottom: none; }
+.history-who {
+  font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 7px; margin-right: 2px;
+}
+.who-me { background: rgba(45,155,111,.3); color: var(--accent2); }
+.who-ai { background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); }
+.history-word { color: rgba(255,255,255,.85); }
+.history-char {
+  margin-left: auto; font-size: 20px; font-weight: 900;
+  color: var(--accent); letter-spacing: -0.5px;
+}
+
+/* 가운데: 메인 게임 아레나 */
+.arena {
+  background: #111c17;
+  display: flex; flex-direction: column;
+  border-right: 1.5px solid #1a3828;
+}
+.arena-top {
+  padding: 28px 32px 24px;
+  border-bottom: 1px solid #1a3828;
+  text-align: center;
+}
+.challenge-label {
+  font-size: 10px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase;
+  color: rgba(255,255,255,.3); margin-bottom: 14px;
+}
+.challenge-word {
+  font-size: 64px; font-weight: 900; letter-spacing: -2px;
+  color: #fff; line-height: 1;
+}
+.challenge-start {
+  display: inline-block; margin-top: 16px;
+  font-size: 13px; font-weight: 700;
+  padding: 4px 14px;
+  background: rgba(45,155,111,.25);
+  color: var(--accent2);
+}
+.start-char { font-size: 22px; font-weight: 900; }
+
+/* 카메라 영역 */
+.cam-area {
+  flex: 1;
+  background: #0a160f;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 16px; position: relative;
+}
+.cam-hand-hint {
+  font-size: 96px; opacity: .06; position: absolute;
+}
+.cam-status-dot {
+  width: 8px; height: 8px; background: var(--danger);
+  border-radius: 50%; position: absolute; top: 16px; right: 16px;
+}
+.cam-status-dot.live { background: #4ade80; animation: blink 1.2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.recognition-live {
+  text-align: center;
+}
+.recog-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.25); margin-bottom: 10px; }
+.recog-word { font-size: 48px; font-weight: 900; color: var(--accent); letter-spacing: -1.5px; }
+.recog-conf { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.35); margin-top: 6px; }
+
+/* 입력 바 */
+.input-bar {
+  border-top: 1px solid #1a3828;
+  padding: 16px 24px;
+  display: flex; gap: 10px; align-items: center;
+  background: #0d1f17;
+}
+.input-hint {
+  flex: 1; padding: 12px 16px;
+  background: #1a3828; border: 1px solid #2a4838;
+  font-size: 15px; font-weight: 700; color: rgba(255,255,255,.6);
+  font-family: inherit;
+}
+.submit-btn {
+  padding: 12px 24px; background: var(--primary); color: #fff;
+  font-size: 14px; font-weight: 700; cursor: pointer; border: none; font-family: inherit;
+}
+.submit-btn:hover { background: var(--accent); }
+
+/* 오른쪽: 도움말 패널 */
+.help-panel {
+  background: var(--surface);
+  display: flex; flex-direction: column;
+}
+.help-section {
+  padding: 18px 18px;
+  border-bottom: 1.5px solid var(--border);
+}
+.help-section h4 {
+  font-size: 10px; font-weight: 900; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
+}
+.rule-item { display: flex; gap: 8px; font-size: 13px; font-weight: 500; line-height: 1.6; margin-bottom: 8px; color: var(--text-sub); }
+.rule-num {
+  width: 18px; height: 18px; background: var(--primary); color: #fff;
+  font-size: 10px; font-weight: 900; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+
+.word-hint-list { display: flex; flex-direction: column; gap: 6px; }
+.hint-item {
+  padding: 10px 12px; background: var(--surface2);
+  border-left: 3px solid var(--border-strong);
+  font-size: 14px; font-weight: 700;
+}
+.hint-item.suggested { border-left-color: var(--primary); background: var(--primary-light); }
+.hint-char { font-size: 11px; font-weight: 800; color: var(--primary); display: block; margin-top: 2px; letter-spacing: 1px; }
+
+.game-ctrl {
+  margin-top: auto; padding: 16px 18px; border-top: 1.5px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.game-ctrl .btn { justify-content: center; font-size: 13px; }
+
+@media(max-width:1000px){
+  .game-shell { grid-template-columns: 220px 1fr; }
+  .help-panel { display: none; }
+}
+@media(max-width:700px){
+  .game-shell { grid-template-columns: 1fr; }
+  .side-panel { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="learn_basic.html">학습</a>
+    <a href="play_chain.html" class="active">플레이존</a>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h1 style="font-size:22px; font-weight:900; letter-spacing:-0.5px;">🔗 수어 끝말잇기</h1>
+        <p style="font-size:13px; color:var(--text-sub); margin-top:3px;">AI 수어 인식으로 끝말잇기 대결. 화면의 단어 끝 글자로 시작하는 단어를 수어로 표현하세요.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="play_defense.html" class="btn btn-ghost btn-sm">디펜스 모드</a>
+        <a href="index.html" class="btn btn-ghost btn-sm">← 나가기</a>
+      </div>
+    </div>
+
+    <div class="game-shell">
+      <!-- 왼쪽: 상태 -->
+      <div class="side-panel">
+        <div class="side-header">게임 상태</div>
+        <div class="round-display">
+          <div class="round-label">현재 라운드</div>
+          <div class="round-num">07</div>
+          <div class="round-sub">연속 성공 중</div>
+        </div>
+        <div class="score-display">
+          <div class="round-label">획득 점수</div>
+          <div class="score-big">1,840</div>
+        </div>
+        <div class="timer-display">
+          <div class="round-label">남은 시간</div>
+          <div class="timer-track"><div class="timer-fill"></div></div>
+          <div class="timer-num">07</div>
+          <div class="timer-unit">초</div>
+        </div>
+        <div class="history-section">
+          <h4>진행 기록</h4>
+          <div class="history-item">
+            <span class="history-who who-me">나</span>
+            <span class="history-word">사과</span>
+            <span class="history-char">과</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-ai">AI</span>
+            <span class="history-word">과자</span>
+            <span class="history-char">자</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-me">나</span>
+            <span class="history-word">자동차</span>
+            <span class="history-char">차</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-ai">AI</span>
+            <span class="history-word">차도</span>
+            <span class="history-char">도</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-me">나</span>
+            <span class="history-word">도움</span>
+            <span class="history-char">움</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-ai">AI</span>
+            <span class="history-word">움직임</span>
+            <span class="history-char">임</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 가운데: 아레나 -->
+      <div class="arena">
+        <div class="arena-top">
+          <div class="challenge-label">AI가 낸 단어</div>
+          <div class="challenge-word">병원</div>
+          <div class="challenge-start">
+            <span class="start-char">원</span>으로 시작하는 단어를 수어로 표현하세요
+          </div>
+        </div>
+
+        <div class="cam-area">
+          <div class="cam-hand-hint">✋</div>
+          <div class="cam-status-dot live"></div>
+          <div class="recognition-live">
+            <div class="recog-label">실시간 인식</div>
+            <div class="recog-word">원숭이</div>
+            <div class="recog-conf">신뢰도 78% · 계속 유지하세요...</div>
+          </div>
+        </div>
+
+        <div class="input-bar">
+          <div class="input-hint">수어로 표현하거나 직접 입력...</div>
+          <button class="submit-btn">제출 →</button>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 도움말 -->
+      <div class="help-panel">
+        <div class="help-section">
+          <h4>게임 규칙</h4>
+          <div class="rule-item"><span class="rule-num">1</span>AI가 낸 단어의 마지막 글자로 시작하는 단어를 수어로 표현합니다.</div>
+          <div class="rule-item"><span class="rule-num">2</span>10초 안에 표현하지 못하면 게임 오버.</div>
+          <div class="rule-item"><span class="rule-num">3</span>이미 나온 단어는 다시 쓸 수 없습니다.</div>
+        </div>
+        <div class="help-section" style="flex:1; overflow-y:auto;">
+          <h4>추천 단어 힌트</h4>
+          <div class="word-hint-list">
+            <div class="hint-item suggested">
+              원숭이
+              <span class="hint-char">수어 있음</span>
+            </div>
+            <div class="hint-item">
+              원피스
+              <span class="hint-char">수어 있음</span>
+            </div>
+            <div class="hint-item">
+              원두
+              <span class="hint-char">수어 있음</span>
+            </div>
+            <div class="hint-item">
+              원칙
+              <span class="hint-char">수어 있음</span>
+            </div>
+          </div>
+        </div>
+        <div class="game-ctrl">
+          <button class="btn btn-ghost btn-sm">⏸ 일시정지</button>
+          <button class="btn btn-danger btn-sm">게임 종료</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>

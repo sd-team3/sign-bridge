@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 수어 디펜스</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.game-shell {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 0;
+  border: 1.5px solid var(--border-strong);
+}
+
+/* 메인 게임 영역 */
+.defense-main {
+  background: #0d1f17;
+  display: flex; flex-direction: column;
+}
+.status-bar {
+  display: flex; align-items: center; gap: 0;
+  border-bottom: 1px solid #1a3828;
+  background: #0a160f;
+}
+.status-cell {
+  flex: 1; padding: 14px 22px; text-align: center;
+  border-right: 1px solid #1a3828;
+}
+.status-cell:last-child { border-right: none; }
+.status-num { font-size: 22px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
+.status-lbl { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-top: 2px; }
+.pause-btn {
+  padding: 0 22px; background: rgba(255,255,255,.05); color: rgba(255,255,255,.5);
+  border: none; cursor: pointer; font-family: inherit; font-size: 12px; font-weight: 700;
+  border-left: 1px solid #1a3828; height: 100%;
+}
+
+.arena {
+  flex: 1; position: relative; overflow: hidden; min-height: 360px;
+}
+.arena-guide {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255,255,255,.08); font-size: 11px; font-weight: 900;
+  letter-spacing: 3px; text-transform: uppercase; text-align: center;
+}
+
+.falling-word {
+  position: absolute; padding: 8px 18px;
+  background: rgba(45,155,111,.15); border: 1.5px solid rgba(45,155,111,.3);
+  color: rgba(255,255,255,.85);
+  font-size: 17px; font-weight: 800; white-space: nowrap;
+  animation: fall linear forwards;
+}
+.falling-word.targeted {
+  background: rgba(45,155,111,.4); border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(45,155,111,.4);
+}
+@keyframes fall { from{transform:translateY(-60px)} to{transform:translateY(400px)} }
+
+.ground-line {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--danger);
+}
+.ground-line::before {
+  content: 'DANGER ZONE';
+  position: absolute; right: 8px; bottom: 4px;
+  font-size: 9px; font-weight: 900; letter-spacing: 2px; color: rgba(192,57,43,.5);
+}
+
+/* 카메라 하단 영역 */
+.cam-zone {
+  display: flex; gap: 0;
+  border-top: 1px solid #1a3828;
+  background: #0a160f;
+}
+.cam-preview {
+  width: 200px; min-height: 140px; flex-shrink: 0;
+  background: #111c17;
+  display: flex; align-items: center; justify-content: center;
+  border-right: 1px solid #1a3828;
+  font-size: 48px; opacity: .2;
+}
+.cam-info { flex: 1; padding: 16px 20px; }
+.recog-lbl { font-size: 10px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 8px; }
+.recog-word { font-size: 32px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
+.accuracy-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.acc-bar { flex: 1; height: 3px; background: #1a3828; }
+.acc-fill { height: 100%; background: var(--accent); width: 91%; }
+.acc-pct { font-size: 12px; font-weight: 800; color: var(--accent); }
+.cam-btn {
+  padding: 0 22px; background: var(--primary); color: #fff;
+  border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 800;
+  border-left: 1px solid #1a3828;
+}
+
+/* 사이드바 */
+.game-sidebar {
+  background: var(--surface);
+  border-left: 1.5px solid var(--border-strong);
+  display: flex; flex-direction: column;
+}
+.sidebar-section {
+  padding: 18px 18px;
+  border-bottom: 1.5px solid var(--border);
+}
+.sidebar-section h4 {
+  font-size: 10px; font-weight: 900; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+}
+.life-row { display: flex; gap: 6px; align-items: center; }
+.life-icon { font-size: 22px; }
+.life-icon.lost { opacity: .2; filter: grayscale(1); }
+
+.score-big { font-size: 42px; font-weight: 900; color: var(--primary); letter-spacing: -2px; }
+.score-sub { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
+
+.next-list { display: flex; flex-direction: column; gap: 0; }
+.next-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px; font-weight: 700;
+}
+.next-item:last-child { border-bottom: none; }
+.next-num {
+  width: 20px; height: 20px; background: var(--surface2);
+  font-size: 11px; font-weight: 900; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.next-speed { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+
+.sidebar-ctrl {
+  margin-top: auto; padding: 16px; border-top: 1.5px solid var(--border);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sidebar-ctrl .btn { justify-content: center; font-size: 13px; }
+
+@media(max-width:768px){
+  .game-shell { grid-template-columns: 1fr; }
+  .game-sidebar { border-left: none; border-top: 1.5px solid var(--border-strong); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="learn_basic.html">학습</a>
+    <a href="play_chain.html" class="active">플레이존</a>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h1 style="font-size:22px; font-weight:900; letter-spacing:-0.5px;">🎯 수어 디펜스</h1>
+        <p style="font-size:13px; color:var(--text-sub); margin-top:3px;">떨어지는 단어를 수어로 막아내세요. 바닥에 닿으면 목숨이 줄어듭니다.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="play_chain.html" class="btn btn-ghost btn-sm">끝말잇기</a>
+        <a href="index.html" class="btn btn-ghost btn-sm">← 나가기</a>
+      </div>
+    </div>
+
+    <div class="game-shell">
+      <div class="defense-main">
+        <div class="status-bar">
+          <div class="status-cell"><div class="status-num">Lv.3</div><div class="status-lbl">레벨</div></div>
+          <div class="status-cell"><div class="status-num">23</div><div class="status-lbl">막은 단어</div></div>
+          <div class="status-cell"><div class="status-num">2</div><div class="status-lbl">놓친 단어</div></div>
+          <button class="pause-btn">⏸ 일시정지</button>
+        </div>
+
+        <div class="arena">
+          <div class="arena-guide">수어로 단어를 막아내세요</div>
+          <div class="falling-word targeted" style="left:12%; top:80px; animation-duration:4s;">사과</div>
+          <div class="falling-word" style="left:36%; top:160px; animation-duration:3.5s;">병원</div>
+          <div class="falling-word" style="left:60%; top:50px; animation-duration:5s;">자동차</div>
+          <div class="falling-word" style="left:78%; top:220px; animation-duration:4.5s;">감사합니다</div>
+          <div class="ground-line"></div>
+        </div>
+
+        <div class="cam-zone">
+          <div class="cam-preview">✋</div>
+          <div class="cam-info">
+            <div class="recog-lbl">AI 인식 결과</div>
+            <div class="recog-word">사과</div>
+            <div class="accuracy-row">
+              <div class="acc-bar"><div class="acc-fill"></div></div>
+              <div class="acc-pct">91%</div>
+            </div>
+          </div>
+          <button class="cam-btn">📷<br>카메라<br>시작</button>
+        </div>
+      </div>
+
+      <div class="game-sidebar">
+        <div class="sidebar-section">
+          <h4>남은 목숨</h4>
+          <div class="life-row">
+            <span class="life-icon">❤️</span>
+            <span class="life-icon">❤️</span>
+            <span class="life-icon lost">❤️</span>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h4>현재 점수</h4>
+          <div class="score-big">2,340</div>
+          <div class="score-sub">이번 판 최고 기록 진행 중</div>
+        </div>
+        <div class="sidebar-section" style="flex:1;">
+          <h4>다음 등장 단어</h4>
+          <div class="next-list">
+            <div class="next-item">
+              <span class="next-num">1</span>
+              🏠 집
+              <span class="next-speed">보통</span>
+            </div>
+            <div class="next-item">
+              <span class="next-num">2</span>
+              🚌 버스
+              <span class="next-speed">빠름</span>
+            </div>
+            <div class="next-item">
+              <span class="next-num">3</span>
+              💧 물
+              <span class="next-speed">보통</span>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-ctrl">
+          <button class="btn btn-danger btn-sm">게임 종료</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>

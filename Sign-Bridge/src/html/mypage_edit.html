@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 회원정보 수정</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.mypage-layout { display: grid; grid-template-columns: 240px 1fr; gap: 0; border: 1.5px solid var(--border-strong); align-items: stretch; min-height: 600px; }
+.profile-side { background: var(--primary); color: #fff; display: flex; flex-direction: column; border-right: 1.5px solid var(--primary-dark); }
+.profile-top { padding: 32px 24px; border-bottom: 1px solid rgba(255,255,255,.15); text-align: center; }
+.avatar { width: 72px; height: 72px; border: 2px solid rgba(255,255,255,.4); margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; background: rgba(255,255,255,.1); }
+.profile-name { font-size: 18px; font-weight: 900; }
+.profile-email { font-size: 12px; color: rgba(255,255,255,.65); margin-top: 3px; }
+.profile-nav { flex: 1; padding: 8px 0; }
+.profile-nav a { display: flex; align-items: center; gap: 10px; padding: 13px 22px; font-size: 14px; font-weight: 700; color: rgba(255,255,255,.7); transition: all .12s; border-left: 3px solid transparent; }
+.profile-nav a:hover { background: rgba(255,255,255,.08); color: #fff; }
+.profile-nav a.active { background: rgba(255,255,255,.12); color: #fff; border-left-color: #fff; }
+
+.mypage-content { background: var(--bg); display: flex; flex-direction: column; }
+.content-header { padding: 22px 28px; background: var(--surface); border-bottom: 1.5px solid var(--border); font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
+.content-body { padding: 28px; flex: 1; }
+
+.edit-section {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-top: 3px solid var(--primary);
+  margin-bottom: 20px; padding: 24px 28px;
+}
+.edit-section.danger-zone {
+  border-top-color: var(--danger);
+}
+.edit-section h3 {
+  font-size: 13px; font-weight: 900; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 20px; padding-bottom: 12px;
+  border-bottom: 1.5px solid var(--border);
+}
+.edit-section.danger-zone h3 { color: var(--danger); }
+
+.accessibility-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px;
+  background: var(--primary-light);
+  border: 1.5px solid var(--border);
+}
+.accessibility-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--primary); margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+.accessibility-row label { font-size: 14px; font-weight: 700; cursor: pointer; line-height: 1.5; }
+.accessibility-row label span { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 2px; }
+
+.delete-warn { font-size: 13px; font-weight: 500; color: var(--text-sub); margin-bottom: 16px; line-height: 1.7; }
+
+@media(max-width:768px){ .mypage-layout { grid-template-columns: 1fr; } .profile-side { border-right: none; border-bottom: 1.5px solid var(--primary-dark); } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="learn_basic.html">학습</a>
+    <a href="play_chain.html">플레이존</a>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+<main>
+  <div class="container page-body">
+    <div class="mypage-layout">
+      <div class="profile-side">
+        <div class="profile-top">
+          <div class="avatar">👤</div>
+          <div class="profile-name">홍길동</div>
+          <div class="profile-email">gildong@email.com</div>
+        </div>
+        <nav class="profile-nav">
+          <a href="mypage.html">📊 학습 현황</a>
+          <a href="mypage_history.html">📋 학습 기록</a>
+          <a href="mypage_edit.html" class="active">⚙️ 회원정보 수정</a>
+        </nav>
+      </div>
+      <div class="mypage-content">
+        <div class="content-header">회원정보 수정</div>
+        <div class="content-body">
+          <div class="edit-section">
+            <h3>기본 정보</h3>
+            <div class="form-group">
+              <label class="form-label" for="name">이름</label>
+              <input type="text" id="name" class="form-input" value="홍길동">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">이메일</label>
+              <input type="email" id="email" class="form-input" value="gildong@email.com">
+            </div>
+            <div class="form-group">
+              <div class="accessibility-row">
+                <input type="checkbox" id="isDeaf">
+                <label for="isDeaf">
+                  청각장애인 접근성 UI 사용
+                  <span>체크 시 시각적 알림 등 접근성 최적화 UI가 적용됩니다.</span>
+                </label>
+              </div>
+            </div>
+            <button class="btn btn-primary">변경 사항 저장</button>
+          </div>
+
+          <div class="edit-section">
+            <h3>비밀번호 변경</h3>
+            <div class="form-group">
+              <label class="form-label" for="pw-current">현재 비밀번호</label>
+              <input type="password" id="pw-current" class="form-input" placeholder="현재 비밀번호">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pw-new">새 비밀번호</label>
+              <input type="password" id="pw-new" class="form-input" placeholder="새 비밀번호 (8자 이상)">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="pw-confirm">새 비밀번호 확인</label>
+              <input type="password" id="pw-confirm" class="form-input" placeholder="새 비밀번호 재입력">
+            </div>
+            <button class="btn btn-primary">비밀번호 변경</button>
+          </div>
+
+          <div class="edit-section danger-zone">
+            <h3>계정 삭제</h3>
+            <p class="delete-warn">계정을 삭제하면 학습 기록, 게시글 등 모든 데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</p>
+            <button class="btn btn-danger btn-sm">계정 영구 삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>

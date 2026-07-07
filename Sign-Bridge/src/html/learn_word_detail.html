@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 사과 학습</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* 3패널 레이아웃: 왼쪽 정보 | 가운데 영상 | 오른쪽 카메라 */
+.detail-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 1fr;
+  gap: 0;
+  border: 1.5px solid var(--border-strong);
+  background: var(--border);
+  min-height: 580px;
+}
+.panel {
+  background: var(--surface);
+  display: flex; flex-direction: column;
+}
+.panel + .panel { border-left: 1.5px solid var(--border-strong); }
+
+.panel-header {
+  padding: 16px 20px;
+  border-bottom: 1.5px solid var(--border);
+  background: var(--surface2);
+  font-size: 11px; font-weight: 900; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-muted);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-body { flex: 1; display: flex; flex-direction: column; }
+
+/* 왼쪽: 단어 정보 패널 */
+.word-info { padding: 28px 22px; }
+.word-emoji-big { font-size: 64px; margin-bottom: 16px; display: block; }
+.word-name { font-size: 36px; font-weight: 900; letter-spacing: -1px; margin-bottom: 4px; }
+.word-category {
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 20px;
+}
+.word-divider { height: 1.5px; background: var(--border); margin-bottom: 20px; }
+
+.best-score-block {
+  background: var(--primary-light);
+  border-left: 3px solid var(--primary);
+  padding: 12px 16px; margin-bottom: 20px;
+}
+.score-lbl { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.score-val { font-size: 28px; font-weight: 900; color: var(--primary); letter-spacing: -0.5px; }
+
+.tip-block { flex: 1; }
+.tip-block h4 {
+  font-size: 11px; font-weight: 900; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px;
+}
+.tip-item {
+  display: flex; gap: 10px; margin-bottom: 14px;
+  font-size: 13px; font-weight: 500; line-height: 1.65;
+}
+.tip-num {
+  width: 20px; height: 20px; background: var(--primary); color: #fff;
+  font-size: 11px; font-weight: 900; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 2px;
+}
+
+.nav-strip {
+  border-top: 1.5px solid var(--border);
+  padding: 14px 18px;
+  display: flex; gap: 8px;
+}
+.nav-strip .btn { flex: 1; justify-content: center; font-size: 13px; }
+
+/* 가운데: 영상 패널 */
+.video-screen {
+  flex: 1;
+  background: #0d1f17;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; position: relative; cursor: pointer;
+  min-height: 320px;
+}
+.video-screen::after {
+  content: '사과'; position: absolute; bottom: 20px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: rgba(255,255,255,.3);
+}
+.play-ring {
+  width: 80px; height: 80px; border: 3px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.play-ring::before {
+  content: ''; position: absolute; inset: -8px;
+  border: 1.5px solid rgba(45,155,111,.4);
+}
+.play-triangle {
+  width: 0; height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 24px solid rgba(255,255,255,.8);
+  margin-left: 4px;
+}
+.video-label {
+  color: rgba(255,255,255,.5); font-size: 13px; font-weight: 600;
+}
+.video-footer {
+  padding: 16px 20px; border-top: 1.5px solid var(--border);
+  font-size: 13px; font-weight: 500; color: var(--text-sub); line-height: 1.6;
+}
+
+/* 오른쪽: 카메라 패널 */
+.cam-screen {
+  flex: 1;
+  background: #111c17;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px; position: relative;
+  min-height: 320px;
+}
+.cam-hand {
+  font-size: 80px; opacity: .1;
+}
+.cam-guide { color: rgba(255,255,255,.45); font-size: 13px; font-weight: 600; text-align: center; padding: 0 20px; line-height: 1.6; }
+
+.result-bar {
+  border-top: 1.5px solid var(--border);
+  padding: 16px 20px;
+  background: var(--surface2);
+}
+.result-status {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
+}
+.result-word { font-size: 28px; font-weight: 900; color: var(--primary); }
+.result-status .lbl { font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); }
+.conf-bar-wrap { display: flex; align-items: center; gap: 10px; }
+.conf-bar { flex: 1; height: 4px; background: var(--border); }
+.conf-fill { height: 100%; background: var(--primary); }
+.conf-pct { font-size: 12px; font-weight: 800; color: var(--primary); }
+.cam-actions { padding: 14px 20px; display: flex; gap: 8px; border-top: 1.5px solid var(--border); }
+.cam-actions .btn { flex: 1; justify-content: center; font-size: 13px; }
+
+@media(max-width:900px){
+  .detail-layout { grid-template-columns: 1fr; }
+  .panel + .panel { border-left: none; border-top: 1.5px solid var(--border-strong); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="learn_basic.html" class="active">학습</a>
+    <a href="play_chain.html">플레이존</a>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+
+    <!-- 페이지 상단 경로 -->
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px; font-size:13px; font-weight:600; color:var(--text-muted);">
+      <a href="learn_basic.html" style="color:var(--text-muted);">기초 어휘</a>
+      <span>›</span>
+      <span style="color:var(--text);">사과</span>
+      <span style="margin-left:auto; display:flex; gap:6px; font-size:12px;">
+        <span style="color:var(--text-muted);">7 / 20</span>
+      </span>
+    </div>
+
+    <div class="detail-layout">
+      <!-- 왼쪽: 단어 정보 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>단어 정보</span>
+          <span class="badge badge-primary">기초</span>
+        </div>
+        <div class="panel-body">
+          <div class="word-info">
+            <span class="word-emoji-big">🍎</span>
+            <div class="word-name">사과</div>
+            <div class="word-category">기초 어휘 · 과일</div>
+            <div class="word-divider"></div>
+            <div class="best-score-block">
+              <div class="score-lbl">최고 정확도</div>
+              <div class="score-val">94%</div>
+            </div>
+            <div class="tip-block">
+              <h4>동작 포인트</h4>
+              <div class="tip-item">
+                <span class="tip-num">1</span>
+                오른손 다섯 손가락을 모아 뺨에 살짝 갖다 댑니다.
+              </div>
+              <div class="tip-item">
+                <span class="tip-num">2</span>
+                손을 가볍게 비틀듯 앞으로 내밀어 주세요.
+              </div>
+              <div class="tip-item">
+                <span class="tip-num">3</span>
+                손목 힘을 빼고 자연스럽게 움직이면 인식률이 높아집니다.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-strip">
+          <button class="btn btn-ghost btn-sm">← 이전</button>
+          <button class="btn btn-primary btn-sm">다음 →</button>
+        </div>
+      </div>
+
+      <!-- 가운데: 모범 영상 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>모범 동작 영상</span>
+          <button class="btn btn-ghost btn-sm" style="padding:3px 10px; font-size:11px;">반복 재생</button>
+        </div>
+        <div class="panel-body">
+          <div class="video-screen">
+            <div class="play-ring"><div class="play-triangle"></div></div>
+            <div class="video-label">클릭하여 재생</div>
+          </div>
+          <div class="video-footer">
+            손의 위치와 움직임을 집중해서 보세요.<br>관절 포인트가 표시된 스켈레톤 영상입니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 카메라 인식 -->
+      <div class="panel">
+        <div class="panel-header">
+          <span>내 동작 인식</span>
+          <span style="font-size:11px; color:var(--danger); font-weight:700;">● 대기 중</span>
+        </div>
+        <div class="panel-body">
+          <div class="cam-screen">
+            <div class="cam-hand">✋</div>
+            <div class="cam-guide">카메라를 켜고<br>수어를 따라 해보세요</div>
+          </div>
+          <div class="result-bar">
+            <div class="result-status">
+              <div class="lbl">AI 인식 결과</div>
+            </div>
+            <div class="result-word" style="color:var(--text-muted); font-size:18px; margin-bottom:10px;">— 대기 중 —</div>
+            <div class="conf-bar-wrap">
+              <div class="conf-bar"><div class="conf-fill" style="width:0%"></div></div>
+              <div class="conf-pct">—</div>
+            </div>
+          </div>
+          <div class="cam-actions">
+            <button class="btn btn-primary">📷 카메라 시작</button>
+            <button class="btn btn-ghost btn-sm">초기화</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>

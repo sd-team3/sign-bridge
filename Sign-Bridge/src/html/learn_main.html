@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 학습</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* 상단 요약 배너 */
+.learn-hero {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border-radius: var(--radius);
+  padding: 40px 40px;
+  margin-bottom: 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  color: #fff; flex-wrap: wrap;
+}
+.learn-hero-text h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; }
+.learn-hero-text p { font-size: 15px; font-weight: 500; color: rgba(255,255,255,.85); margin-top: 8px; }
+.learn-hero-stats { display: flex; gap: 0; }
+.lh-stat { padding: 0 26px; text-align: center; border-right: 1.5px solid rgba(255,255,255,.25); }
+.lh-stat:last-child { border-right: none; }
+.lh-stat-num { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+.lh-stat-lbl { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.75); margin-top: 4px; letter-spacing: 0.5px; }
+
+/* 이어하기 배너 */
+.continue-banner {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  border-left: 4px solid var(--primary);
+  padding: 18px 24px;
+  margin-bottom: 32px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.continue-banner .cb-left { display: flex; align-items: center; gap: 14px; }
+.cb-icon { font-size: 30px; }
+.cb-title { font-size: 15px; font-weight: 800; }
+.cb-sub { font-size: 13px; font-weight: 500; color: var(--text-sub); margin-top: 2px; }
+
+/* 카테고리 카드 그리드 */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 40px;
+}
+.cat-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px 24px;
+  display: block; cursor: pointer;
+  transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.cat-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(45,155,111,.12); }
+.cat-card-icon {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; margin-bottom: 16px;
+}
+.cat-card.danger .cat-card-icon { background: #fdf2f2; }
+.cat-card.purple .cat-card-icon { background: #f2edfd; }
+.cat-card-title { font-size: 17px; font-weight: 900; letter-spacing: -0.3px; margin-bottom: 6px; }
+.cat-card-desc { font-size: 13px; font-weight: 500; color: var(--text-sub); line-height: 1.6; margin-bottom: 16px; }
+.cat-card-meta { display: flex; align-items: center; justify-content: space-between; }
+.cat-card-progress { flex: 1; margin-right: 12px; }
+.cat-card-progress .prog-track { height: 6px; background: var(--border); }
+.cat-card-progress .prog-fill { height: 100%; background: var(--primary); }
+.cat-card-pct { font-size: 12px; font-weight: 800; color: var(--primary); white-space: nowrap; }
+.cat-card-arrow { color: var(--text-muted); font-size: 18px; margin-left: 8px; }
+.cat-card-new {
+  position: absolute; top: 16px; right: 16px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.5px;
+  padding: 3px 10px; background: var(--danger); color: #fff; border-radius: 100px;
+}
+
+/* 플레이존 배너 */
+.play-banner {
+  background: #0d1f17;
+  border-radius: var(--radius);
+  padding: 32px 36px;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  color: #fff; flex-wrap: wrap; margin-bottom: 40px;
+}
+.play-banner h3 { font-size: 20px; font-weight: 900; letter-spacing: -0.4px; }
+.play-banner p { font-size: 14px; font-weight: 500; color: rgba(255,255,255,.55); margin-top: 6px; }
+.play-banner-btns { display: flex; gap: 10px; }
+
+@media(max-width:900px){
+  .cat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media(max-width:600px){
+  .cat-grid { grid-template-columns: 1fr; }
+  .learn-hero { flex-direction: column; align-items: flex-start; }
+  .learn-hero-stats { width: 100%; justify-content: space-between; }
+  .lh-stat { padding: 0 10px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="learn_main.html" class="active">학습</a>
+    <a href="play_chain.html">플레이존</a>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+
+    <!-- 상단 요약 배너 -->
+    <div class="learn-hero">
+      <div class="learn-hero-text">
+        <h1>👋 홍길동님, 오늘도 함께 배워볼까요?</h1>
+        <p>꾸준한 학습이 실력을 만듭니다. 오늘의 목표를 채워보세요.</p>
+      </div>
+      <div class="learn-hero-stats">
+        <div class="lh-stat"><div class="lh-stat-num">42</div><div class="lh-stat-lbl">학습한 단어</div></div>
+        <div class="lh-stat"><div class="lh-stat-num">87%</div><div class="lh-stat-lbl">평균 정확도</div></div>
+        <div class="lh-stat"><div class="lh-stat-num">7일</div><div class="lh-stat-lbl">연속 학습</div></div>
+      </div>
+    </div>
+
+    <!-- 이어하기 -->
+    <div class="continue-banner">
+      <div class="cb-left">
+        <div class="cb-icon">🍎</div>
+        <div>
+          <div class="cb-title">기초 어휘 · '사과' 이어서 학습하기</div>
+          <div class="cb-sub">최근 정확도 94% · 다음 단어까지 3개 남음</div>
+        </div>
+      </div>
+      <a href="learn_word_detail.html" class="btn btn-primary btn-sm">이어서 하기 →</a>
+    </div>
+
+    <!-- 카테고리 -->
+    <div class="section-title">학습 카테고리</div>
+    <div class="cat-grid">
+      <a href="learn_jamo.html" class="cat-card">
+        <span class="cat-card-new">NEW</span>
+        <div class="cat-card-icon">🤟</div>
+        <div class="cat-card-title">자음 · 모음 지문자</div>
+        <div class="cat-card-desc">수어의 기초, 지문자 24개를 처음부터 차근차근 익혀요.</div>
+        <div class="cat-card-meta">
+          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:15%"></div></div></div>
+          <span class="cat-card-pct">15%</span>
+        </div>
+      </a>
+
+      <a href="learn_basic.html" class="cat-card">
+        <div class="cat-card-icon">📚</div>
+        <div class="cat-card-title">기초 어휘 학습</div>
+        <div class="cat-card-desc">일상에서 자주 쓰는 기본 단어 124개를 분야별로 학습해요.</div>
+        <div class="cat-card-meta">
+          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:68%"></div></div></div>
+          <span class="cat-card-pct">68%</span>
+        </div>
+      </a>
+
+      <a href="learn_list.html" class="cat-card purple">
+        <div class="cat-card-icon">🗂️</div>
+        <div class="cat-card-title">상황별 수어 학습</div>
+        <div class="cat-card-desc">인사, 학교, 자연 등 35개 주제로 구성된 상황별 회화 수업.</div>
+        <div class="cat-card-meta">
+          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:22%"></div></div></div>
+          <span class="cat-card-pct">22%</span>
+        </div>
+      </a>
+
+      <a href="learn_emergency.html" class="cat-card danger">
+        <div class="cat-card-icon">🚨</div>
+        <div class="cat-card-title">비상 상황 어휘</div>
+        <div class="cat-card-desc">화재, 지진, 응급 상황에서 꼭 필요한 핵심 수어를 배워요.</div>
+        <div class="cat-card-meta">
+          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:35%"></div></div></div>
+          <span class="cat-card-pct">35%</span>
+        </div>
+      </a>
+
+      <a href="learn_word.html" class="cat-card">
+        <div class="cat-card-icon">🔍</div>
+        <div class="cat-card-title">개별 어휘 검색</div>
+        <div class="cat-card-desc">원하는 단어를 검색하거나 분야별 필터로 자유롭게 학습해요.</div>
+        <div class="cat-card-meta">
+          <span style="font-size:13px; font-weight:700; color:var(--text-muted);">총 124개 단어</span>
+          <span class="cat-card-arrow">›</span>
+        </div>
+      </a>
+
+      <a href="mypage_history.html" class="cat-card">
+        <div class="cat-card-icon">📋</div>
+        <div class="cat-card-title">나의 학습 기록</div>
+        <div class="cat-card-desc">지금까지 학습한 단어와 정확도를 한눈에 확인해요.</div>
+        <div class="cat-card-meta">
+          <span style="font-size:13px; font-weight:700; color:var(--text-muted);">최근 학습: 오늘</span>
+          <span class="cat-card-arrow">›</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- 플레이존 유도 배너 -->
+    <div class="play-banner">
+      <div>
+        <h3>🎮 배운 단어, 게임으로 복습해볼까요?</h3>
+        <p>수어 끝말잇기와 디펜스 게임으로 재미있게 실력을 점검해보세요.</p>
+      </div>
+      <div class="play-banner-btns">
+        <a href="play_chain.html" class="btn btn-primary btn-sm">끝말잇기</a>
+        <a href="play_defense.html" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.3); color:rgba(255,255,255,.85);">디펜스 모드</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+
+</body>
+</html>
