@@ -1,6 +1,6 @@
 @echo off
 set CATALINA_HOME=C:\Program Files\Apache Software Foundation\Tomcat 9.0
-set JAVA_HOME=C:\Program Files\Java\jdk-24
+set JAVA_HOME=C:\Program Files\Java\jdk-17
 
 echo Building WAR...
 call mvn clean package -q
@@ -23,7 +23,7 @@ timeout /t 2 /nobreak >nul
 echo Deploying...
 del "%CATALINA_HOME%\webapps\ROOT.war" 2>nul
 rd /s /q "%CATALINA_HOME%\webapps\ROOT" 2>nul
-copy "target\spring-board.war" "%CATALINA_HOME%\webapps\ROOT.war"
+copy "target\Sign-Bridge-1.0-SNAPSHOT.war" "%CATALINA_HOME%\webapps\ROOT.war"
 
 echo Starting Tomcat...
 start "" "%CATALINA_HOME%\bin\startup.bat"
