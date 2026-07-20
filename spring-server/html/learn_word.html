@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 개별 어휘 학습</title>
+<link rel="stylesheet" href="/resources/css/shared.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <div class="nav-item has-sub">
+      <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="learn_basic.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔤</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">기초 어휘</span>
+              <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
+            </span>
+          </a>
+          <a href="learn_list.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🚨</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">상황별 수어 학습</span>
+              <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
+            </span>
+          </a>
+          <a href="learn_word.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔍</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">개별 어휘 학습</span>
+              <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="exam_setup.html">시험</a>
+    <div class="nav-item has-sub">
+      <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="play_chain.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔗</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 끝말잇기</span>
+              <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
+            </span>
+          </a>
+          <a href="play_defense.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🎯</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 디펜스</span>
+              <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; gap:16px; flex-wrap:wrap;">
+      <div>
+        <h1 style="font-size:26px; font-weight:900; letter-spacing:-0.4px;">🔍 개별 어휘 학습</h1>
+        <p style="font-size:15px; font-weight:500; color:var(--text-sub); margin-top:6px;">분야별로 찾거나 키워드로 검색해서 원하는 단어를 학습하세요.</p>
+      </div>
+      <a href="index.html" class="btn btn-ghost">← 메인으로</a>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="단어를 검색하세요 (예: 사과, 병원)">
+      </div>
+      <button class="btn btn-primary">검색</button>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-chip active">전체</button>
+      <button class="filter-chip">음식</button>
+      <button class="filter-chip">장소</button>
+      <button class="filter-chip">이동수단</button>
+      <button class="filter-chip">인사</button>
+      <button class="filter-chip">감정</button>
+      <button class="filter-chip">신체</button>
+      <button class="filter-chip">자연</button>
+    </div>
+
+    <div class="result-count">총 124개 단어</div>
+
+    <div class="word-grid">
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🍎</div>
+        <div class="word-text">사과</div>
+        <div class="word-sub">음식</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🍚</div>
+        <div class="word-text">밥</div>
+        <div class="word-sub">음식</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">💧</div>
+        <div class="word-text">물</div>
+        <div class="word-sub">음식</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🏥</div>
+        <div class="word-text">병원</div>
+        <div class="word-sub">장소</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🏫</div>
+        <div class="word-text">학교</div>
+        <div class="word-sub">장소</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🚗</div>
+        <div class="word-text">자동차</div>
+        <div class="word-sub">이동수단</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🚌</div>
+        <div class="word-text">버스</div>
+        <div class="word-sub">이동수단</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">👋</div>
+        <div class="word-text">안녕하세요</div>
+        <div class="word-sub">인사</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">🙏</div>
+        <div class="word-text">감사합니다</div>
+        <div class="word-sub">인사</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">😊</div>
+        <div class="word-text">행복</div>
+        <div class="word-sub">감정</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">😢</div>
+        <div class="word-text">슬픔</div>
+        <div class="word-sub">감정</div>
+      </a>
+      <a href="learn_word_detail.html" class="word-card">
+        <div class="word-emoji">☀️</div>
+        <div class="word-text">태양</div>
+        <div class="word-sub">자연</div>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>

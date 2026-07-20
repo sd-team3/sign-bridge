@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 끝말잇기 결과</title>
+<link rel="stylesheet" href="/resources/css/shared.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <div class="nav-item has-sub">
+      <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="learn_basic.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔤</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">기초 어휘</span>
+              <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
+            </span>
+          </a>
+          <a href="learn_list.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🚨</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">상황별 수어 학습</span>
+              <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
+            </span>
+          </a>
+          <a href="learn_word.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔍</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">개별 어휘 학습</span>
+              <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="exam_setup.html">시험</a>
+    <div class="nav-item has-sub">
+      <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="play_chain.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔗</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 끝말잇기</span>
+              <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
+            </span>
+          </a>
+          <a href="play_defense.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🎯</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 디펜스</span>
+              <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+
+    <div class="result-wrap">
+      <div class="result-card">
+        <div class="result-badge over">🏁 GAME OVER</div>
+        <div class="result-score-label">최종 점수</div>
+        <div class="result-score">1,840</div>
+
+        <div class="result-stats-grid">
+          <div class="result-stat"><div class="rs-num">7</div><div class="rs-lbl">라운드</div></div>
+          <div class="result-stat"><div class="rs-num">6</div><div class="rs-lbl">연속 성공</div></div>
+          <div class="result-stat"><div class="rs-num">83%</div><div class="rs-lbl">평균 신뢰도</div></div>
+          <div class="result-stat"><div class="rs-num">04:12</div><div class="rs-lbl">플레이 시간</div></div>
+        </div>
+
+        <div class="result-section-title">최종 기록</div>
+        <div class="result-history-list">
+          <div class="history-item">
+            <span class="history-who who-me">나</span>
+            <span class="history-word">사과</span>
+            <span class="history-char">과</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-ai">AI</span>
+            <span class="history-word">과자</span>
+            <span class="history-char">자</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-me">나</span>
+            <span class="history-word">자동차</span>
+            <span class="history-char">차</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-ai">AI</span>
+            <span class="history-word">차도</span>
+            <span class="history-char">도</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-me">나</span>
+            <span class="history-word">도움</span>
+            <span class="history-char">움</span>
+          </div>
+          <div class="history-item">
+            <span class="history-who who-ai">AI</span>
+            <span class="history-word">움직임</span>
+            <span class="history-char">임</span>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <button class="btn btn-primary btn-lg" onclick="location.href='play_chain.html'">🔄 다시 하기</button>
+          <a href="play_defense.html" class="btn btn-ghost">🎯 디펜스 모드</a>
+          <a href="index.html" class="btn btn-ghost">← 나가기</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>
