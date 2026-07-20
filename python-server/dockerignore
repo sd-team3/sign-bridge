@@ -1,0 +1,21 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+.git/
+.gitignore
+.gitattributes
+
+.idea/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# 수집/학습 데이터는 이미지에 안 넣고 볼륨 마운트로 다룸
+data/
+model/
