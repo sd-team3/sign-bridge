@@ -357,6 +357,13 @@ async function initHandLandmarker() {
   });
 }
 
+function toSelfieCoords(landmarks) {
+  // 기존 collect_data.py는 cv2.flip(frame, 1)로 물리적으로 좌우 반전한 프레임에서
+  // landmark를 뽑았기 때문에, 브라우저에서도 x좌표를 반전해서 같은 좌표계로 맞춘다.
+  // (화면 표시는 CSS transform으로만 뒤집혀 있어서 실제 데이터는 안 뒤집혀 있었음 → 좌우 반대로 인식되던 원인)
+  return landmarks.map(p => ({ x: 1 - p.x, y: p.y, z: p.z }));
+}
+
 function drawLandmarks(ctx, landmarks, w, h, color) {
   ctx.clearRect(0, 0, w, h);
   if (!landmarks) return;
@@ -419,7 +426,7 @@ async function collectLoop() {
 
       if (continuousOn && latestLandmarks && ts - lastCaptureTime >= CAPTURE_INTERVAL_MS) {
         lastCaptureTime = ts;
-        frameBuffer.push(latestLandmarks.map(p => ({ x: p.x, y: p.y, z: p.z })));
+        frameBuffer.push(toSelfieCoords(latestLandmarks));
         document.getElementById("bufferHint").textContent = `전송 대기 프레임: ${frameBuffer.length}`;
       }
     }
@@ -450,7 +457,7 @@ async function sendFrames(frames) {
 
 document.getElementById("captureOneBtn").addEventListener("click", async () => {
   if (!latestLandmarks) return;
-  await sendFrames([latestLandmarks.map(p => ({ x: p.x, y: p.y, z: p.z }))]);
+  await sendFrames([toSelfieCoords(latestLandmarks)]);
 });
 
 document.getElementById("continuousBtn").addEventListener("click", (e) => {
@@ -573,7 +580,7 @@ async function predictLoop() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              landmarks: landmarks.map(p => ({ x: p.x, y: p.y, z: p.z })),
+              landmarks: toSelfieCoords(landmarks),
               mirror
             })
           });

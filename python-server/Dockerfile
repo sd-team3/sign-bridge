@@ -14,9 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# 수집 데이터 / 모델이 컨테이너 재생성에도 남아있도록 볼륨 마운트 대상
-VOLUME ["/app/data", "/app/model"]
-
 EXPOSE 8000
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
