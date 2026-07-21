@@ -302,9 +302,10 @@
 </main>
 
 <script type="module">
-import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs";
+import { HandCameraWidget } from "./js/hand-camera.js";
+import { JamoApiClient } from "./js/api-client.js";
 
-const API = "";  // 같은 오리진에서 서빙되므로 상대경로 사용
+const api = new JamoApiClient(""); // 같은 오리진(python-server가 이 페이지도 서빙)
 
 // ── 공통: 탭 전환 ──────────────────────────────────────
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -319,8 +320,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 // ── 공통: 서버 상태 ────────────────────────────────────
 async function checkHealth() {
   try {
-    const res = await fetch(`${API}/health`);
-    const data = await res.json();
+    const data = await api.health();
     const el = document.getElementById("healthStatus");
     el.textContent = data.model_loaded
       ? `모델 로드됨 (${data.num_classes}개 클래스)`
@@ -334,130 +334,57 @@ checkHealth();
 // ── 공통: 라벨 목록 로딩 ────────────────────────────────
 let LABELS = [];
 async function loadLabels() {
-  const res = await fetch(`${API}/labels`);
-  const data = await res.json();
+  const data = await api.getLabels();
   LABELS = data.labels;
   const sel = document.getElementById("labelSelect");
   sel.innerHTML = LABELS.map(l => `<option value="${l}">${l}</option>`).join("");
 }
 
-// ── 공통: HandLandmarker 초기화 ─────────────────────────
-let handLandmarker = null;
-async function initHandLandmarker() {
-  const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-  );
-  handLandmarker = await HandLandmarker.createFromOptions(vision, {
-    baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-      delegate: "GPU",
-    },
-    runningMode: "VIDEO",
-    numHands: 1,
-  });
-}
-
-function toSelfieCoords(landmarks) {
-  // 기존 collect_data.py는 cv2.flip(frame, 1)로 물리적으로 좌우 반전한 프레임에서
-  // landmark를 뽑았기 때문에, 브라우저에서도 x좌표를 반전해서 같은 좌표계로 맞춘다.
-  // (화면 표시는 CSS transform으로만 뒤집혀 있어서 실제 데이터는 안 뒤집혀 있었음 → 좌우 반대로 인식되던 원인)
-  return landmarks.map(p => ({ x: 1 - p.x, y: p.y, z: p.z }));
-}
-
-function drawLandmarks(ctx, landmarks, w, h, color) {
-  ctx.clearRect(0, 0, w, h);
-  if (!landmarks) return;
-  const HAND_CONNECTIONS = [
-    [0,1],[1,2],[2,3],[3,4],
-    [0,5],[5,6],[6,7],[7,8],
-    [5,9],[9,10],[10,11],[11,12],
-    [9,13],[13,14],[14,15],[15,16],
-    [13,17],[17,18],[18,19],[19,20],
-    [0,17]
-  ];
-  ctx.strokeStyle = color; ctx.lineWidth = 2;
-  HAND_CONNECTIONS.forEach(([a, b]) => {
-    ctx.beginPath();
-    ctx.moveTo(landmarks[a].x * w, landmarks[a].y * h);
-    ctx.lineTo(landmarks[b].x * w, landmarks[b].y * h);
-    ctx.stroke();
-  });
-  ctx.fillStyle = color;
-  landmarks.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x * w, p.y * h, 3, 0, 2 * Math.PI);
-    ctx.fill();
-  });
-}
-
-async function startCamera(videoEl) {
-  const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
-  videoEl.srcObject = stream;
-  await new Promise(resolve => { videoEl.onloadedmetadata = resolve; });
-}
-
 // ═══════════════════════════════════════════════════════
 // 탭 1: 데이터 수집
 // ═══════════════════════════════════════════════════════
-const collectVideo = document.getElementById("collectVideo");
-const collectCanvas = document.getElementById("collectCanvas");
-const collectCtx = collectCanvas.getContext("2d");
-let latestLandmarks = null;
 let continuousOn = false;
 let frameBuffer = [];
-let lastCollectTs = -1;
 let lastCaptureTime = 0;
 const CAPTURE_INTERVAL_MS = 90;   // 연속 저장 시 최소 간격
 const FLUSH_EVERY_MS = 1500;      // 이 주기마다 서버로 배치 전송
 
-async function collectLoop() {
-  if (handLandmarker && collectVideo.readyState >= 2) {
-    const ts = performance.now();
-    if (ts !== lastCollectTs) {
-      lastCollectTs = ts;
-      const result = handLandmarker.detectForVideo(collectVideo, ts);
-      latestLandmarks = result.landmarks && result.landmarks[0] ? result.landmarks[0] : null;
-      drawLandmarks(collectCtx, latestLandmarks, collectCanvas.width, collectCanvas.height, "#3ddc97");
+const collectCam = new HandCameraWidget({
+  videoEl: document.getElementById("collectVideo"),
+  canvasEl: document.getElementById("collectCanvas"),
+  onFrame: (landmarks) => {
+    document.getElementById("captureOneBtn").disabled = !landmarks;
+    document.getElementById("collectHint").textContent = landmarks
+      ? "손 인식됨" : "손이 인식되지 않습니다";
 
-      document.getElementById("captureOneBtn").disabled = !latestLandmarks;
-      document.getElementById("collectHint").textContent = latestLandmarks
-        ? "손 인식됨"
-        : "손이 인식되지 않습니다";
-
-      if (continuousOn && latestLandmarks && ts - lastCaptureTime >= CAPTURE_INTERVAL_MS) {
-        lastCaptureTime = ts;
-        frameBuffer.push(toSelfieCoords(latestLandmarks));
+    if (continuousOn && landmarks) {
+      const now = performance.now();
+      if (now - lastCaptureTime >= CAPTURE_INTERVAL_MS) {
+        lastCaptureTime = now;
+        frameBuffer.push(landmarks);
         document.getElementById("bufferHint").textContent = `전송 대기 프레임: ${frameBuffer.length}`;
       }
     }
-  }
-  requestAnimationFrame(collectLoop);
-}
+  },
+});
 
 async function sendFrames(frames) {
   if (!frames.length) return;
   const label = document.getElementById("labelSelect").value;
   const mirror = document.getElementById("mirrorChk").checked;
-  const res = await fetch(`${API}/collect`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      label, mirror,
-      frames: frames.map(landmarks => ({ landmarks }))
-    })
-  });
-  if (!res.ok) {
-    console.error("collect 실패", await res.text());
-    return;
+  try {
+    const data = await api.collect(label, frames.map(landmarks => ({ landmarks })), mirror);
+    console.log("저장됨:", data);
+    refreshStats();
+  } catch (e) {
+    console.error("collect 실패", e);
   }
-  const data = await res.json();
-  console.log("저장됨:", data);
-  refreshStats();
 }
 
 document.getElementById("captureOneBtn").addEventListener("click", async () => {
-  if (!latestLandmarks) return;
-  await sendFrames([toSelfieCoords(latestLandmarks)]);
+  const landmarks = collectCam.getLatestLandmarks();
+  if (!landmarks) return;
+  await sendFrames([landmarks]);
 });
 
 document.getElementById("continuousBtn").addEventListener("click", (e) => {
@@ -495,8 +422,7 @@ function renderStatsTable(tbodyEl, stats) {
 }
 
 async function refreshStats() {
-  const res = await fetch(`${API}/dataset/stats`);
-  const stats = await res.json();
+  const stats = await api.getDatasetStats();
   renderStatsTable(document.querySelector("#statsTable tbody"), stats);
   renderStatsTable(document.querySelector("#statsTable2 tbody"), stats);
   document.getElementById("totalMerged").textContent = stats.total_merged;
@@ -518,9 +444,7 @@ document.getElementById("mergeBtn").addEventListener("click", async () => {
   const btn = document.getElementById("mergeBtn");
   btn.disabled = true;
   try {
-    const res = await fetch(`${API}/dataset/merge`, { method: "POST" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || "병합 실패");
+    const data = await api.mergeDataset();
     log(`병합 완료: 파일 ${data.merged_files}개, ${data.merged_rows}행`);
     await refreshStats();
   } catch (e) {
@@ -535,9 +459,7 @@ document.getElementById("trainBtn").addEventListener("click", async () => {
   btn.disabled = true;
   btn.textContent = "학습 중...";
   try {
-    const res = await fetch(`${API}/model/train`, { method: "POST" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.detail || "학습 실패");
+    const data = await api.trainModel();
     log(`학습 완료: 샘플 ${data.total_samples}개, 클래스 ${data.num_classes}개, 테스트 정확도 ${(data.test_accuracy * 100).toFixed(1)}%`);
     if (data.low_sample_labels && Object.keys(data.low_sample_labels).length) {
       log(`⚠ 샘플 부족 라벨: ${JSON.stringify(data.low_sample_labels)}`);
@@ -554,66 +476,42 @@ document.getElementById("trainBtn").addEventListener("click", async () => {
 // ═══════════════════════════════════════════════════════
 // 탭 3: 실시간 인식
 // ═══════════════════════════════════════════════════════
-const predictVideo = document.getElementById("predictVideo");
-const predictCanvas = document.getElementById("predictCanvas");
-const predictCtx = predictCanvas.getContext("2d");
 let predictOn = false;
-let predictCameraStarted = false;
-let lastPredictTs = -1;
 let lastPredictCall = 0;
 const PREDICT_INTERVAL_MS = 200;
 
-async function predictLoop() {
-  if (predictOn && handLandmarker && predictVideo.readyState >= 2) {
-    const ts = performance.now();
-    if (ts !== lastPredictTs) {
-      lastPredictTs = ts;
-      const result = handLandmarker.detectForVideo(predictVideo, ts);
-      const landmarks = result.landmarks && result.landmarks[0] ? result.landmarks[0] : null;
-      drawLandmarks(predictCtx, landmarks, predictCanvas.width, predictCanvas.height, "#3ddc97");
-
-      if (landmarks && ts - lastPredictCall >= PREDICT_INTERVAL_MS) {
-        lastPredictCall = ts;
-        const mirror = document.getElementById("predictMirrorChk").checked;
-        try {
-          const res = await fetch(`${API}/predict`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              landmarks: toSelfieCoords(landmarks),
-              mirror
-            })
-          });
-          const data = await res.json();
-          if (res.ok) {
-            document.getElementById("predBig").textContent = data.label;
-            document.getElementById("predConf").textContent = `확신도 ${(data.confidence * 100).toFixed(1)}%`;
-            document.getElementById("top3Box").innerHTML = data.top3.map(t => `
-              <div class="top3-item">
-                <div class="name">${t.label}</div>
-                <div class="bar-bg"><div class="bar-fill" style="width:${t.confidence * 100}%"></div></div>
-                <div>${(t.confidence * 100).toFixed(1)}%</div>
-              </div>
-            `).join("");
-          } else {
-            document.getElementById("predConf").textContent = data.detail || "예측 실패";
-          }
-        } catch (e) { /* 네트워크 순간 오류는 무시하고 다음 프레임 시도 */ }
-      } else if (!landmarks) {
-        document.getElementById("predConf").textContent = "손이 인식되지 않습니다";
-      }
+const predictCam = new HandCameraWidget({
+  videoEl: document.getElementById("predictVideo"),
+  canvasEl: document.getElementById("predictCanvas"),
+  onFrame: async (landmarks) => {
+    if (!predictOn) return;
+    if (!landmarks) {
+      document.getElementById("predConf").textContent = "손이 인식되지 않습니다";
+      return;
     }
-  }
-  requestAnimationFrame(predictLoop);
-}
+    const now = performance.now();
+    if (now - lastPredictCall < PREDICT_INTERVAL_MS) return;
+    lastPredictCall = now;
+
+    const mirror = document.getElementById("predictMirrorChk").checked;
+    try {
+      const data = await api.predict(landmarks, mirror);
+      document.getElementById("predBig").textContent = data.label;
+      document.getElementById("predConf").textContent = `확신도 ${(data.confidence * 100).toFixed(1)}%`;
+      document.getElementById("top3Box").innerHTML = data.top3.map(t => `
+        <div class="top3-item">
+          <div class="name">${t.label}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${t.confidence * 100}%"></div></div>
+          <div>${(t.confidence * 100).toFixed(1)}%</div>
+        </div>
+      `).join("");
+    } catch (e) {
+      document.getElementById("predConf").textContent = e.message || "예측 실패";
+    }
+  },
+});
 
 document.getElementById("togglePredictBtn").addEventListener("click", async (e) => {
-  if (!predictCameraStarted) {
-    await startCamera(predictVideo);
-    predictCanvas.width = predictVideo.videoWidth;
-    predictCanvas.height = predictVideo.videoHeight;
-    predictCameraStarted = true;
-  }
   predictOn = !predictOn;
   e.target.textContent = predictOn ? "인식 중지" : "인식 시작";
   e.target.classList.toggle("toggled", predictOn);
@@ -623,13 +521,8 @@ document.getElementById("togglePredictBtn").addEventListener("click", async (e) 
 (async function init() {
   await loadLabels();
   await refreshStats();
-  await initHandLandmarker();
-
-  await startCamera(collectVideo);
-  collectCanvas.width = collectVideo.videoWidth;
-  collectCanvas.height = collectVideo.videoHeight;
-  collectLoop();
-  predictLoop();
+  await collectCam.start();
+  await predictCam.start();
 })();
 </script>
 </body>
