@@ -1,7 +1,7 @@
 # ==========================================
 # 1. Properties & Config Files (모든 설정 파일 무시)
 # ==========================================
-*.properties
+spring-server/src/main/resources/properties
 *.env
 
 # ==========================================
