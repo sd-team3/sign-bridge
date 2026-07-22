@@ -62,7 +62,7 @@
     </div>
 
     <!-- 자음 섹션 -->
-    <div class="jamo-section" id="section-consonant">
+    <div class="jamo-section active" id="section-consonant">
       <div class="result-count">기본 자음 ${fn:length(consonants)}개</div>
       <div class="jamo-grid" id="grid-consonant">
         <c:forEach var="jamo" items="${consonants}">
@@ -98,25 +98,6 @@
 </main>
 
 <jsp:include page="../includes/footer.jsp" />
-
-<script type="module">
-  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
-
-  const api = new JamoApiClient("http://localhost:8000");
-
-  const cam = new HandCameraWidget({
-    videoEl: document.getElementById("video"),
-    canvasEl: document.getElementById("canvas"),
-    onFrame: async (landmarks) => {
-      if (!landmarks) return;
-      const result = await api.predict(landmarks, false);
-      document.getElementById("result").textContent = result.label;
-    },
-  });
-
-  await cam.start();
-</script>
 
 <script>
 // 탭 전환
@@ -184,6 +165,29 @@ document.getElementById('jdClose').addEventListener('click', () => {
     document.getElementById('jdCamPlaceholder').style.display = 'flex';
   }
 });
+</script>
+<script type="module">
+  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
+  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
+
+  const api = new JamoApiClient("http://localhost:8000");
+
+  const cam = new HandCameraWidget({
+    videoEl: document.getElementById("video"),
+    canvasEl: document.getElementById("canvas"),
+    onFrame: async (landmarks) => {
+      if (!landmarks) return;
+      const result = await api.predict(landmarks, false);
+      document.getElementById("result").textContent = result.label;
+    },
+  });
+
+  let started = false;
+  document.getElementById("jdCam").addEventListener("click", async () => {
+    if (started) return;
+    started = true;
+    await cam.start();
+  });
 </script>
 
 </body>
