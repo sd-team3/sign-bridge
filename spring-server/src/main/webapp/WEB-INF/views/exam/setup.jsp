@@ -20,7 +20,7 @@
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:28px;">
       <div>
         <h1 style="font-size:26px; font-weight:900; letter-spacing:-0.4px;">📝 수어 시험</h1>
-        <p style="font-size:15px; font-weight:500; color:var(--text-sub); margin-top:6px;">방식과 범위를 고르고 시험을 시작하세요.</p>
+        <p style="font-size:15px; font-weight:500; color:var(--text-sub); margin-top:6px;">원하는 방식과 문제 수를 고른 후, 실력을 테스트하세요.</p>
       </div>
     </div>
 

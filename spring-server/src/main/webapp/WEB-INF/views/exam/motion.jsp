@@ -63,13 +63,16 @@
             <span class="badge badge-primary" id="cam-acc-badge" style="font-size:14px; padding:8px 16px; display:none; margin-top:10px;"></span>
           </div>
           <div class="cam-right-controls">
+            <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 정답 제출</button>
             <button class="btn btn-ghost btn-sm" onclick="resetCamResult()">초기화</button>
           </div>
-          <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 정답 제출</button>
+          <div class="cam-history">
+            <div class="cam-history-label">🖐️ 인식 기록</div>
+            <ul class="cam-history-list" id="cam-history-list"></ul>
+          </div>
         </div>
       </div>
     </div>
-
   </div>
 </main>
 
