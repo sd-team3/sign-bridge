@@ -59,16 +59,13 @@
           <div class="cam-result-panel">
             <div class="cam-rlabel">AI 인식 결과</div>
             <div class="cam-rword" id="cam-result-word">— 대기 중 —</div>
-            <div class="cam-rconf" id="cam-result-conf">카메라를 시작하면 실시간으로 인식합니다.</div>
+            <div class="cam-rconf" id="cam-result-conf">실시간으로 인식합니다.</div>
             <span class="badge badge-primary" id="cam-acc-badge" style="font-size:14px; padding:8px 16px; display:none; margin-top:10px;"></span>
           </div>
-
           <div class="cam-right-controls">
-            <button class="btn btn-primary" style="justify-content:center; font-size:14px;" onclick="runCamRecognition()">📷 카메라 시작</button>
             <button class="btn btn-ghost btn-sm" onclick="resetCamResult()">초기화</button>
           </div>
-
-          <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 이 동작으로 제출</button>
+          <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 정답 제출</button>
         </div>
       </div>
     </div>
