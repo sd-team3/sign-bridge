@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 게시판</title>
+<link rel="stylesheet" href="/resources/css/shared.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <div class="nav-item has-sub">
+      <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="learn_basic.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔤</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">기초 어휘</span>
+              <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
+            </span>
+          </a>
+          <a href="learn_list.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🚨</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">상황별 수어 학습</span>
+              <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
+            </span>
+          </a>
+          <a href="learn_word.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔍</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">개별 어휘 학습</span>
+              <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="exam_setup.html">시험</a>
+    <div class="nav-item has-sub">
+      <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="play_chain.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔗</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 끝말잇기</span>
+              <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
+            </span>
+          </a>
+          <a href="play_defense.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🎯</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 디펜스</span>
+              <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+    <div class="board-top">
+      <div>
+        <h1>💬 게시판</h1>
+        <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">질문, 답변, 수어 단어 오류 신고, 추가 건의를 자유롭게 올려주세요.</p>
+      </div>
+    </div>
+
+    <div class="board-layout">
+      <!-- 메인 -->
+      <div>
+        <div class="search-row">
+          <input type="text" class="search-field" placeholder="게시글 검색...">
+          <button class="btn btn-primary btn-sm">검색</button>
+        </div>
+
+        <div class="filter-tabs">
+          <button class="filter-tab active">전체</button>
+          <button class="filter-tab">질문</button>
+          <button class="filter-tab">정보</button>
+          <button class="filter-tab">⚠️ 오류신고</button>
+          <button class="filter-tab">➕ 단어건의</button>
+        </div>
+
+        <div class="post-list">
+          <div class="post-item" onclick="location.href='board_detail.html'">
+            <div class="post-badge-col"><span class="badge badge-primary">질문</span></div>
+            <div class="post-main">
+              <div class="post-title">'감사합니다' 수어 동작이 계속 인식이 안 돼요</div>
+              <div class="post-meta"><span>홍길동</span><span>댓글 3</span></div>
+            </div>
+            <div class="post-right"><div class="post-date">2025.06.25</div><div class="post-views">조회 48</div></div>
+          </div>
+          <div class="post-item" onclick="location.href='board_detail.html'">
+            <div class="post-badge-col"><span class="badge badge-danger">오류</span></div>
+            <div class="post-main">
+              <div class="post-title">'버스' 모범 동작 영상이 잘못된 단어로 연결됩니다</div>
+              <div class="post-meta"><span>이수진</span><span>댓글 1</span></div>
+            </div>
+            <div class="post-right"><div class="post-date">2025.06.24</div><div class="post-views">조회 32</div></div>
+          </div>
+          <div class="post-item" onclick="location.href='board_detail.html'">
+            <div class="post-badge-col"><span class="badge badge-primary">건의</span></div>
+            <div class="post-main">
+              <div class="post-title">'지하철' 단어 추가해 주세요!</div>
+              <div class="post-meta"><span>김민준</span><span>댓글 5</span></div>
+            </div>
+            <div class="post-right"><div class="post-date">2025.06.24</div><div class="post-views">조회 67</div></div>
+          </div>
+          <div class="post-item" onclick="location.href='board_detail.html'">
+            <div class="post-badge-col"><span class="badge badge-primary">정보</span></div>
+            <div class="post-main">
+              <div class="post-title">수어 학습 팁 - 손가락 유연성 높이는 방법 공유</div>
+              <div class="post-meta"><span>박지우</span><span>댓글 12</span></div>
+            </div>
+            <div class="post-right"><div class="post-date">2025.06.23</div><div class="post-views">조회 154</div></div>
+          </div>
+          <div class="post-item" onclick="location.href='board_detail.html'">
+            <div class="post-badge-col"><span class="badge badge-primary">질문</span></div>
+            <div class="post-main">
+              <div class="post-title">기초 어휘 다 끝내면 다음은 어떤 순서로 공부하면 좋을까요?</div>
+              <div class="post-meta"><span>최준서</span><span>댓글 7</span></div>
+            </div>
+            <div class="post-right"><div class="post-date">2025.06.22</div><div class="post-views">조회 89</div></div>
+          </div>
+          <div class="post-item" onclick="location.href='board_detail.html'">
+            <div class="post-badge-col"><span class="badge badge-danger">오류</span></div>
+            <div class="post-main">
+              <div class="post-title">'경찰' 단어 인식률이 너무 낮아요 (5번 시도 전부 실패)</div>
+              <div class="post-meta"><span>정하린</span><span>댓글 2</span></div>
+            </div>
+            <div class="post-right"><div class="post-date">2025.06.21</div><div class="post-views">조회 41</div></div>
+          </div>
+        </div>
+
+        <div class="pagination">
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">→</button>
+        </div>
+      </div>
+
+      <!-- 사이드바 -->
+      <div class="board-sidebar">
+        <div class="sidebar-box">
+          <div class="sidebar-box-header">글쓰기</div>
+          <div class="sidebar-write-btns">
+            <a href="board_write.html" class="btn btn-primary btn-sm">✏️ 일반 글쓰기</a>
+            <a href="board_report.html" class="btn btn-ghost btn-sm">⚠️ 오류 신고</a>
+            <a href="board_suggest.html" class="btn btn-ghost btn-sm">➕ 단어 건의</a>
+          </div>
+        </div>
+        <div class="sidebar-box">
+          <div class="sidebar-box-header">게시판 현황</div>
+          <div class="sidebar-stats">
+            <div class="stat-row"><span class="lbl">전체 게시글</span><span class="val">247</span></div>
+            <div class="stat-row"><span class="lbl">오류 신고</span><span class="val">18</span></div>
+            <div class="stat-row"><span class="lbl">단어 건의</span><span class="val">43</span></div>
+            <div class="stat-row"><span class="lbl">해결된 이슈</span><span class="val">31</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>
