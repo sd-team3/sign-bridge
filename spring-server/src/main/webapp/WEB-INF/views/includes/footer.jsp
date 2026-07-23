@@ -1,0 +1,1 @@
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
