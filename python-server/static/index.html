@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jamo KSL 콘솔</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e1613;
+    --panel: #141f1a;
+    --panel-border: #223029;
+    --ink: #eaf2ee;
+    --ink-dim: #93a89e;
+    --accent: #3ddc97;
+    --accent-dim: #235c44;
+    --warn: #e0a63a;
+    --danger: #e0603a;
+    --mono: 'IBM Plex Mono', monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans KR', sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 22px 28px 14px;
+    border-bottom: 1px solid var(--panel-border);
+  }
+  header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  header h1 span { color: var(--accent); }
+  header .status {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  nav {
+    display: flex;
+    gap: 4px;
+    padding: 14px 28px 0;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  nav button.active {
+    color: var(--ink);
+    border-bottom: 2px solid var(--accent);
+  }
+  main {
+    padding: 20px 28px 60px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .tab { display: none; }
+  .tab.active { display: block; }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 18px;
+  }
+  @media (max-width: 880px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .panel h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .video-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  video, canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  video { transform: scaleX(-1); }
+  canvas { transform: scaleX(-1); }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .row + .row { margin-top: 12px; }
+  select, button.btn {
+    font-family: 'IBM Plex Sans KR', sans-serif;
+    font-size: 13px;
+    background: #1a2620;
+    color: var(--ink);
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  button.btn:hover { border-color: var(--accent); }
+  button.btn.primary {
+    background: var(--accent);
+    color: #06130d;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  button.btn.primary:hover { filter: brightness(1.08); }
+  button.btn.danger { border-color: var(--danger); color: var(--danger); }
+  button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.btn.toggled {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #1a0d08;
+    font-weight: 600;
+  }
+  label.chk {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--ink-dim);
+  }
+  .muted { color: var(--ink-dim); font-size: 13px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td {
+    text-align: left; padding: 5px 6px;
+    border-bottom: 1px solid var(--panel-border);
+    font-family: var(--mono);
+  }
+  th { color: var(--ink-dim); font-weight: 500; }
+  .bar-cell { position: relative; }
+  .bar-bg { background: #1a2620; border-radius: 3px; height: 6px; width: 100%; overflow: hidden; }
+  .bar-fill { background: var(--accent); height: 100%; }
+  .pending .bar-fill { background: var(--warn); }
+  .scroll-table { max-height: 340px; overflow-y: auto; }
+  .stat-line { display: flex; justify-content: space-between; margin-bottom: 4px; font-family: var(--mono); font-size: 13px; }
+  .stat-line b { color: var(--accent); }
+  .log {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: #0a100d;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 12px;
+    white-space: pre-wrap;
+    max-height: 260px;
+    overflow-y: auto;
+    color: var(--ink-dim);
+  }
+  .predict-box {
+    text-align: center;
+    padding: 20px 0;
+  }
+  .predict-box .big {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 56px;
+    color: var(--accent);
+  }
+  .predict-box .conf { color: var(--ink-dim); font-family: var(--mono); }
+  .top3-item { display: flex; align-items: center; gap: 10px; margin: 6px 0; font-family: var(--mono); font-size: 13px; }
+  .top3-item .name { width: 26px; }
+  .top3-item .bar-bg { flex: 1; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 11px;
+    padding: 2px 7px; border-radius: 20px; border: 1px solid var(--panel-border); color: var(--ink-dim);
+  }
+  .badge.ok { color: var(--accent); border-color: var(--accent-dim); }
+  .badge.warn { color: var(--warn); border-color: var(--warn); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Jamo <span>KSL</span> 콘솔</h1>
+  <div class="status" id="healthStatus">서버 상태 확인 중...</div>
+</header>
+
+<nav>
+  <button class="tab-btn active" data-tab="collect">1. 데이터 수집</button>
+  <button class="tab-btn" data-tab="train">2. 병합 &amp; 학습</button>
+  <button class="tab-btn" data-tab="predict">3. 실시간 인식</button>
+</nav>
+
+<main>
+
+  <!-- ── 탭 1: 데이터 수집 ─────────────────────────── -->
+  <section class="tab active" id="tab-collect">
+    <div class="grid">
+      <div class="panel">
+        <h2>웹캠 캡처</h2>
+        <div class="video-wrap">
+          <video id="collectVideo" autoplay playsinline muted></video>
+          <canvas id="collectCanvas"></canvas>
+        </div>
+        <div class="row">
+          <label class="muted">라벨</label>
+          <select id="labelSelect"></select>
+          <label class="chk"><input type="checkbox" id="mirrorChk" /> 왼손 모드(반전)</label>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="captureOneBtn">1개 저장</button>
+          <button class="btn" id="continuousBtn">연속 저장 시작</button>
+          <span class="muted" id="collectHint">손이 인식되면 버튼이 활성화됩니다</span>
+        </div>
+        <div class="row">
+          <span class="muted" id="bufferHint">전송 대기 프레임: 0</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>현재 샘플 수 <button class="btn" id="refreshStatsBtn1" style="float:right;font-size:11px;padding:4px 8px;">새로고침</button></h2>
+        <div class="scroll-table">
+          <table id="statsTable">
+            <thead><tr><th>라벨</th><th>병합됨</th><th>대기</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 탭 2: 병합 & 학습 ─────────────────────────── -->
+  <section class="tab" id="tab-train">
+    <div class="grid">
+      <div class="panel">
+        <h2>파이프라인</h2>
+        <div class="stat-line"><span>병합된 총 샘플</span><b id="totalMerged">0</b></div>
+        <div class="stat-line"><span>병합 대기 중인 샘플</span><b id="totalPending">0</b></div>
+        <div class="stat-line"><span>대기 파일 수</span><b id="pendingFiles">0</b></div>
+
+        <div class="row" style="margin-top:16px;">
+          <button class="btn primary" id="mergeBtn">대기 데이터 병합</button>
+          <button class="btn primary" id="trainBtn">모델 학습 실행</button>
+          <button class="btn" id="refreshStatsBtn2">현황 새로고침</button>
+        </div>
+        <p class="muted" style="margin-top:10px;">
+          병합은 <code>data/incoming/*.csv</code>를 <code>data/landmarks.csv</code>에 합칩니다.
+          학습은 <code>landmarks.csv</code> 전체로 모델을 다시 학습하고, 서버 재시작 없이 바로 반영합니다.
+        </p>
+        <div class="log" id="trainLog">여기에 실행 로그가 표시됩니다.</div>
+      </div>
+
+      <div class="panel">
+        <h2>라벨별 샘플 수</h2>
+        <div class="scroll-table">
+          <table id="statsTable2">
+            <thead><tr><th>라벨</th><th>병합됨</th><th>대기</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 탭 3: 실시간 인식 ─────────────────────────── -->
+  <section class="tab" id="tab-predict">
+    <div class="grid">
+      <div class="panel">
+        <h2>웹캠 인식</h2>
+        <div class="video-wrap">
+          <video id="predictVideo" autoplay playsinline muted></video>
+          <canvas id="predictCanvas"></canvas>
+        </div>
+        <div class="row">
+          <label class="chk"><input type="checkbox" id="predictMirrorChk" /> 왼손 모드(반전)</label>
+          <button class="btn" id="togglePredictBtn">인식 시작</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>예측 결과</h2>
+        <div class="predict-box">
+          <div class="big" id="predBig">-</div>
+          <div class="conf" id="predConf">대기 중</div>
+        </div>
+        <div id="top3Box"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+import { HandCameraWidget } from "./js/hand-camera.js";
+import { JamoApiClient } from "./js/api-client.js";
+
+const api = new JamoApiClient(""); // 같은 오리진(python-server가 이 페이지도 서빙)
+
+// ── 공통: 탭 전환 ──────────────────────────────────────
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+// ── 공통: 서버 상태 ────────────────────────────────────
+async function checkHealth() {
+  try {
+    const data = await api.health();
+    const el = document.getElementById("healthStatus");
+    el.textContent = data.model_loaded
+      ? `모델 로드됨 (${data.num_classes}개 클래스)`
+      : "모델 없음 - 데이터 수집 후 학습이 필요합니다";
+  } catch (e) {
+    document.getElementById("healthStatus").textContent = "서버 연결 실패";
+  }
+}
+checkHealth();
+
+// ── 공통: 라벨 목록 로딩 ────────────────────────────────
+let LABELS = [];
+async function loadLabels() {
+  const data = await api.getLabels();
+  LABELS = data.labels;
+  const sel = document.getElementById("labelSelect");
+  sel.innerHTML = LABELS.map(l => `<option value="${l}">${l}</option>`).join("");
+}
+
+// ═══════════════════════════════════════════════════════
+// 탭 1: 데이터 수집
+// ═══════════════════════════════════════════════════════
+let continuousOn = false;
+let frameBuffer = [];
+let lastCaptureTime = 0;
+const CAPTURE_INTERVAL_MS = 90;   // 연속 저장 시 최소 간격
+const FLUSH_EVERY_MS = 1500;      // 이 주기마다 서버로 배치 전송
+
+const collectCam = new HandCameraWidget({
+  videoEl: document.getElementById("collectVideo"),
+  canvasEl: document.getElementById("collectCanvas"),
+  onFrame: (landmarks) => {
+    document.getElementById("captureOneBtn").disabled = !landmarks;
+    document.getElementById("collectHint").textContent = landmarks
+      ? "손 인식됨" : "손이 인식되지 않습니다";
+
+    if (continuousOn && landmarks) {
+      const now = performance.now();
+      if (now - lastCaptureTime >= CAPTURE_INTERVAL_MS) {
+        lastCaptureTime = now;
+        frameBuffer.push(landmarks);
+        document.getElementById("bufferHint").textContent = `전송 대기 프레임: ${frameBuffer.length}`;
+      }
+    }
+  },
+});
+
+async function sendFrames(frames) {
+  if (!frames.length) return;
+  const label = document.getElementById("labelSelect").value;
+  const mirror = document.getElementById("mirrorChk").checked;
+  try {
+    const data = await api.collect(label, frames.map(landmarks => ({ landmarks })), mirror);
+    console.log("저장됨:", data);
+    refreshStats();
+  } catch (e) {
+    console.error("collect 실패", e);
+  }
+}
+
+document.getElementById("captureOneBtn").addEventListener("click", async () => {
+  const landmarks = collectCam.getLatestLandmarks();
+  if (!landmarks) return;
+  await sendFrames([landmarks]);
+});
+
+document.getElementById("continuousBtn").addEventListener("click", (e) => {
+  continuousOn = !continuousOn;
+  e.target.textContent = continuousOn ? "연속 저장 중지" : "연속 저장 시작";
+  e.target.classList.toggle("toggled", continuousOn);
+  if (!continuousOn && frameBuffer.length) {
+    sendFrames(frameBuffer);
+    frameBuffer = [];
+    document.getElementById("bufferHint").textContent = "전송 대기 프레임: 0";
+  }
+});
+
+setInterval(() => {
+  if (continuousOn && frameBuffer.length) {
+    const toSend = frameBuffer;
+    frameBuffer = [];
+    document.getElementById("bufferHint").textContent = "전송 대기 프레임: 0";
+    sendFrames(toSend);
+  }
+}, FLUSH_EVERY_MS);
+
+// ── 통계 테이블 ─────────────────────────────────────────
+function renderStatsTable(tbodyEl, stats) {
+  const maxVal = Math.max(1, ...LABELS.map(l => Math.max(stats.merged_counts[l] || 0, stats.pending_counts[l] || 0)));
+  tbodyEl.innerHTML = LABELS.map(label => {
+    const merged = stats.merged_counts[label] || 0;
+    const pending = stats.pending_counts[label] || 0;
+    return `<tr>
+      <td>${label}</td>
+      <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${(merged / maxVal) * 100}%"></div></div> ${merged}</td>
+      <td class="bar-cell pending"><div class="bar-bg"><div class="bar-fill" style="width:${(pending / maxVal) * 100}%"></div></div> ${pending}</td>
+    </tr>`;
+  }).join("");
+}
+
+async function refreshStats() {
+  const stats = await api.getDatasetStats();
+  renderStatsTable(document.querySelector("#statsTable tbody"), stats);
+  renderStatsTable(document.querySelector("#statsTable2 tbody"), stats);
+  document.getElementById("totalMerged").textContent = stats.total_merged;
+  document.getElementById("totalPending").textContent = stats.total_pending;
+  document.getElementById("pendingFiles").textContent = stats.pending_files;
+}
+document.getElementById("refreshStatsBtn1").addEventListener("click", refreshStats);
+document.getElementById("refreshStatsBtn2").addEventListener("click", refreshStats);
+
+// ═══════════════════════════════════════════════════════
+// 탭 2: 병합 & 학습
+// ═══════════════════════════════════════════════════════
+const trainLog = document.getElementById("trainLog");
+function log(text) {
+  trainLog.textContent = `[${new Date().toLocaleTimeString()}] ${text}\n` + trainLog.textContent;
+}
+
+document.getElementById("mergeBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("mergeBtn");
+  btn.disabled = true;
+  try {
+    const data = await api.mergeDataset();
+    log(`병합 완료: 파일 ${data.merged_files}개, ${data.merged_rows}행`);
+    await refreshStats();
+  } catch (e) {
+    log(`병합 실패: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById("trainBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("trainBtn");
+  btn.disabled = true;
+  btn.textContent = "학습 중...";
+  try {
+    const data = await api.trainModel();
+    log(`학습 완료: 샘플 ${data.total_samples}개, 클래스 ${data.num_classes}개, 테스트 정확도 ${(data.test_accuracy * 100).toFixed(1)}%`);
+    if (data.low_sample_labels && Object.keys(data.low_sample_labels).length) {
+      log(`⚠ 샘플 부족 라벨: ${JSON.stringify(data.low_sample_labels)}`);
+    }
+    await checkHealth();
+  } catch (e) {
+    log(`학습 실패: ${e.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "모델 학습 실행";
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// 탭 3: 실시간 인식
+// ═══════════════════════════════════════════════════════
+let predictOn = false;
+let lastPredictCall = 0;
+const PREDICT_INTERVAL_MS = 200;
+
+const predictCam = new HandCameraWidget({
+  videoEl: document.getElementById("predictVideo"),
+  canvasEl: document.getElementById("predictCanvas"),
+  onFrame: async (landmarks) => {
+    if (!predictOn) return;
+    if (!landmarks) {
+      document.getElementById("predConf").textContent = "손이 인식되지 않습니다";
+      return;
+    }
+    const now = performance.now();
+    if (now - lastPredictCall < PREDICT_INTERVAL_MS) return;
+    lastPredictCall = now;
+
+    const mirror = document.getElementById("predictMirrorChk").checked;
+    try {
+      const data = await api.predict(landmarks, mirror);
+      document.getElementById("predBig").textContent = data.label;
+      document.getElementById("predConf").textContent = `확신도 ${(data.confidence * 100).toFixed(1)}%`;
+      document.getElementById("top3Box").innerHTML = data.top3.map(t => `
+        <div class="top3-item">
+          <div class="name">${t.label}</div>
+          <div class="bar-bg"><div class="bar-fill" style="width:${t.confidence * 100}%"></div></div>
+          <div>${(t.confidence * 100).toFixed(1)}%</div>
+        </div>
+      `).join("");
+    } catch (e) {
+      document.getElementById("predConf").textContent = e.message || "예측 실패";
+    }
+  },
+});
+
+document.getElementById("togglePredictBtn").addEventListener("click", async (e) => {
+  predictOn = !predictOn;
+  e.target.textContent = predictOn ? "인식 중지" : "인식 시작";
+  e.target.classList.toggle("toggled", predictOn);
+});
+
+// ── 초기화 ──────────────────────────────────────────────
+(async function init() {
+  await loadLabels();
+  await refreshStats();
+  await collectCam.start();
+  await predictCam.start();
+})();
+</script>
+</body>
+</html>

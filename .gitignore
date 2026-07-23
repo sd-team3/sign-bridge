@@ -1,28 +1,46 @@
-# Compiled class file
+# ==========================================
+# 1. Properties & Config Files (모든 설정 파일 무시)
+# ==========================================
+spring-server/src/main/resources/properties
+*.env
+
+# ==========================================
+# 2. Java / Spring (Maven Build)
+# ==========================================
+spring-server/target/
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# ==========================================
+# 3. Python / AI Data & Models
+# ==========================================
+python-server/__pycache__/
+python-server/*.pyc
+python-server/.pytest_cache/
+python-server/venv/
+python-server/env/
+python-server/.venv/
 
-# Config files with sensitive info
-*.properties
-!application.properties.example1
+# 학습 데이터 및 대용량 모델 파일
+python-server/data/
+python-server/model/*.h5
+python-server/model/*.pth
+python-server/model/*.onnx
+python-server/model/*.pkl
+
+# ==========================================
+# 4. IDE / OS / System
+# ==========================================
+.idea/
+.vscode/
+*.swp
+*.iml
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# 5. Logs & Temp Files
+# ==========================================
+*.log
+*.tmp

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 수어 디펜스</title>
+<link rel="stylesheet" href="/resources/css/shared.css">
+</head>
+<body>
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <a href="learn_basic.html">학습</a>
+    <a href="play_chain.html" class="active">플레이존</a>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<main>
+  <div class="container page-body">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h1 style="font-size:22px; font-weight:900; letter-spacing:-0.5px;">🎯 수어 디펜스</h1>
+        <p style="font-size:13px; color:var(--text-sub); margin-top:3px;">떨어지는 단어를 수어로 막아내세요. 바닥에 닿으면 목숨이 줄어듭니다.</p>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a href="play_chain.html" class="btn btn-ghost btn-sm">끝말잇기</a>
+        <a href="index.html" class="btn btn-ghost btn-sm">← 나가기</a>
+      </div>
+    </div>
+
+    <div class="game-shell">
+      <div class="defense-main">
+        <div class="status-bar">
+          <div class="status-cell"><div class="status-num">Lv.3</div><div class="status-lbl">레벨</div></div>
+          <div class="status-cell"><div class="status-num">23</div><div class="status-lbl">막은 단어</div></div>
+          <div class="status-cell"><div class="status-num">2</div><div class="status-lbl">놓친 단어</div></div>
+          <button class="pause-btn">⏸ 일시정지</button>
+        </div>
+
+        <div class="arena">
+          <div class="arena-guide">수어로 단어를 막아내세요</div>
+          <div class="falling-word targeted" style="left:12%; top:80px; animation-duration:4s;">사과</div>
+          <div class="falling-word" style="left:36%; top:160px; animation-duration:3.5s;">병원</div>
+          <div class="falling-word" style="left:60%; top:50px; animation-duration:5s;">자동차</div>
+          <div class="falling-word" style="left:78%; top:220px; animation-duration:4.5s;">감사합니다</div>
+          <div class="ground-line"></div>
+        </div>
+
+        <div class="cam-zone">
+          <div class="cam-preview">✋</div>
+          <div class="cam-info">
+            <div class="recog-lbl">AI 인식 결과</div>
+            <div class="recog-word">사과</div>
+            <div class="accuracy-row">
+              <div class="acc-bar"><div class="acc-fill"></div></div>
+              <div class="acc-pct">91%</div>
+            </div>
+          </div>
+          <button class="cam-btn">📷<br>카메라<br>시작</button>
+        </div>
+      </div>
+
+      <div class="game-sidebar">
+        <div class="sidebar-section">
+          <h4>남은 목숨</h4>
+          <div class="life-row">
+            <span class="life-icon">❤️</span>
+            <span class="life-icon">❤️</span>
+            <span class="life-icon lost">❤️</span>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <h4>현재 점수</h4>
+          <div class="score-big">2,340</div>
+          <div class="score-sub">이번 판 최고 기록 진행 중</div>
+        </div>
+        <div class="sidebar-section" style="flex:1;">
+          <h4>다음 등장 단어</h4>
+          <div class="next-list">
+            <div class="next-item">
+              <span class="next-num">1</span>
+              🏠 집
+              <span class="next-speed">보통</span>
+            </div>
+            <div class="next-item">
+              <span class="next-num">2</span>
+              🚌 버스
+              <span class="next-speed">빠름</span>
+            </div>
+            <div class="next-item">
+              <span class="next-num">3</span>
+              💧 물
+              <span class="next-speed">보통</span>
+            </div>
+          </div>
+        </div>
+        <div class="sidebar-ctrl">
+          <button class="btn btn-danger btn-sm">게임 종료</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignBridge - 로그인</title>
+<link rel="stylesheet" href="/resources/css/shared.css">
+</head>
+<body class="page-login">
+
+<header>
+  <div class="logo">✋ SignBridge</div>
+  <nav>
+    <a href="index.html">홈</a>
+    <div class="nav-item has-sub">
+      <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="learn_basic.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔤</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">기초 어휘</span>
+              <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
+            </span>
+          </a>
+          <a href="learn_list.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🚨</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">상황별 수어 학습</span>
+              <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
+            </span>
+          </a>
+          <a href="learn_word.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔍</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">개별 어휘 학습</span>
+              <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="exam_setup.html">시험</a>
+    <div class="nav-item has-sub">
+      <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-inner">
+          <a href="play_chain.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔗</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 끝말잇기</span>
+              <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
+            </span>
+          </a>
+          <a href="play_defense.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🎯</span>
+            <span class="nav-dropdown-text">
+              <span class="nav-dropdown-title">수어 디펜스</span>
+              <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <a href="board_list.html">게시판</a>
+    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+  </nav>
+</header>
+
+<div class="auth-wrap">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="logo-text">✋ SignBridge</div>
+      <p>수어 학습을 계속하려면 로그인하세요.</p>
+    </div>
+
+    <h2>로그인</h2>
+
+    <form>
+      <div class="form-group">
+        <label class="form-label" for="email">이메일</label>
+        <input type="email" id="email" class="form-input" placeholder="example@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">비밀번호</label>
+        <input type="password" id="password" class="form-input" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">로그인</button>
+    </form>
+
+    <div class="auth-footer">
+      아직 계정이 없으신가요? <a href="auth_register.html">회원가입</a>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+</body>
+</html>
