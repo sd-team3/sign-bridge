@@ -1,0 +1,11 @@
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\config\SecurityConfig.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\controller\IndexController.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\controller\MemberAPIController.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\controller\MemberController.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\controller\OAuthController.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\mapper\MemberMapper.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\security\MemberUserDetailsService.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\service\MemberService.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\service\OAuthService.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\vo\EmailCheckResponse.java
+C:\soldesk\Sign-Bridge\src\main\java\com\soldesk\vo\MemberVO.java
