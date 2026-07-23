@@ -48,6 +48,9 @@
             <div id="jdImageText">이미지 준비 중</div>
           </div>
         </div>
+        <div style="font-size:11px; color:var(--text-muted); text-align:center; padding:6px;">
+          출처: 국립국어원 한국수어사전(sldict.korean.go.kr)
+        </div>
       </div>
       <div class="jd-panel">
         <div class="jd-header"><span>내 동작 인식</span></div>
