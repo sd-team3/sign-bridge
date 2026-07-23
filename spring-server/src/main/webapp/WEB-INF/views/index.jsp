@@ -15,7 +15,7 @@
   </a>
   <div class="nav-links">
     <div class="nav-item has-sub">
-      <a href="learn_basic.html" class="nav-link">학습 <span class="nav-caret">▾</span></a>
+      <a href="learn_basic.html" class="nav-link">학습<span class="nav-caret">▾</span></a>
       <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
           <a href="learn_basic.html" class="nav-dropdown-link">
