@@ -33,7 +33,7 @@
       </div>
       <div style="display:flex; gap:12px; align-items:center;">
         <span style="font-size:14px; font-weight:700; color:var(--text-sub);">정답 <span id="cam-correct" style="color:var(--primary);">0</span> / 오답 <span id="cam-wrong" style="color:var(--danger);">0</span></span>
-        <a href="exam_result.html" class="btn btn-ghost btn-sm">종료</a>
+        <a href="/exam/result" class="btn btn-ghost btn-sm">종료</a>
       </div>
     </div>
 
@@ -46,10 +46,11 @@
         <div class="cam-target-label">아래 단어를 수어로 표현하세요</div>
         <div class="cam-target-word" id="cam-target-word">🚑 구급차</div>
       </div>
-      <div class="cam-preview-area">
-        <span>✋</span>
-        <p>카메라를 켜고 수어를 표현하세요</p>
+      <div class="cam-wrap">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
       </div>
+      <div id="result" style="font-size: large;">-</div>
       <div class="cam-result-row">
         <div class="cam-result-main">
           <div class="cam-rlabel">AI 인식 결과</div>
@@ -72,8 +73,31 @@
 
 <jsp:include page="../includes/footer.jsp" />
 
+<script type="module">
+  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
+  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
+
+  const api = new JamoApiClient("http://localhost:8000");
+
+  const cam = new HandCameraWidget({
+    videoEl: document.getElementById("video"),
+    canvasEl: document.getElementById("canvas"),
+    onFrame: async (landmarks) => {
+      if (!landmarks) return;
+      const result = await api.predict(landmarks, false);
+      document.getElementById("result").textContent = result.label;
+    },
+  });
+
+  await cam.start();
+</script>
+
 <script>
-const totalCount = 10;
+const params = new URLSearchParams(location.search);
+const examMode = params.get('mode');
+const countParam = parseInt(params.get('count'), 10);
+const total = isNaN(countParam) ? 10 : countParam;
+const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
 const camBank = [
   { word:'구급차', emoji:'🚑', category:'비상 어휘' },
   { word:'소방서', emoji:'🚒', category:'비상 어휘' },
@@ -96,7 +120,7 @@ startTimer('cam-timer', 600, finishExam);
 
 function loadCamQuestion(idx) {
   const c = camBank[idx % camBank.length];
-  document.getElementById('cam-target-word').textContent = `${c.emoji} ${c.word}`;
+  document.getElementById('cam-target-word').textContent = `\${c.emoji} \${c.word}`;
   resetCamResult();
 }
 
@@ -112,7 +136,7 @@ function runCamRecognition() {
   currentCamCorrect = Math.random() < 0.8;
   const conf = Math.floor(70 + Math.random() * 29);
   document.getElementById('cam-result-word').textContent = currentCamCorrect ? target.word : '인식 실패';
-  document.getElementById('cam-result-conf').textContent = `신뢰도 ${conf}%`;
+  document.getElementById('cam-result-conf').textContent = `신뢰도 \${conf}%`;
   const badge = document.getElementById('cam-acc-badge');
   badge.style.display = 'inline-block';
   badge.textContent = conf + '%';
@@ -122,10 +146,10 @@ function runCamRecognition() {
 
 function updateCamProgress(cur, total) {
   const pct = Math.round((cur / total) * 100);
-  document.getElementById('cam-prog-text').textContent = `수어 인식 ${cur} / ${total}`;
+  document.getElementById('cam-prog-text').textContent = `수어 인식 \${cur} / \${total}`;
   document.getElementById('cam-prog-pct').textContent = pct + '%';
   document.getElementById('cam-prog-fill').style.width = pct + '%';
-  document.getElementById('cam-q-badge').textContent = `문제 ${cur}`;
+  document.getElementById('cam-q-badge').textContent = `문제 \${cur}`;
 }
 
 function startTimer(elemId, seconds, onEnd) {
@@ -166,7 +190,7 @@ function submitCam() {
 function finishExam() {
   clearInterval(timerInterval);
   // 채점 결과를 결과 페이지로 넘기는 로직은 추후 연결 예정
-  location.href = 'exam_result.html';
+  location.href = '/exam/result';
 }
 </script>
 </body>

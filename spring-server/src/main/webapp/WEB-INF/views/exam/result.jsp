@@ -60,9 +60,9 @@
     </div>
 
     <div class="result-actions">
-      <a href="exam_setup.html" class="btn btn-ghost btn-lg">⚙️ 다시 설정</a>
-      <button class="btn btn-ghost btn-lg">📋 틀린 단어만 다시 풀기</button>
-      <a href="exam_progress.html" class="btn btn-primary btn-lg">🔄 같은 설정으로 재시험</a>
+      <a href="/" class="btn btn-ghost btn-lg">⚙️ 메인으로 돌아가기</a>
+      <a href="/mypage/note" class="btn btn-ghost btn-lg">📋 오답 노트 바로가기</a>
+      <a href="/exam/setup" class="btn btn-primary btn-lg">🔄 시험 페이지 돌아가기</a>
     </div>
 
   </div>

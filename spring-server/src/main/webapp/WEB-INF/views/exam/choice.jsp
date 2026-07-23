@@ -79,7 +79,11 @@
 <jsp:include page="../includes/footer.jsp" />
 
 <script>
-const totalCount = 10;
+const params = new URLSearchParams(location.search);
+const examMode = params.get('mode');
+const countParam = parseInt(params.get('count'), 10);
+const total = isNaN(countParam) ? 10 : countParam;
+const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
 const quizBank = [
   { word:'병원', choices:['사과','병원','자동차','감사합니다'], correct:1, category:'기초 어휘' },
   { word:'지진', choices:['지진','태풍','화재','대피'], correct:0, category:'비상 어휘' },
@@ -104,7 +108,7 @@ function loadQuizQuestion(idx) {
   const list = document.getElementById('choices-list');
   const labels = ['①','②','③','④'];
   list.innerHTML = q.choices.map((c, i) =>
-    `<button class="choice-btn" onclick="selectChoice(this, ${i})"><span class="choice-label">${labels[i]}</span> ${c}</button>`
+    `<button class="choice-btn" onclick="selectChoice(this, \${i})"><span class="choice-label">\${labels[i]}</span> \${c}</button>`
   ).join('');
   document.getElementById('subjective-input').value = '';
   document.getElementById('quiz-feedback').className = 'feedback-box';
@@ -114,7 +118,7 @@ function loadQuizQuestion(idx) {
 
 function updateQuizProgress(cur, total) {
   const pct = Math.round((cur / total) * 100);
-  document.getElementById('quiz-prog-text').textContent = `퀴즈 ${cur} / ${total}`;
+  document.getElementById('quiz-prog-text').textContent = `퀴즈 \${cur} / \${total}`;
   document.getElementById('quiz-prog-pct').textContent = pct + '%';
   document.getElementById('quiz-prog-fill').style.width = pct + '%';
   document.getElementById('quiz-q-badge').textContent = `문제 ${cur}`;
@@ -161,7 +165,7 @@ function selectChoice(btn, idx) {
   } else {
     btn.classList.add('wrong');
     fb.className = 'feedback-box show bad';
-    fb.textContent = `❌ 틀렸습니다. 정답은 "${q.word}"입니다.`;
+    fb.textContent = `❌ 틀렸습니다. 정답은 "\${q.word}"입니다.`;
     quizWrongCount++;
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
     wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', category: q.category, userAnswer: q.choices[idx], correctAnswer: q.word });
@@ -183,7 +187,7 @@ function submitSubjective() {
     document.getElementById('quiz-correct').textContent = quizCorrectCount;
   } else {
     fb.className = 'feedback-box show bad';
-    fb.textContent = `❌ 틀렸습니다. 정답은 "${q.word}"입니다.`;
+    fb.textContent = `❌ 틀렸습니다. 정답은 "\${q.word}"입니다.`;
     quizWrongCount++;
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
     wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', category: q.category, userAnswer: val, correctAnswer: q.word });
@@ -205,9 +209,9 @@ function endQuizPhase() {
   clearInterval(timerInterval);
   const params = new URLSearchParams(location.search);
   if (params.get('mode') === 'both') {
-    location.href = 'exam_cam.html';
+    location.href = '/exam/motion?mode=both&count=' + total;
   } else {
-    location.href = 'exam_result.html';
+    location.href = '/exam/result';
   }
 }
 </script>
