@@ -42,29 +42,34 @@
         <h3>📷 수어 인식 시험</h3>
         <span class="badge" style="background:rgba(124,58,237,.1); color:#5b21b6; padding:6px 14px; font-size:13px; font-weight:700;" id="cam-q-badge">문제 1</span>
       </div>
-      <div class="cam-target-banner">
-        <div class="cam-target-label">아래 단어를 수어로 표현하세요</div>
-        <div class="cam-target-word" id="cam-target-word">🚑 구급차</div>
-      </div>
-      <div class="cam-wrap">
-        <video id="video" autoplay playsinline muted></video>
-        <canvas id="canvas"></canvas>
-      </div>
-      <div id="result" style="font-size: large;">-</div>
-      <div class="cam-result-row">
-        <div class="cam-result-main">
-          <div class="cam-rlabel">AI 인식 결과</div>
-          <div class="cam-rword" id="cam-result-word">— 대기 중 —</div>
-          <div class="cam-rconf" id="cam-result-conf">카메라를 시작하면 실시간으로 인식합니다.</div>
+
+      <div class="cam-main-grid">
+        <div class="cam-left">
+          <div class="cam-target-banner">
+            <div class="cam-target-label">아래 단어를 수어로 표현하세요</div>
+            <div class="cam-target-word" id="cam-target-word">🚑 구급차</div>
+          </div>
+          <div class="cam-wrap-exam">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvas"></canvas>
+          </div>
         </div>
-        <span class="badge badge-primary" id="cam-acc-badge" style="font-size:14px; padding:8px 16px; display:none;"></span>
-      </div>
-      <div class="cam-controls-row">
-        <button class="btn btn-primary" style="flex:1; justify-content:center; font-size:14px;" onclick="runCamRecognition()">📷 카메라 시작</button>
-        <button class="btn btn-ghost btn-sm" onclick="resetCamResult()">초기화</button>
-      </div>
-      <div class="cam-submit-row">
-        <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="submitCam()">✅ 이 동작으로 제출</button>
+
+        <div class="cam-right">
+          <div class="cam-result-panel">
+            <div class="cam-rlabel">AI 인식 결과</div>
+            <div class="cam-rword" id="cam-result-word">— 대기 중 —</div>
+            <div class="cam-rconf" id="cam-result-conf">카메라를 시작하면 실시간으로 인식합니다.</div>
+            <span class="badge badge-primary" id="cam-acc-badge" style="font-size:14px; padding:8px 16px; display:none; margin-top:10px;"></span>
+          </div>
+
+          <div class="cam-right-controls">
+            <button class="btn btn-primary" style="justify-content:center; font-size:14px;" onclick="runCamRecognition()">📷 카메라 시작</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetCamResult()">초기화</button>
+          </div>
+
+          <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 이 동작으로 제출</button>
+        </div>
       </div>
     </div>
 
@@ -129,19 +134,6 @@ function resetCamResult() {
   document.getElementById('cam-result-conf').textContent = '카메라를 시작하면 실시간으로 인식합니다.';
   document.getElementById('cam-acc-badge').style.display = 'none';
   camResultReady = false;
-}
-
-function runCamRecognition() {
-  const target = camBank[camIndex % camBank.length];
-  currentCamCorrect = Math.random() < 0.8;
-  const conf = Math.floor(70 + Math.random() * 29);
-  document.getElementById('cam-result-word').textContent = currentCamCorrect ? target.word : '인식 실패';
-  document.getElementById('cam-result-conf').textContent = `신뢰도 \${conf}%`;
-  const badge = document.getElementById('cam-acc-badge');
-  badge.style.display = 'inline-block';
-  badge.textContent = conf + '%';
-  camConfidences.push(conf);
-  camResultReady = true;
 }
 
 function updateCamProgress(cur, total) {

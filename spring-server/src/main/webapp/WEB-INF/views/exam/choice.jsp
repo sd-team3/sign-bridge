@@ -64,10 +64,7 @@
 
         <div class="feedback-box" id="quiz-feedback"></div>
 
-        <div class="quiz-nav">
-          <div style="display:flex; gap:8px;">
-            <button class="btn btn-ghost btn-sm" id="toggle-type-btn" onclick="toggleQuizType()">주관식으로 전환</button>
-          </div>
+        <div class="quiz-nav" style="justify-content:flex-end;">
           <button class="btn btn-primary btn-sm" id="quiz-next-btn" onclick="nextQuizQuestion()" style="display:none;">다음 문제 →</button>
         </div>
       </div>
@@ -84,6 +81,7 @@ const examMode = params.get('mode');
 const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
+const objectiveCount = Math.ceil(totalCount / 2); // 앞 절반은 객관식, 뒤 절반은 주관식
 const quizBank = [
   { word:'병원', choices:['사과','병원','자동차','감사합니다'], correct:1, category:'기초 어휘' },
   { word:'지진', choices:['지진','태풍','화재','대피'], correct:0, category:'비상 어휘' },
@@ -93,7 +91,6 @@ const quizBank = [
 
 let timerInterval = null;
 let quizAnswered = false;
-let isSubjective = false;
 let quizIndex = 0;
 let quizCorrectCount = 0, quizWrongCount = 0;
 let wrongList = [];
@@ -105,6 +102,13 @@ startTimer('quiz-timer', 600, endQuizPhase);
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
+
+  // 앞쪽 objectiveCount 문제는 객관식, 나머지는 주관식으로 자동 전환
+  const isSubjective = idx >= objectiveCount;
+  document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
+  document.getElementById('subjective-area').style.display = isSubjective ? 'block' : 'none';
+  document.getElementById('quiz-type-label').textContent = isSubjective ? '✏️ 주관식' : '🖼️ 객관식';
+
   const list = document.getElementById('choices-list');
   const labels = ['①','②','③','④'];
   list.innerHTML = q.choices.map((c, i) =>
@@ -137,17 +141,6 @@ function startTimer(elemId, seconds, onEnd) {
   };
   tick();
   timerInterval = setInterval(tick, 1000);
-}
-
-function toggleQuizType() {
-  isSubjective = !isSubjective;
-  document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
-  document.getElementById('subjective-area').style.display = isSubjective ? 'block' : 'none';
-  document.getElementById('toggle-type-btn').textContent = isSubjective ? '객관식으로 전환' : '주관식으로 전환';
-  document.getElementById('quiz-type-label').textContent = isSubjective ? '✏️ 주관식' : '🖼️ 객관식';
-  document.getElementById('quiz-feedback').className = 'feedback-box';
-  document.getElementById('quiz-next-btn').style.display = 'none';
-  quizAnswered = false;
 }
 
 function selectChoice(btn, idx) {
