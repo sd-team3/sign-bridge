@@ -1,0 +1,17 @@
+FROM maven:3.9-eclipse-temurin-17
+
+WORKDIR /usr/src/app
+
+# nodemon을 범용 파일 워처로 사용
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g nodemon && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+EXPOSE 8080
+
+CMD ["nodemon", "--watch", "src/main/java", "--ext", "java", "--exec", "mvn compile -q -o"]
