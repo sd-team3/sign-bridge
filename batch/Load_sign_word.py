@@ -13,13 +13,13 @@ import xml.etree.ElementTree as ET
 import pymysql
 import requests
 
-# ── API 설정 ──────────────────────────────────────────────
+# API 설정 
 SERVICE_KEY = "b4215e06-89a0-46d9-9529-d58849a6ce6e"
 BASE_URL = "https://api.kcisa.kr/openapi/service/rest/meta13/getCTE01701"
 NUM_OF_ROWS = 100  # 한 페이지당 요청 개수
 REQUEST_INTERVAL_SEC = 0.2  # API 서버 부담 줄이기용 딜레이
 
-# ── DB 설정 (본인 로컬 MySQL 정보로 수정) ──────────────────
+# DB 설정 
 DB_CONFIG = {
     "host": "localhost",
     "port": 3306,

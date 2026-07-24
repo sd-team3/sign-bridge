@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SignBridge - 개별 어휘 학습</title>
+<title>SignBridge - 개별 어휘 학</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/shared.css">
 <style>
   .dict-layout { display:flex; gap:24px; align-items:flex-start; }
@@ -162,17 +162,27 @@
   </div>
 </dialog>
 
+
+
 <script>
 const CTX = "${pageContext.request.contextPath}";
 let ALL_WORDS = [];
 
 /* ─────────────────────────────────────────────
-   1) 전체 단어 로드 (서버가 직접 JSON 직렬화 -> 수동 조립 안 함)
+   1) 전체 단어 로드 (REST API 연동)
 ───────────────────────────────────────────── */
 function loadAllWords() {
   return fetch(CTX + "/learn/dict/search")
-    .then(r => r.json())
-    .then(list => { ALL_WORDS = list; });
+    .then(response => {
+      if (!response.ok) throw new Error("네트워크 응답 이상");
+      return response.json();
+    })
+    .then(list => { 
+      ALL_WORDS = list || []; 
+    })
+    .catch(err => {
+      console.error("단어 목록 로드 중 에러 발생:", err);
+    });
 }
 
 /* ─────────────────────────────────────────────
@@ -186,6 +196,7 @@ const BASIC_CHO = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','
 // 단어 안 모든 음절의 초성 배열 (검색/필터용)
 function choseongListOf(word) {
   const result = [];
+  if (!word) return result;
   for (const ch of word) {
     const code = ch.charCodeAt(0) - 0xAC00;
     if (code >= 0 && code <= 11171) {
@@ -203,6 +214,7 @@ function firstChoseongOf(word) {
 
 function matchesQuery(name, keyword) {
   if (!keyword) return true;
+  if (!name) return false;
   if (keyword.length === 1 && CHO.includes(keyword)) {
     return choseongListOf(name).includes(keyword);
   }
@@ -214,6 +226,7 @@ function matchesQuery(name, keyword) {
 ───────────────────────────────────────────── */
 function renderChoSidebar() {
   const sidebar = document.getElementById("choSidebar");
+  if (!sidebar) return;
   sidebar.querySelectorAll(".cho-group").forEach(el => el.remove());
 
   const groups = {};
@@ -228,7 +241,7 @@ function renderChoSidebar() {
 
   [...BASIC_CHO, "기타"].forEach(cho => {
     const words = groups[cho].sort((a, b) => a.signWordName.localeCompare(b.signWordName, "ko"));
-    if (cho === "기타" && words.length === 0) return; // 기타 그룹은 내용 없으면 생략
+    if (cho === "기타" && words.length === 0) return;
 
     const details = document.createElement("details");
     details.className = "cho-group";
@@ -258,23 +271,45 @@ function renderChoSidebar() {
 function selectExactWord(word) {
   document.getElementById("searchInput").value = word.signWordName;
   renderMainResults([word], word.signWordName + " 검색 결과");
-  fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName)).catch(() => {});
+  
+  // 서버에 비디오 및 조회수 증가 요청
+  fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
+    .then(r => r.json())
+    .then(updatedVo => {})
+    .catch(() => {});
 }
 
 /* ─────────────────────────────────────────────
-   4) 메인 영역 렌더링 (첫 화면 랜덤 6개 / 검색 결과)
+   4) 메인 영역 렌더링
 ───────────────────────────────────────────── */
 function wordCard(w) {
   const card = document.createElement("div");
   card.className = "word-card";
   card.innerHTML =
-    '<video autoplay muted loop playsinline></video>' +
+    '<video muted loop playsinline></video>' + // autoplay 제거
     '<div class="word-card-name"></div>';
-  card.querySelector("video").src = w.signWordVideo;
-  card.querySelector(".word-card-name").textContent = w.signWordName;
-  card.addEventListener("click", () => {
-    fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(w.signWordName)).catch(() => {});
+    
+  // http:// -> https:// 강제 전환
+  let videoUrl = w.signWordVideo || '';
+  if (videoUrl.startsWith("http://")) {
+    videoUrl = videoUrl.replace("http://", "https://");
+  }
+  
+  const videoEl = card.querySelector("video");
+  videoEl.src = videoUrl;
+  card.querySelector(".word-card-name").textContent = w.signWordName || '';
+  
+  // 마우스 올렸을 때 재생
+  card.addEventListener("mouseenter", () => {
+    videoEl.play().catch(() => {}); // 브라우저 자동재생 차단 에러 방지
   });
+
+  // 마우스 뗐을 때 멈추고 처음 위치로
+  card.addEventListener("mouseleave", () => {
+    videoEl.pause();
+    videoEl.currentTime = 0;
+  });
+  
   return card;
 }
 
@@ -282,7 +317,7 @@ function renderMainResults(list, label) {
   document.getElementById("mainResultsLabel").textContent = label;
   const container = document.getElementById("mainResults");
   container.innerHTML = "";
-  if (list.length === 0) {
+  if (!list || list.length === 0) {
     container.innerHTML = '<div class="main-results-empty">일치하는 단어가 없어요</div>';
     return;
   }
@@ -311,7 +346,7 @@ document.getElementById("searchInput").addEventListener("keydown", (e) => {
 });
 
 /* ─────────────────────────────────────────────
-   5) 자모 자동 조합기 (2벌식 조합 규칙)
+   5) 자모 자동 조합기
 ───────────────────────────────────────────── */
 function isVowel(t) { return JUNG.indexOf(t) !== -1; }
 function isConsonant(t) { return CHO.indexOf(t) !== -1; }
@@ -386,7 +421,7 @@ document.getElementById("camSearchBtn").addEventListener("click", () => {
   if (!word) return;
   document.getElementById("searchInput").value = word;
   document.getElementById("camModal").close();
-  cam.stop();
+  if (window.cam) window.cam.stop();
   runSearch();
 });
 
@@ -399,7 +434,7 @@ loadAllWords().then(() => {
 });
 </script>
 
-<!-- 수어 인식: python-server가 제공하는 완제품 위젯 그대로 사용 -->
+<!-- 수어 인식 모듈 -->
 <script type="module">
   import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
   import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
@@ -428,8 +463,10 @@ loadAllWords().then(() => {
     cam.stop();
   });
 
-  window.cam = cam; // camSearchBtn 리스너에서 stop() 호출용
+  window.cam = cam;
 </script>
+
+
 
 </body>
 </html>
