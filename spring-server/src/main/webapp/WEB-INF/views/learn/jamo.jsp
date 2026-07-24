@@ -54,7 +54,7 @@
       </div>
       <div class="jd-panel">
         <div class="jd-header"><span>내 동작 인식</span></div>
-        <div class="jd-cam" id="jdCam" style="flex-direction:column; padding:16px;">
+        <div class="jd-cam" id="jdCam">
           <div class="cam-wrap">
             <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas"></canvas>
@@ -112,6 +112,7 @@ tabs.forEach(tab => {
     document.querySelectorAll('.jamo-section').forEach(s => s.classList.remove('active'));
     document.getElementById('section-' + tab.dataset.target).classList.add('active');
     document.getElementById('jamoDetail').classList.remove('show');
+    window.stopJamoCam?.();
   });
 });
 
@@ -162,11 +163,19 @@ document.getElementById('jdClose').addEventListener('click', () => {
     videoEl: document.getElementById("video"),
     canvasEl: document.getElementById("canvas"),
     onFrame: async (landmarks) => {
-      if (!landmarks) return;
-      const result = await api.predict(landmarks, false);
       const resultEl = document.getElementById("result");
+      if (!landmarks) {
+        resultEl.textContent = '';
+        resultEl.style.color = '';
+        return;
+      }
+      const result = await api.predict(landmarks, false);
 
-      if (!result || !result.label) return;
+      if (!result || !result.label) {
+        resultEl.textContent = '';
+        resultEl.style.color = '';
+        return;
+      }
 
       if (!currentJamoChar) {
         resultEl.textContent = result.label;
@@ -186,10 +195,16 @@ document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById("jdCam").addEventListener("click", async () => {
     if (started) return;
     started = true;
-    await cam.start();
+    try {
+      await cam.start();
+    } catch (error) {
+      console.error('카메라 시작 실패: ', error);
+      started = false;
+      document.getElementById("result").textContent = '카메라를 켤 수 없어요';
+    }
   });
 
-  // 카메라 끄기 - 진짜 stopCamera 메서드 사용
+  // 카메라 끄기
   window.stopJamoCam = () => {
     cam.stopCamera();
     started = false; // 다시 클릭하면 재시작 가능하게
