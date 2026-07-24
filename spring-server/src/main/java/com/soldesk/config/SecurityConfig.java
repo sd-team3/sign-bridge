@@ -22,7 +22,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(
         HttpSecurity http, DaoAuthenticationProvider authenticationProvider) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
+        http.csrf(csrf -> csrf
+            .ignoringRequestMatchers(
+                new AntPathRequestMatcher("/api/sign/**")
+            )
+        ).authorizeHttpRequests(auth -> auth
             .requestMatchers(
                 new AntPathRequestMatcher("/ws/**")
             ).permitAll()
