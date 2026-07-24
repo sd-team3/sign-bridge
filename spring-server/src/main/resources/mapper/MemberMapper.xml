@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.MemberMapper">
+    <resultMap id="memberResultMap" type="com.soldesk.vo.MemberVO">
+        <id column="member_id" property="memberId" />
+        <result column="member_email" property="memberEmail" />
+        <result column="member_password" property="memberPassword" />
+        <result column="member_name" property="memberName" />
+        <result column="member_profile_image" property="memberProfileImage" />
+        <result column="role" property="role" />
+        <result column="reg_date" property="regDate" />
+        <result column="provider" property="provider" />
+        <result column="provider_id" property="providerId" />
+    </resultMap>
+
+    <select id="findByEmail" parameterType="string" resultMap="memberResultMap">
+        select member_id, member_password, member_email, member_name, member_profile_image, role, status, reg_date
+        from member where member_email = #{memberEmail}
+    </select>
+    <insert id="insertMember" parameterType="com.soldesk.vo.MemberVO">
+        insert into member (member_email, member_password, member_name, member_profile_image)
+        values (#{memberEmail}, #{memberPassword}, #{memberName}, #{memberProfileImage})
+    </insert>
+
+    <select id="findByProviderAndProviderId" resultMap="memberResultMap">
+        select member_id, member_email, member_password, member_name,
+        member_profile_image, role, provider, provider_id
+        from member
+        where provider = #{provider} and provider_id = #{providerId}
+    </select>
+    <insert id="insertMemberOAuthMember" parameterType="com.soldesk.vo.MemberVO">
+        insert into member (member_email, member_password, member_name, provider, provider_id)
+        values(#{memberEmail}, #{memberPassword}, #{memberName}, #{provider}, #{providerId})
+    </insert>
+
+</mapper>

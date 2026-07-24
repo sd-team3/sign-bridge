@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  python-server:
+    build:
+      context: ./python-server
+    container_name: sign-language-python
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./python-server:/app     # 코드/데이터 수정이 즉시 반영되도록 통째로 마운트 (data/, model/도 여기 포함되어 자동으로 영속화됨)
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - app-network
+
+  spring-server:
+    build:
+      context: ./spring-server
+    container_name: sign-language-spring
+    ports:
+      - "8080:8080"
+    depends_on:
+      - python-server
+    environment:
+      - JAVA_OPTS=-Dpython.server.url=http://python-server:8000
+    networks:
+      - app-network
+
+  # ── (선택) 팀 공용 MySQL이 필요하면 주석 해제 ──────────────────
+  # 지금처럼 각자 로컬 MySQL을 그대로 쓰고 있다면 이 서비스는 필요 없고,
+  # 대신 스프링의 jdbc url 호스트를 Windows/Mac Docker Desktop 기준
+  # host.docker.internal 로 바꿔서 컨테이너 안에서 로컬 MySQL에 접속하면 됩니다.
+  #
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: sign-language-mysql
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpass
+  #     MYSQL_DATABASE: sign_bridge
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+# volumes:
+#   mysql-data:

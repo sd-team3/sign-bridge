@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.LearnMapper">
+    <!-- 자/모음 -->
+    <select id="findByType" parameterType="string" resultType="com.soldesk.vo.JamoVO">
+        select
+            jamo_id as jamoId,
+            jamo_char as jamoChar,
+            jamo_type as jamoType,
+            jamo_name as jamoName,
+            jamo_info as jamoInfo,
+            jamo_image as jamoImage
+        from jamo
+        where jamo_type = #{jamoType}
+        order by jamo_id
+    </select>
+</mapper>
