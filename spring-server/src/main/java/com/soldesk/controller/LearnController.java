@@ -15,12 +15,15 @@ public class LearnController {
     @Autowired
     private LearnService learnService;
 
-    
+    @GetMapping("")
+    public String main(){
+        return "learn/main";
+    }
+
     @GetMapping("/jamo")
     public String jamo(Model model){
         model.addAttribute("consonants", learnService.getConsonants());
         model.addAttribute("vowels", learnService.getVowels());
         return "learn/jamo";
     }
-    
 }
