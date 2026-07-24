@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.SignWordMapper">
+
+    <!-- 사전 단어 목록: choseong/keyword 둘 다 선택값 (null이면 조건 제외) -->
+    <!-- 필터/검색 없이 호출되면 조회수 높은 순으로 노출 (메인 페이지 기본 노출용) -->
+    <select id="findList" resultType="com.soldesk.vo.SignWordVO">
+        select
+            sign_word_id as signWordId,
+            sign_word_name as signWordName,
+            choseong as choseong,
+            sign_word_video as signWordVideo,
+            sign_word_thumbnail as signWordThumbnail,
+            description as description,
+            sign_word_api_id as signWordApiId,
+            view_count as viewCount
+        from sign_word
+        <where>
+            <if test="choseong != null and choseong != ''">
+                and choseong = #{choseong}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and sign_word_name like concat('%', #{keyword}, '%')
+            </if>
+        </where>
+        order by view_count desc, sign_word_name asc
+    </select>
+
+    <!-- 상세 페이지: 단어명으로 단건 조회 -->
+    <select id="findByName" resultType="com.soldesk.vo.SignWordVO">
+        select
+            sign_word_id as signWordId,
+            sign_word_name as signWordName,
+            choseong as choseong,
+            sign_word_video as signWordVideo,
+            sign_word_thumbnail as signWordThumbnail,
+            description as description,
+            sign_word_api_id as signWordApiId,
+            view_count as viewCount
+        from sign_word
+        where sign_word_name = #{signWordName}
+    </select>
+
+    <!-- 메인 히어로 영역용 랜덤 단어 1건 -->
+    <select id="findRandom" resultType="com.soldesk.vo.SignWordVO">
+        select
+            sign_word_id as signWordId,
+            sign_word_name as signWordName,
+            choseong as choseong,
+            sign_word_video as signWordVideo,
+            sign_word_thumbnail as signWordThumbnail,
+            description as description,
+            sign_word_api_id as signWordApiId,
+            view_count as viewCount
+        from sign_word
+        order by rand()
+        limit 1
+    </select>
+
+    <!-- 상세 페이지 조회 시 조회수  -->
+    <update id="incrementViewCount">
+        update sign_word
+        set view_count = view_count + 1
+        where sign_word_name = #{signWordName}
+    </update>
+
+</mapper>

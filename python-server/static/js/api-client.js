@@ -43,8 +43,8 @@ export class JamoApiClient {
     return this._postJson("/predict", { landmarks, mirror });
   }
 
-  collect(label, frames, mirror = false) {
-    return this._postJson("/collect", { label, mirror, frames });
+  collect(label, frames, mirror = false, collector = "unknown") {
+    return this._postJson("/collect", { label, mirror, frames, collector });
   }
 
   getDatasetStats() {
