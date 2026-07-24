@@ -1,6 +1,9 @@
 package com.soldesk.controller;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -67,6 +70,14 @@ public class LearnController {
             learnService.increaseViewCount(word);
         }
         return detail;
+    }
+
+    // 국립수어사전 원본 영상의 핫링크(Referer 체크) 우회용 프록시
+    // 프론트 <video src>가 외부 URL을 직접 부르면 403이 뜨기 때문에
+    // 서버가 대신 요청해서 스트림을 그대로 전달한다
+    @GetMapping("/dict/video-proxy")
+    public void videoProxy(@RequestParam("url") String url, HttpServletResponse response) throws IOException {
+        learnService.proxyVideo(url, response);
     }
 
 }

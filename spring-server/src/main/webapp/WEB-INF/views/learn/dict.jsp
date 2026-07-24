@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SignBridge - 개별 어휘 학</title>
+<title>SignBridge - 개별 어휘 학습</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/shared.css">
 <style>
   .dict-layout { display:flex; gap:24px; align-items:flex-start; }
@@ -32,6 +32,18 @@
   .main-results { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; max-height:640px; overflow-y:auto; padding-right:4px; }
   .word-card { border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fafafa; cursor:pointer; }
   .word-card video { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; display:block; }
+
+  
+  /* error */
+  .word-video-wrap { position:relative; width:100%; aspect-ratio:4/3; background:#000; }
+  .word-video-wrap video { width:100%; height:100%; object-fit:cover; display:block; }
+  .word-video-wrap.no-thumb { background:#f0f0f0; }
+  .video-unavailable {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:none; align-items:center; justify-content:center;
+    background:#f0f0f0; color:var(--text-sub); font-size:13px; font-weight:600;
+  }
+
   .word-card-name { padding:8px 10px; font-weight:800; font-size:14px; }
   .main-results-empty { padding:24px; color:var(--text-sub); font-size:14px; }
 
@@ -340,36 +352,89 @@ function wordCard(w) {
   const card = document.createElement("div");
   card.className = "word-card";
   card.innerHTML =
-    '<video muted loop playsinline></video>' + // autoplay 제거
+    '<div class="word-video-wrap">' +
+      '<video muted loop playsinline></video>' +
+      '<div class="video-unavailable" style="display:none;">영상 준비중</div>' +
+    '</div>' +
     '<div class="word-card-name"></div>';
-    
-  // http:// -> https:// 강제 전환
+
   let videoUrl = w.signWordVideo || '';
   if (videoUrl.startsWith("http://")) {
     videoUrl = videoUrl.replace("http://", "https://");
   }
-  
+
+  let thumbUrl = w.signWordThumbnail || '';
+  if (thumbUrl.startsWith("http://")) {
+    thumbUrl = thumbUrl.replace("http://", "https://");
+  }
+
+  const wrapEl = card.querySelector(".word-video-wrap");
   const videoEl = card.querySelector("video");
-  videoEl.src = videoUrl;
+  const fallbackEl = card.querySelector(".video-unavailable");
+
+  // mp4가 아니면(-광처럼 jpg가 잘못 들어간 경우 포함) 영상 자체가 없는 걸로 간주
+  const hasVideo = videoUrl.toLowerCase().endsWith(".mp4");
+
+  if (thumbUrl) {
+    videoEl.setAttribute("poster", thumbUrl);
+  } else {
+    wrapEl.classList.add("no-thumb");
+  }
+
+  // 애초에 영상이 없으면 호버 전에도 바로 안내 문구 표시
+  if (!hasVideo) {
+    fallbackEl.style.display = "flex";
+  }
+
   card.querySelector(".word-card-name").textContent = w.signWordName || '';
-  
-  // 마우스 올렸을 때 재생
-  card.addEventListener("mouseenter", () => {
-    videoEl.play().catch(() => {}); // 브라우저 자동재생 차단 에러 방지
+
+  // 영상 자체가 로드 실패하면 대체 문구 표시
+  videoEl.addEventListener("error", () => {
+    if (!videoEl.getAttribute("src")) return;
+    videoEl.style.display = "none";
+    fallbackEl.style.display = "flex";
   });
 
-  // 마우스 뗐을 때 멈추고 처음 위치로
+  // 영상이 실제로 재생 가능해지면 fallback 숨기고 영상 보이기
+  videoEl.addEventListener("loadeddata", () => {
+    videoEl.style.display = "block";
+    fallbackEl.style.display = "none";
+  });
+
+  let hoverTimer = null;
+  let isLoaded = false;
+
+  card.addEventListener("mouseenter", () => {
+    if (!hasVideo) return; // 영상 없으면 프록시 요청 자체를 안 보냄
+    if (isLoaded) {
+      videoEl.play().catch(() => {});
+      return;
+    }
+    hoverTimer = setTimeout(() => {
+      videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl);
+      isLoaded = true;
+      videoEl.play().catch(() => {});
+    }, 150);
+  });
+
   card.addEventListener("mouseleave", () => {
+    if (hoverTimer) {
+      clearTimeout(hoverTimer);
+      hoverTimer = null;
+    }
     videoEl.pause();
-    videoEl.currentTime = 0;
+    if (isLoaded) {
+      videoEl.currentTime = 0;
+    }
   });
 
   card.addEventListener("click", () => {
     openDetailModal(w);
   });
-  
+
   return card;
 }
+
 function openDetailModal(word) {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
@@ -383,13 +448,11 @@ function openDetailModal(word) {
   if (videoUrl.startsWith("http://")) {
     videoUrl = videoUrl.replace("http://", "https://");
   }
-  videoEl.src = videoUrl;
-  videoEl.currentTime = 0;
+  videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl); // 모달 열릴 때 로딩 시작
 
   modal.showModal();
   videoEl.play().catch(() => {});
 
-  // 조회수 증가 + 최신 데이터(설명 등) 재확인
   fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
     .then(r => r.json())
     .then(updatedVo => {
@@ -404,6 +467,8 @@ document.getElementById("detailCloseBtn").addEventListener("click", () => {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
   videoEl.pause();
+  videoEl.removeAttribute("src"); // 로딩 중단
+  videoEl.load();
   modal.close();
 });
 
