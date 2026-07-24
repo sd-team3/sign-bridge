@@ -42,7 +42,7 @@
     <!-- 카테고리 -->
     <div class="section-title">학습 카테고리</div>
     <div class="cat-grid">
-      <a href="learn_jamo.html" class="cat-card">
+      <a href="/" class="cat-card">
         <span class="cat-card-new">NEW</span>
         <div class="cat-card-icon">🤟</div>
         <div class="cat-card-title">자음 · 모음 지문자</div>
@@ -53,7 +53,7 @@
         </div>
       </a>
 
-      <a href="learn_basic.html" class="cat-card">
+      <!-- <a href="learn_basic.html" class="cat-card">
         <div class="cat-card-icon">📚</div>
         <div class="cat-card-title">기초 어휘 학습</div>
         <div class="cat-card-desc">일상에서 자주 쓰는 기본 단어 124개를 분야별로 학습해요.</div>
@@ -61,9 +61,9 @@
           <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:68%"></div></div></div>
           <span class="cat-card-pct">68%</span>
         </div>
-      </a>
+      </a> -->
 
-      <a href="learn_list.html" class="cat-card purple">
+      <!-- <a href="learn_list.html" class="cat-card purple">
         <div class="cat-card-icon">🗂️</div>
         <div class="cat-card-title">상황별 수어 학습</div>
         <div class="cat-card-desc">인사, 학교, 자연 등 35개 주제로 구성된 상황별 회화 수업.</div>
@@ -71,9 +71,9 @@
           <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:22%"></div></div></div>
           <span class="cat-card-pct">22%</span>
         </div>
-      </a>
+      </a> -->
 
-      <a href="learn_emergency.html" class="cat-card danger">
+      <!-- <a href="learn_emergency.html" class="cat-card danger">
         <div class="cat-card-icon">🚨</div>
         <div class="cat-card-title">비상 상황 어휘</div>
         <div class="cat-card-desc">화재, 지진, 응급 상황에서 꼭 필요한 핵심 수어를 배워요.</div>
@@ -81,7 +81,7 @@
           <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:35%"></div></div></div>
           <span class="cat-card-pct">35%</span>
         </div>
-      </a>
+      </a> -->
 
       <a href="learn_word.html" class="cat-card">
         <div class="cat-card-icon">🔍</div>
