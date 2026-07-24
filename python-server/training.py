@@ -19,7 +19,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import LabelEncoder
 
-from config import CSV_PATH, LABEL_ENCODER_PATH, MODEL_BACKUP_DIR, MODEL_PATH
+from config import CSV_PATH, LABEL_ENCODER_PATH, MODEL_OLD_DIR, MODEL_PATH
 
 
 def load_dataset(csv_path=CSV_PATH):
@@ -30,13 +30,16 @@ def load_dataset(csv_path=CSV_PATH):
 
 
 def backup_current_model():
-    """덮어쓰기 전에 기존 모델/인코더를 타임스탬프 붙여서 backup 폴더에 보관."""
+    """덮어쓰기 전에 기존 모델/인코더를 model/old/{학습시각}/ 폴더에 그대로 보관.
+    (파일명은 바꾸지 않고 통째로 복사 -> 필요하면 그 폴더를 그대로 model/에 되돌려 넣기만 하면 복원됨)"""
+    if not (os.path.exists(MODEL_PATH) or os.path.exists(LABEL_ENCODER_PATH)):
+        return  # 처음 학습이라 이전 모델이 없는 경우
     ts = time.strftime("%Y%m%d_%H%M%S")
+    backup_dir = os.path.join(MODEL_OLD_DIR, ts)
+    os.makedirs(backup_dir, exist_ok=True)
     for path in (MODEL_PATH, LABEL_ENCODER_PATH):
         if os.path.exists(path):
-            filename = os.path.basename(path)
-            backup_path = os.path.join(MODEL_BACKUP_DIR, f"{ts}_{filename}")
-            shutil.copy2(path, backup_path)
+            shutil.copy2(path, os.path.join(backup_dir, os.path.basename(path)))
 
 
 def train(csv_path=CSV_PATH):
