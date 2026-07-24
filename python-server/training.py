@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-모델 학습 로직 (공용 모듈)
-- CLI(train_model.py)와 FastAPI 엔드포인트(/model/train)가 동일한 로직을 공유한다.
-- 매번 landmarks.csv 전체로 재학습하는 방식 (증분 학습이 아니라 "누적된 데이터로 다시 학습"하는 방식).
-  MLPClassifier는 partial_fit도 가능하지만, 클래스 불균형/재현성 관리가 어려워서
-  전체 재학습이 데이터셋이 크지 않은 이 프로젝트 규모에서는 더 안전하다.
-"""
-
 import os
 import shutil
 import time
@@ -19,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import LabelEncoder
 
-from config import CSV_PATH, LABEL_ENCODER_PATH, MODEL_BACKUP_DIR, MODEL_PATH
+from config import CSV_PATH, LABEL_ENCODER_PATH, MODEL_OLD_DIR, MODEL_PATH
 
 
 def load_dataset(csv_path=CSV_PATH):
@@ -30,19 +21,17 @@ def load_dataset(csv_path=CSV_PATH):
 
 
 def backup_current_model():
-    """덮어쓰기 전에 기존 모델/인코더를 타임스탬프 붙여서 backup 폴더에 보관."""
+    if not (os.path.exists(MODEL_PATH) or os.path.exists(LABEL_ENCODER_PATH)):
+        return  # 처음 학습이라 이전 모델이 없는 경우
     ts = time.strftime("%Y%m%d_%H%M%S")
+    backup_dir = os.path.join(MODEL_OLD_DIR, ts)
+    os.makedirs(backup_dir, exist_ok=True)
     for path in (MODEL_PATH, LABEL_ENCODER_PATH):
         if os.path.exists(path):
-            filename = os.path.basename(path)
-            backup_path = os.path.join(MODEL_BACKUP_DIR, f"{ts}_{filename}")
-            shutil.copy2(path, backup_path)
+            shutil.copy2(path, os.path.join(backup_dir, os.path.basename(path)))
 
 
 def train(csv_path=CSV_PATH):
-    """landmarks.csv 전체로 모델을 재학습하고 model/ 폴더에 저장한다.
-    반환값은 API 응답 및 로그 출력에 그대로 쓸 수 있는 학습 리포트 dict."""
-
     if not os.path.exists(csv_path):
         raise ValueError("landmarks.csv가 없습니다. 먼저 데이터를 모으고 병합하세요.")
 

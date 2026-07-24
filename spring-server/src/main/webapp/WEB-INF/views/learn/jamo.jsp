@@ -48,10 +48,13 @@
             <div id="jdImageText">이미지 준비 중</div>
           </div>
         </div>
+        <div style="font-size:11px; color:var(--text-muted); text-align:center; padding:6px;">
+          출처: 국립국어원 한국수어사전(sldict.korean.go.kr)
+        </div>
       </div>
       <div class="jd-panel">
         <div class="jd-header"><span>내 동작 인식</span></div>
-        <div class="jd-cam" id="jdCam" style="flex-direction:column; padding:16px;">
+        <div class="jd-cam" id="jdCam">
           <div class="cam-wrap">
             <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas"></canvas>
@@ -109,19 +112,26 @@ tabs.forEach(tab => {
     document.querySelectorAll('.jamo-section').forEach(s => s.classList.remove('active'));
     document.getElementById('section-' + tab.dataset.target).classList.add('active');
     document.getElementById('jamoDetail').classList.remove('show');
+    window.stopJamoCam?.();
   });
 });
 
 /// 카드 클릭 -> 상세 표시
+let currentJamoChar = null;
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.jamo-card');
   if (!card) return;
+
+  currentJamoChar = card.dataset.char;
 
   document.getElementById('jdChar').textContent = card.dataset.char;
   document.getElementById('jdName').textContent = card.dataset.name;
   document.getElementById('jdTip').textContent = card.dataset.tip;
 
-  // 모범 동작 이미지
+  const resultEl = document.getElementById('result');
+  resultEl.textContent = '-';
+  resultEl.style.color = '';
+
   const img = document.getElementById('jdImage');
   const imgPlaceholder = document.getElementById('jdImagePlaceholder');
   if (card.dataset.image) {
@@ -137,33 +147,10 @@ document.addEventListener('click', (e) => {
   document.getElementById('jamoDetail').scrollIntoView({behavior:'smooth', block:'center'});
 });
 
-// 카메라 켜기
-let camStream = null;
-document.getElementById('jdCam').addEventListener('click', async () => {
-  const camVideo = document.getElementById('jdCamStream');
-  const placeholder = document.getElementById('jdCamPlaceholder');
-  if (camStream) return;
-
-  try {
-    camStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    camVideo.srcObject = camStream;
-    camVideo.style.display = 'block';
-    placeholder.style.display = 'none';
-  } catch (err) {
-    alert('카메라 권한이 필요합니다.');
-    console.error(err);
-  }
-});
-
 // 닫기 버튼 클릭 시 카메라도 꺼주기
 document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('jamoDetail').classList.remove('show');
-  if (camStream) {
-    camStream.getTracks().forEach(track => track.stop());
-    camStream = null;
-    document.getElementById('jdCamStream').style.display = 'none';
-    document.getElementById('jdCamPlaceholder').style.display = 'flex';
-  }
+  window.stopJamoCam?.();
 });
 </script>
 <script type="module">
@@ -176,9 +163,31 @@ document.getElementById('jdClose').addEventListener('click', () => {
     videoEl: document.getElementById("video"),
     canvasEl: document.getElementById("canvas"),
     onFrame: async (landmarks) => {
-      if (!landmarks) return;
+      const resultEl = document.getElementById("result");
+      if (!landmarks) {
+        resultEl.textContent = '';
+        resultEl.style.color = '';
+        return;
+      }
       const result = await api.predict(landmarks, false);
-      document.getElementById("result").textContent = result.label;
+
+      if (!result || !result.label) {
+        resultEl.textContent = '';
+        resultEl.style.color = '';
+        return;
+      }
+
+      if (!currentJamoChar) {
+        resultEl.textContent = result.label;
+        resultEl.style.color = '';
+        return;
+      }
+
+      const isCorrect = result.label === currentJamoChar;
+      resultEl.textContent = isCorrect
+        ? '✅ 정답! (' + result.label + ')'
+        : '인식: ' + result.label;
+      resultEl.style.color = isCorrect ? '#2D9B6F' : '#D85A30';
     },
   });
 
@@ -186,8 +195,20 @@ document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById("jdCam").addEventListener("click", async () => {
     if (started) return;
     started = true;
-    await cam.start();
+    try {
+      await cam.start();
+    } catch (error) {
+      console.error('카메라 시작 실패: ', error);
+      started = false;
+      document.getElementById("result").textContent = '카메라를 켤 수 없어요';
+    }
   });
+
+  // 카메라 끄기
+  window.stopJamoCam = () => {
+    cam.stopCamera();
+    started = false; // 다시 클릭하면 재시작 가능하게
+  };
 </script>
 
 </body>

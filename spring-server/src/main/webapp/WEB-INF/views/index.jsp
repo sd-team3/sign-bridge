@@ -375,35 +375,26 @@
 </section>
 
 <style>
-.cam-wrap {
-  position: relative;
-  width: 320px;
-  aspect-ratio: 4 / 3;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #000;
-}
-.cam-wrap video,
-.cam-wrap canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1);
-}
+  .cam-wrap {
+    position: relative;
+    width: 320px;
+    aspect-ratio: 4 / 3;
+    margin: 0 auto;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+  }
+  .cam-wrap video,
+  .cam-wrap canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+  }
 </style>
-
-
-
-<div class="cam-wrap">
-  <video id="video" autoplay playsinline muted></video>
-  <canvas id="canvas"></canvas>
-</div>
-<div id="result" style="font-size: large;">-</div>
-
 
 
 <div class="cta-section">
@@ -417,34 +408,22 @@
   </div>
 </div>
 
+<div class="cam-wrap">
+  <video id="video-word" autoplay playsinline muted></video>
+  <canvas id="canvas-word"></canvas>
+</div>
+<div id="result-word">-</div>
+<div class="progress-bar"><div id="progressFill"></div></div>
+<script type="module" src="/resources/js/word-camera.js"></script>
 
 
 
-
-
-
-
-<script type="module">
-  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
-
-  const api = new JamoApiClient("http://localhost:8000");
-
-  const cam = new HandCameraWidget({
-    videoEl: document.getElementById("video"),
-    canvasEl: document.getElementById("canvas"),
-    onFrame: async (landmarks) => {
-      if (!landmarks) return;
-      const result = await api.predict(landmarks, false);
-      document.getElementById("result").textContent = result.label;
-    },
-  });
-
-  await cam.start();
-</script>
-
-
-
+<!-- <div class="cam-wrap">
+  <video id="video-jamo" autoplay playsinline muted></video>
+  <canvas id="canvas-jamo"></canvas>
+</div>
+<div id="result-jamo">-</div>
+<script type="module" src="/resources/js/jamo-camera.js"></script> -->
 
 
 
