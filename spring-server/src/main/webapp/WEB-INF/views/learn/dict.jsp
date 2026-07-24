@@ -35,8 +35,19 @@
   .word-card-name { padding:8px 10px; font-weight:800; font-size:14px; }
   .main-results-empty { padding:24px; color:var(--text-sub); font-size:14px; }
 
+  .pagination { display:flex; gap:6px; justify-content:center; margin-top:16px; }
+  .page-btn { border:1px solid #ddd; background:#fff; border-radius:6px; padding:6px 12px; font-size:13px; cursor:pointer; }
+  .page-btn.active { background:var(--brand,#1e8e5a); color:#fff; border-color:var(--brand,#1e8e5a); }
+
   /* 수어 인식 모달 */
-  .cam-modal { border:none; border-radius:20px; padding:0; max-width:480px; width:92vw; max-height:85vh; }
+  .cam-modal {
+    border:none; border-radius:20px; padding:0; max-width:480px; width:92vw; max-height:85vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
   .cam-modal::backdrop { background:rgba(0,0,0,.55); }
   .cam-modal-inner { padding:20px; position:relative; max-height:85vh; overflow-y:auto; }
   .cam-modal-title { font-weight:800; font-size:16px; margin-bottom:12px; }
@@ -45,6 +56,31 @@
   .cam-wrap video, .cam-wrap canvas { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
   .cam-result { font-size:26px; font-weight:800; text-align:center; margin:14px 0; min-height:36px; }
   .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
+  
+  /* 단어 상세 모달 (강의식) */
+  .detail-modal {
+    border:none; border-radius:24px; padding:0; max-width:640px; width:92vw; max-height:88vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+.detail-modal::backdrop { background:rgba(0,0,0,.65); }
+.detail-modal-inner { padding:32px; position:relative; max-height:88vh; overflow-y:auto; display:flex; flex-direction:column; align-items:center; }
+.detail-modal-close { position:absolute; top:16px; right:18px; border:none; background:none; font-size:22px; cursor:pointer; line-height:1; color:var(--text-sub); }
+
+.detail-video-wrap { width:100%; max-width:440px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#000; box-shadow:0 8px 24px rgba(0,0,0,.15); }
+.detail-video-wrap video { width:100%; height:100%; object-fit:cover; display:block; }
+
+.detail-word-name { font-size:26px; font-weight:900; letter-spacing:-0.5px; margin-top:18px; text-align:center; }
+
+.detail-divider { width:48px; height:3px; background:var(--brand,#1e8e5a); border-radius:2px; margin:16px 0; }
+
+.detail-section-label { font-size:13px; font-weight:800; color:var(--brand,#1e8e5a); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; text-align:center; }
+
+.detail-description { font-size:16px; line-height:1.7; color:#333; text-align:center; max-width:480px; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:18px 22px; }
+  .page-dots { color:var(--text-sub); font-weight:700; }
 </style>
 </head>
 <body>
@@ -137,6 +173,7 @@
 
         <div class="main-results-label" id="mainResultsLabel">오늘의 추천 단어</div>
         <div class="main-results" id="mainResults"></div>
+        <div id="pagination" class="pagination"></div>
       </div>
 
     </div>
@@ -162,11 +199,27 @@
   </div>
 </dialog>
 
+<!-- 영상클릭시 설명 모달(description) -->
+<dialog id="detailModal" class="detail-modal">
+  <div class="detail-modal-inner">
+    <button class="detail-modal-close" id="detailCloseBtn">✕</button>
+    <div class="detail-video-wrap">
+      <video id="detailVideo" autoplay loop muted playsinline></video>
+    </div>
+    <div class="detail-word-name" id="detailWordName"></div>
+    <div class="detail-divider"></div>
+    <div class="detail-section-label">설명</div>
+    <div class="detail-description" id="detailDescription"></div>
+  </div>
+</dialog>
+
 
 
 <script>
 const CTX = "${pageContext.request.contextPath}";
 let ALL_WORDS = [];
+let currentPage = 1;
+const PAGE_SIZE = 6;
 
 /* ─────────────────────────────────────────────
    1) 전체 단어 로드 (REST API 연동)
@@ -270,6 +323,7 @@ function renderChoSidebar() {
 
 function selectExactWord(word) {
   document.getElementById("searchInput").value = word.signWordName;
+  currentPage = 1;
   renderMainResults([word], word.signWordName + " 검색 결과");
   
   // 서버에 비디오 및 조회수 증가 요청
@@ -309,19 +363,115 @@ function wordCard(w) {
     videoEl.pause();
     videoEl.currentTime = 0;
   });
+
+  card.addEventListener("click", () => {
+    openDetailModal(w);
+  });
   
   return card;
 }
+function openDetailModal(word) {
+  const modal = document.getElementById("detailModal");
+  const videoEl = document.getElementById("detailVideo");
+  const nameEl = document.getElementById("detailWordName");
+  const descEl = document.getElementById("detailDescription");
 
+  nameEl.textContent = word.signWordName || '';
+  descEl.textContent = word.description || '등록된 설명이 없습니다.';
+
+  let videoUrl = word.signWordVideo || '';
+  if (videoUrl.startsWith("http://")) {
+    videoUrl = videoUrl.replace("http://", "https://");
+  }
+  videoEl.src = videoUrl;
+  videoEl.currentTime = 0;
+
+  modal.showModal();
+  videoEl.play().catch(() => {});
+
+  // 조회수 증가 + 최신 데이터(설명 등) 재확인
+  fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
+    .then(r => r.json())
+    .then(updatedVo => {
+      if (updatedVo && updatedVo.description) {
+        descEl.textContent = updatedVo.description;
+      }
+    })
+    .catch(() => {});
+}
+
+document.getElementById("detailCloseBtn").addEventListener("click", () => {
+  const modal = document.getElementById("detailModal");
+  const videoEl = document.getElementById("detailVideo");
+  videoEl.pause();
+  modal.close();
+});
+
+// 카드, 페이지, 라벨 텍스트 정리. 
 function renderMainResults(list, label) {
   document.getElementById("mainResultsLabel").textContent = label;
   const container = document.getElementById("mainResults");
   container.innerHTML = "";
+
   if (!list || list.length === 0) {
     container.innerHTML = '<div class="main-results-empty">일치하는 단어가 없어요</div>';
+    document.getElementById("pagination").innerHTML = "";
     return;
   }
-  list.forEach(w => container.appendChild(wordCard(w)));
+
+  const totalPages = Math.ceil(list.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = 1;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = list.slice(start, start + PAGE_SIZE);
+
+  pageItems.forEach(w => container.appendChild(wordCard(w)));
+  renderPagination(totalPages, list, label);
+}
+
+function renderPagination(totalPages, list, label) {
+  const box = document.getElementById("pagination");
+  box.innerHTML = "";
+  if (totalPages <= 1) return;
+
+  const BLOCK_SIZE = 5;
+  const blockStart = Math.floor((currentPage - 1) / BLOCK_SIZE) * BLOCK_SIZE + 1;
+  const blockEnd = Math.min(blockStart + BLOCK_SIZE - 1, totalPages);
+
+  // 이전 블록으로 이동하는 "..."
+  if (blockStart > 1) {
+    const prevDots = document.createElement("button");
+    prevDots.textContent = "...";
+    prevDots.className = "page-btn page-dots";
+    prevDots.addEventListener("click", () => {
+      currentPage = blockStart - BLOCK_SIZE;
+      renderMainResults(list, label);
+    });
+    box.appendChild(prevDots);
+  }
+
+  // 현재 블록의 페이지 번호들 (최대 5개)
+  for (let p = blockStart; p <= blockEnd; p++) {
+    const btn = document.createElement("button");
+    btn.textContent = p;
+    btn.className = "page-btn" + (p === currentPage ? " active" : "");
+    btn.addEventListener("click", () => {
+      currentPage = p;
+      renderMainResults(list, label);
+    });
+    box.appendChild(btn);
+  }
+
+  // 다음 블록으로 이동하는 "..."
+  if (blockEnd < totalPages) {
+    const nextDots = document.createElement("button");
+    nextDots.textContent = "...";
+    nextDots.className = "page-btn page-dots";
+    nextDots.addEventListener("click", () => {
+      currentPage = blockEnd + 1;
+      renderMainResults(list, label);
+    });
+    box.appendChild(nextDots);
+  }
 }
 
 function showRandomSix() {
@@ -336,6 +486,7 @@ function runSearch() {
     return;
   }
   const filtered = ALL_WORDS.filter(w => matchesQuery(w.signWordName, keyword));
+  currentPage = 1;
   renderMainResults(filtered, `"${keyword}" 검색 결과 (${filtered.length}개)`);
 }
 

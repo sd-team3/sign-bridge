@@ -1,31 +1,54 @@
-# -*- coding: utf-8 -*-
-"""
-국립국어원 '일상생활수어' API 전체 데이터를 sign_word 테이블에 배치 적재한다.
-- 1회성 배치 스크립트 (실시간 호출 아님)
-- UNIQUE KEY(sign_word_name) 기준으로 이미 있으면 UPDATE, 없으면 INSERT
-- view_count는 이미 존재하는 단어라면 절대 건드리지 않는다 (사용자 조회수 보존)
-"""
-
+import os
 import re
-import time
-import xml.etree.ElementTree as ET
 
-import pymysql
-import requests
+def load_properties(filepath):
+    props = {}
+    with open(filepath, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" in line:
+                key, value = line.split("=", 1)
+                props[key.strip()] = value.strip()
+    return props
 
-# API 설정 
-SERVICE_KEY = "b4215e06-89a0-46d9-9529-d58849a6ce6e"
+
+def parse_jdbc_url(jdbc_url):
+    """jdbc:mysql://host:port/dbname?... 형태에서 host, port, dbname 추출"""
+    m = re.match(r"jdbc:mysql://([^:/]+):(\d+)/([^?]+)", jdbc_url)
+    if not m:
+        raise ValueError(f"db.url 파싱 실패: {jdbc_url}")
+    host, port, dbname = m.group(1), m.group(2), m.group(3)
+    # Docker 전용 호스트명은 로컬 실행 환경에서는 localhost로 대체
+    if host == "host.docker.internal":
+        host = "localhost"
+    return host, int(port), dbname
+
+
+PROPS_DIR = os.path.join(
+    os.path.dirname(__file__),
+    "..", "spring-server", "src", "main", "resources", "properties"
+)
+
+app_props = load_properties(os.path.join(PROPS_DIR, "app.properties"))
+db_props = load_properties(os.path.join(PROPS_DIR, "db.properties"))
+
+db_host, db_port, db_name = parse_jdbc_url(db_props["db.url"])
+
+# API 설정
+SERVICE_KEY = app_props.get("culture.api.serviceKey")
 BASE_URL = "https://api.kcisa.kr/openapi/service/rest/meta13/getCTE01701"
-NUM_OF_ROWS = 100  # 한 페이지당 요청 개수
-REQUEST_INTERVAL_SEC = 0.2  # API 서버 부담 줄이기용 딜레이
+NUM_OF_ROWS = 100
+REQUEST_INTERVAL_SEC = 0.2
 
-# DB 설정 
+# DB 설정
 DB_CONFIG = {
-    "host": "localhost",
-    "port": 3306,
-    "user": "root",
-    "password": "yoonjae1102@",
-    "database": "sign-bridge",
+    "host": db_host,
+    "port": db_port,
+    "user": db_props.get("db.username"),
+    "password": db_props.get("db.password"),
+    "database": db_name,
     "charset": "utf8mb4",
 }
 
