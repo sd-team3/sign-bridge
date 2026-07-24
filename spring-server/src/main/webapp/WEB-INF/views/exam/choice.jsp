@@ -81,7 +81,7 @@ const examMode = params.get('mode');
 const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
-const objectiveCount = Math.ceil(totalCount / 2); // 앞 절반은 객관식, 뒤 절반은 주관식
+const objectiveCount = Math.ceil(totalCount / 2);
 const quizBank = [
   { word:'병원', choices:['사과','병원','자동차','감사합니다'], correct:1, category:'기초 어휘' },
   { word:'지진', choices:['지진','태풍','화재','대피'], correct:0, category:'비상 어휘' },

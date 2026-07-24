@@ -42,7 +42,9 @@
         </div>
       </div>
     </div>
-    <a href="exam_setup.html" class="nav-link">시험</a>
+    
+    <a href="/exam/setup" class="nav-link">시험</a>
+
     <div class="nav-item has-sub">
       <a href="play_chain.html" class="nav-link">플레이존 <span class="nav-caret">▾</span></a>
       <div class="nav-dropdown">
@@ -64,6 +66,7 @@
         </div>
       </div>
     </div>
+    
     <a href="board_list.html" class="nav-link">게시판</a>
   </div>
   <div class="nav-cta">
