@@ -200,10 +200,11 @@
     <button class="cam-modal-close" id="camCloseBtn">✕</button>
     <div class="cam-modal-title">🖐 수어로 검색</div>
     <div class="cam-wrap">
-      <video id="video" autoplay playsinline muted></video>
-      <canvas id="canvas"></canvas>
+      <video id="video-word" autoplay playsinline muted></video>
+      <canvas id="canvas-word"></canvas>
     </div>
-    <div class="cam-result" id="result">-</div>
+    <div class="cam-result" id="result-word">-</div>
+    <div class="progress-bar"><div id="progressFill"></div></div>
     <div class="cam-modal-btns">
       <button class="btn btn-primary btn-sm" id="camSearchBtn">이 단어로 검색</button>
       <button class="btn btn-ghost btn-sm" id="camResetBtn">초기화</button>
@@ -561,85 +562,7 @@ document.getElementById("searchInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter") runSearch();
 });
 
-/* ─────────────────────────────────────────────
-   5) 자모 자동 조합기
-───────────────────────────────────────────── */
-function isVowel(t) { return JUNG.indexOf(t) !== -1; }
-function isConsonant(t) { return CHO.indexOf(t) !== -1; }
-function isValidJong(t) { return JONG.indexOf(t) !== -1 && t !== ''; }
 
-let composer = { cho: null, jung: null, jong: null };
-let committedWord = "";
-
-function combine(cho, jung, jong) {
-  if (cho === null || jung === null) return null;
-  const c = CHO.indexOf(cho);
-  const j = JUNG.indexOf(jung);
-  const f = jong ? JONG.indexOf(jong) : 0;
-  if (c < 0 || j < 0 || f < 0) return null;
-  return String.fromCharCode(0xAC00 + (c * 21 + j) * 28 + f);
-}
-
-function commitCurrent() {
-  const ch = combine(composer.cho, composer.jung, composer.jong);
-  if (ch) committedWord += ch;
-}
-
-function renderComposed() {
-  const partial = combine(composer.cho, composer.jung, composer.jong) || (composer.cho || "");
-  document.getElementById("result").textContent = (committedWord + (partial || "")) || "-";
-}
-
-function resetComposer() {
-  composer = { cho: null, jung: null, jong: null };
-  committedWord = "";
-  renderComposed();
-}
-
-function feedJamo(token) {
-  if (isVowel(token)) {
-    if (composer.cho === null) return;
-    if (composer.jung === null) {
-      composer.jung = token;
-    } else if (composer.jong === null) {
-      return;
-    } else {
-      const givenBack = composer.jong;
-      composer.jong = null;
-      commitCurrent();
-      composer = { cho: givenBack, jung: token, jong: null };
-    }
-  } else if (isConsonant(token)) {
-    if (composer.cho === null) {
-      composer.cho = token;
-    } else if (composer.jung === null) {
-      composer.cho = token;
-    } else if (composer.jong === null) {
-      if (isValidJong(token)) {
-        composer.jong = token;
-      } else {
-        commitCurrent();
-        composer = { cho: token, jung: null, jong: null };
-      }
-    } else {
-      commitCurrent();
-      composer = { cho: token, jung: null, jong: null };
-    }
-  }
-  renderComposed();
-}
-
-document.getElementById("camResetBtn").addEventListener("click", resetComposer);
-
-document.getElementById("camSearchBtn").addEventListener("click", () => {
-  commitCurrent();
-  const word = committedWord;
-  if (!word) return;
-  document.getElementById("searchInput").value = word;
-  document.getElementById("camModal").close();
-  if (window.cam) window.cam.stop();
-  runSearch();
-});
 
 /* ─────────────────────────────────────────────
    6) 초기 진입
@@ -653,23 +576,28 @@ loadAllWords().then(() => {
 <!-- 수어 인식 모듈 -->
 <script type="module">
   import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
+  import { SignInputSession } from "${pageContext.request.contextPath}/resources/js/sign-input.js";
 
-  const api = new JamoApiClient("http://localhost:8000");
-
-  const cam = new HandCameraWidget({
-    videoEl: document.getElementById("video"),
-    canvasEl: document.getElementById("canvas"),
-    onFrame: async (landmarks) => {
-      if (!landmarks) return;
-      const result = await api.predict(landmarks, false);
-      document.getElementById("result").textContent = result.label;
-      feedJamo(result.label);
+  const signInput = new SignInputSession({
+    apiBase: CTX,
+    onUpdate: function (data) {
+      var composed = data.composedText || "";
+      document.getElementById("result-word").textContent = composed || "-";
+      var pct = (data.holdProgress || 0) * 100;
+      document.getElementById("progressFill").style.width = pct + "%";
     },
   });
 
+  const cam = new HandCameraWidget({
+    videoEl: document.getElementById("video-word"),
+    canvasEl: document.getElementById("canvas-word"),
+    onFrame: function (landmarks) { signInput.submitFrame(landmarks); },
+  });
+
   document.getElementById("camToggleBtn").addEventListener("click", async () => {
-    resetComposer();
+    document.getElementById("result-word").textContent = "-";
+    document.getElementById("progressFill").style.width = "0%";
+    try { await signInput.reset(); } catch (e) { console.error(e); }
     document.getElementById("camModal").showModal();
     await cam.start();
   });
@@ -679,7 +607,22 @@ loadAllWords().then(() => {
     cam.stop();
   });
 
+  document.getElementById("camResetBtn").addEventListener("click", async () => {
+    try { await signInput.reset(); } catch (e) { console.error(e); }
+  });
+
+  document.getElementById("camSearchBtn").addEventListener("click", () => {
+    const word = document.getElementById("result-word").textContent.trim();
+    if (!word || word === "-") return;
+    document.getElementById("searchInput").value = word;
+    document.getElementById("camModal").close();
+    cam.stop();
+    currentPage = 1;
+    runSearch();
+  });
+
   window.cam = cam;
+  window.signInput = signInput;
 </script>
 
 
