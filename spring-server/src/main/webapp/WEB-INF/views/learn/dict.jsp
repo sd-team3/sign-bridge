@@ -38,6 +38,27 @@
   overflow-y:auto;
   padding-right:4px;
 }
+
+@media (max-width: 768px) {
+  .dict-layout {
+    flex-direction: column;
+  }
+  .cho-sidebar {
+    flex: none;
+    width: 100%;
+    position: static;
+    max-height: 300px;
+  }
+  .main-results {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .main-results {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
   .word-card { border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fafafa; cursor:pointer; }
   .word-card video { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; display:block; }
 
@@ -108,6 +129,181 @@
 
 .detail-description { font-size:16px; line-height:1.7; color:#333; text-align:center; max-width:480px; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:18px 22px; }
   .page-dots { color:var(--text-sub); font-weight:700; }
+  /* 상단 액션 바 (오류신고 + 닫기, 오른쪽 끝에 나란히) */
+.detail-top-actions {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+}
+
+.detail-report-btn {
+  border: 1px solid #e2c4c4;
+  background: #fff5f5;
+  color: #b23b3b;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.detail-report-btn:hover {
+  background: #fde8e8;
+}
+
+.detail-modal-close {
+  border: none;
+  background: none;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--text-sub);
+  padding: 4px;
+}
+
+/* 영상 컨트롤 (재생속도/다시보기) */
+.detail-video-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.detail-ctrl-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #333;
+}
+.detail-ctrl-btn:hover {
+  background: #f2f8f5;
+  border-color: var(--brand, #1e8e5a);
+  color: var(--brand, #1e8e5a);
+}
+.detail-ctrl-btn.active {
+  background: var(--brand, #1e8e5a);
+  border-color: var(--brand, #1e8e5a);
+  color: #fff;
+}
+
+/* 조회수 메타 */
+.detail-meta {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin-top: 6px;
+  text-align: center;
+}
+
+/* 슬라이드업 드로어 */
+.detail-slide-drawer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-top: 20px;
+  background: #fff;
+  border-top: 1px solid #eee;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+
+.detail-slide-toggle {
+  width: 100%;
+  border: none;
+  background: #fafafa;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.detail-slide-toggle:hover {
+  background: #f2f8f5;
+  color: var(--brand, #1e8e5a);
+}
+
+.detail-slide-arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+  font-size: 11px;
+}
+.detail-slide-drawer.open .detail-slide-arrow {
+  transform: rotate(180deg);
+}
+
+.detail-slide-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+
+/* 관련 단어 리스트 (유튜브 관련영상 스타일 - 썸네일+제목 카드형) */
+.detail-related-list {
+  padding: 14px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.related-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+}
+.related-item:hover {
+  background: #f2f8f5;
+}
+
+.related-thumb {
+  width: 88px;
+  aspect-ratio: 4/3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+}
+.related-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.related-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.related-name {
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.related-desc {
+  font-size: 12px;
+  color: var(--text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 </style>
 </head>
 <body>
@@ -230,14 +426,42 @@
 <!-- 영상클릭시 설명 모달(description) -->
 <dialog id="detailModal" class="detail-modal">
   <div class="detail-modal-inner">
-    <button class="detail-modal-close" id="detailCloseBtn">✕</button>
+
+    <!-- 상단 우측: 오류신고 + 닫기 버튼 -->
+    <div class="detail-top-actions">
+      <button class="detail-report-btn" id="detailReportBtn">⚠ 오류 신고</button>
+      <button class="detail-modal-close" id="detailCloseBtn">✕</button>
+    </div>
+
     <div class="detail-video-wrap">
       <video id="detailVideo" autoplay loop muted playsinline></video>
     </div>
+
+    <!-- 영상 컨트롤: 재생속도 / 다시보기 -->
+    <div class="detail-video-controls">
+      <button class="detail-ctrl-btn" id="detailSlowBtn">0.5x</button>
+      <button class="detail-ctrl-btn" id="detailReplayBtn">↺ 다시보기</button>
+    </div>
+
     <div class="detail-word-name" id="detailWordName"></div>
+
+    <!-- 조회수 -->
+    <div class="detail-meta" id="detailMeta"></div>
+
     <div class="detail-divider"></div>
     <div class="detail-section-label">설명</div>
     <div class="detail-description" id="detailDescription"></div>
+
+    <!-- 슬라이드업 드로어: 화살표 버튼 + 관련 단어 2개 -->
+    <div class="detail-slide-drawer" id="detailSlideDrawer">
+      <button class="detail-slide-toggle" id="detailSlideToggle">
+        <span class="detail-slide-arrow">▲</span> 관련 단어 보기
+      </button>
+      <div class="detail-slide-content" id="detailSlideContent">
+        <div class="detail-related-list" id="detailRelated"></div>
+      </div>
+    </div>
+
   </div>
 </dialog>
 
@@ -547,18 +771,31 @@ function openDetailModal(word) {
   const videoEl = document.getElementById("detailVideo");
   const nameEl = document.getElementById("detailWordName");
   const descEl = document.getElementById("detailDescription");
+  const metaEl = document.getElementById("detailMeta");
 
   nameEl.textContent = word.signWordName || '';
   descEl.textContent = word.description || '등록된 설명이 없습니다.';
+  metaEl.textContent = `조회 ${updatedVo.viewCount}회`;
 
   let videoUrl = word.signWordVideo || '';
   if (videoUrl.startsWith("http://")) {
     videoUrl = videoUrl.replace("http://", "https://");
   }
+
+  // 재생속도 버튼 초기 상태 리셋
+  videoEl.playbackRate = 1;
+  const slowBtn = document.getElementById("detailSlowBtn");
+  slowBtn.textContent = "0.5x";
+  slowBtn.classList.remove("active");
+
   videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl); // 모달 열릴 때 로딩 시작
 
   modal.showModal();
   videoEl.play().catch(() => {});
+
+  // 관련 단어(같은 초성) 렌더링 + 슬라이드 드로어 초기화(닫힌 상태로)
+  renderRelatedWords(word);
+  closeSlideDrawer();
 
   // 영상설명 최신정보 요청
   fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
@@ -567,8 +804,81 @@ function openDetailModal(word) {
       if (updatedVo && updatedVo.description) {
         descEl.textContent = updatedVo.description;
       }
+      if (updatedVo && typeof updatedVo.viewCount === "number") {
+        metaEl.textContent = `조회 ${updatedVo.viewCount}회`;
+      }
     })
     .catch(() => {});
+}
+
+// 재생속도, 다시보기 버튼
+document.getElementById("detailSlowBtn").addEventListener("click", () => {
+  const videoEl = document.getElementById("detailVideo");
+  const btn = document.getElementById("detailSlowBtn");
+  if (videoEl.playbackRate === 1) {
+    videoEl.playbackRate = 0.5;
+    btn.textContent = "1x";
+    btn.classList.add("active");
+  } else {
+    videoEl.playbackRate = 1;
+    btn.textContent = "0.5x";
+    btn.classList.remove("active");
+  }
+});
+
+document.getElementById("detailReplayBtn").addEventListener("click", () => {
+  const videoEl = document.getElementById("detailVideo");
+  videoEl.currentTime = 0;
+  videoEl.play().catch(() => {});
+});
+
+// 오류신고(기능구현 연결x)
+document.getElementById("detailReportBtn").addEventListener("click", () => {
+ 
+  alert("오류 신고 기능은 준비 중입니다.");
+});
+
+// 같은 초성의 다른 단어 2개를 관련 단어로 추천 (유튜브 관련영상 리스트 스타일)
+function renderRelatedWords(word) {
+  const box = document.getElementById("detailRelated");
+  box.innerHTML = "";
+
+  const cho = firstChoseongOf(word.signWordName);
+  const related = ALL_WORDS
+    .filter(w => w.signWordName !== word.signWordName && firstChoseongOf(w.signWordName) === cho)
+    .slice(0, 2);
+
+  if (related.length === 0) {
+    box.innerHTML = '<div class="cho-group-empty">관련 단어가 없습니다</div>';
+    return;
+  }
+
+  related.forEach(r => {
+    let thumbUrl = r.signWordThumbnail || '';
+    if (thumbUrl.startsWith("http://")) {
+      thumbUrl = thumbUrl.replace("http://", "https://");
+    }
+
+    const item = document.createElement("div");
+    item.className = "related-item";
+    item.innerHTML =
+      '<div class="related-thumb">' +
+        (thumbUrl ? '<img src="' + thumbUrl + '" alt="">' : '') +
+      '</div>' +
+      '<div class="related-info">' +
+        '<div class="related-name"></div>' +
+        '<div class="related-desc"></div>' +
+      '</div>';
+
+    item.querySelector(".related-name").textContent = r.signWordName || '';
+    item.querySelector(".related-desc").textContent = r.description || '설명 없음';
+
+    item.addEventListener("click", () => {
+      openDetailModal(r); // 관련 단어 클릭 시 그 단어 상세로 전환
+    });
+
+    box.appendChild(item);
+  });
 }
 
 // 모달 닫기 시 src제거 ... 백그라운드에서 영상재생되는거 막기
@@ -578,7 +888,46 @@ document.getElementById("detailCloseBtn").addEventListener("click", () => {
   videoEl.pause();
   videoEl.removeAttribute("src"); // 로딩 중단
   videoEl.load();
+  closeSlideDrawer();
   modal.close();
+});
+
+// 슬라이드 드로어 열기: 모달 실제 렌더링 높이의 2/5를 관련단어 영역 max-height로 지정
+function openSlideDrawer() {
+  const drawer = document.getElementById("detailSlideDrawer");
+  const content = document.getElementById("detailSlideContent");
+  const modalInner = document.querySelector(".detail-modal-inner");
+
+  const modalHeight = modalInner.getBoundingClientRect().height;
+  const targetHeight = modalHeight * (2 / 5);
+
+  content.style.maxHeight = targetHeight + "px";
+  drawer.classList.add("open");
+
+  const toggleBtn = document.getElementById("detailSlideToggle");
+  toggleBtn.childNodes[toggleBtn.childNodes.length - 1].textContent = " 관련 단어 접기";
+}
+
+// 슬라이드 드로어 닫기
+function closeSlideDrawer() {
+  const drawer = document.getElementById("detailSlideDrawer");
+  const content = document.getElementById("detailSlideContent");
+
+  content.style.maxHeight = "0px";
+  drawer.classList.remove("open");
+
+  const toggleBtn = document.getElementById("detailSlideToggle");
+  toggleBtn.childNodes[toggleBtn.childNodes.length - 1].textContent = " 관련 단어 보기";
+}
+
+// 화살표 버튼 클릭 시 열림/닫힘 토글
+document.getElementById("detailSlideToggle").addEventListener("click", () => {
+  const drawer = document.getElementById("detailSlideDrawer");
+  if (drawer.classList.contains("open")) {
+    closeSlideDrawer();
+  } else {
+    openSlideDrawer();
+  }
 });
 
 // 카드, 페이지, 라벨 텍스트 정리. 
