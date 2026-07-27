@@ -83,7 +83,7 @@
         </div>
       </a> -->
 
-      <a href="learn_word.html" class="cat-card">
+      <a href="/learn/dict" class="cat-card">
         <div class="cat-card-icon">🔍</div>
         <div class="cat-card-title">개별 어휘 검색</div>
         <div class="cat-card-desc">원하는 단어를 검색하거나 분야별 필터로 자유롭게 학습해요.</div>
