@@ -29,7 +29,15 @@
   .search-row { display:flex; gap:8px; margin-bottom:16px; }
   .search-row input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px; }
   .main-results-label { font-size:13px; color:var(--text-sub); margin-bottom:10px; }
-  .main-results { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; max-height:640px; overflow-y:auto; padding-right:4px; }
+  .main-results {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:14px;
+  min-height: 520px;
+  align-content: start;
+  overflow-y:auto;
+  padding-right:4px;
+}
   .word-card { border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fafafa; cursor:pointer; }
   .word-card video { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; display:block; }
 
@@ -44,7 +52,14 @@
     background:#f0f0f0; color:var(--text-sub); font-size:13px; font-weight:600;
   }
 
-  .word-card-name { padding:8px 10px; font-weight:800; font-size:14px; }
+  .word-card-name {
+  padding:8px 10px;
+  font-weight:800;
+  font-size:14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
   .main-results-empty { padding:24px; color:var(--text-sub); font-size:14px; }
 
   .pagination { display:flex; gap:6px; justify-content:center; margin-top:16px; }
