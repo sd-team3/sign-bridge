@@ -235,7 +235,7 @@ let currentPage = 1;
 const PAGE_SIZE = 6;
 
 /* ─────────────────────────────────────────────
-   1) 전체 단어 로드 (REST API 연동)
+   1) 전체 단어 로드 (API 연동)
 ───────────────────────────────────────────── */
 function loadAllWords() {
   return fetch(CTX + "/learn/dict/search")
@@ -259,6 +259,16 @@ const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ',
 const JONG = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const BASIC_CHO = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 
+// 완성형 음절이 아닌 단독 자모(호환 자모) 판별용 유니코드 범위
+function isConsonantJamo(ch) {
+  const code = ch.charCodeAt(0);
+  return code >= 0x3131 && code <= 0x314E;
+}
+function isVowelJamo(ch) {
+  const code = ch.charCodeAt(0);
+  return code >= 0x314F && code <= 0x3163;
+}
+
 // 단어 안 모든 음절의 초성 배열 (검색/필터용)
 function choseongListOf(word) {
   const result = [];
@@ -267,6 +277,9 @@ function choseongListOf(word) {
     const code = ch.charCodeAt(0) - 0xAC00;
     if (code >= 0 && code <= 11171) {
       result.push(CHO[Math.floor(code / (21 * 28))]);
+    } else if (isConsonantJamo(ch)) {
+      // 단독 자음 낱자(예: "ㄱ" 자체) 도 초성 검색/분류 대상에 포함
+      result.push(ch);
     }
   }
   return result;
@@ -278,13 +291,78 @@ function firstChoseongOf(word) {
   return list.length ? list[0] : null;
 }
 
+// 단어가 괄호로 시작하면(예: "(가스불을)켜다") 분류 불가로 보고 기타로 보냄
+function startsWithParenthesis(word) {
+  return /^[(（]/.test(word);
+}
+
+// 쉼표(,)로 구분된 여러 표현 중, 괄호로 시작하지 않는 조각들의 초성/모음 그룹을 전부 뽑아냄
+// 예: "뽀뽀,입맞춤,키스,맞추다" -> ["ㅃ","ㅇ","ㅋ","ㅁ"]
+function classifyGroups(word) {
+  if (!word) return ["기타"];
+
+  const parts = word.split(",").map(p => p.trim()).filter(p => p.length > 0);
+  const targets = parts.length > 0 ? parts : [word];
+
+  const keys = new Set();
+  targets.forEach(part => {
+    if (startsWithParenthesis(part)) {
+      keys.add("기타");
+      return;
+    }
+    if (part.length === 1 && isVowelJamo(part[0])) {
+      keys.add("모음");
+      return;
+    }
+    const cho = firstChoseongOf(part);
+    keys.add(cho || "기타");
+  });
+
+  return [...keys];
+}
+
+// 완성형 음절 한 글자 -> 초성 낱자 하나. 단독 자음이면 자기 자신 리턴. 그 외 null.
+function choseongOfChar(ch) {
+  const code = ch.charCodeAt(0) - 0xAC00;
+  if (code >= 0 && code <= 11171) {
+    return CHO[Math.floor(code / (21 * 28))];
+  }
+  if (isConsonantJamo(ch)) return ch;
+  return null;
+}
+
+// 단어 속 한 글자(nameCh)가 검색어 한 글자(keyCh)와 매칭되는지 판단
+// keyCh가 초성 낱자면: nameCh의 초성만 뽑아 비교(완성형이든 초성낱자든 상관없이)
+// keyCh가 완성형 글자면: nameCh와 그대로 비교
+function charMatches(nameCh, keyCh) {
+  if (isConsonantJamo(keyCh)) {
+    return choseongOfChar(nameCh) === keyCh;
+  }
+  return nameCh === keyCh;
+}
+
+// name 안에서 keyword 시퀀스가 "연속으로(순서 그대로, 건너뛰기 없이)" 등장하는지 탐색
+// 완성형 글자, 초성 낱자가 섞인 검색어도 처리 가능 (예: "사ㄱ")
+function matchesSequential(name, keyword) {
+  if (!keyword) return true;
+  if (!name) return false;
+  const nameChars = [...name];
+  const keyChars = [...keyword];
+  for (let start = 0; start <= nameChars.length - keyChars.length; start++) {
+    let allMatch = true;
+    for (let i = 0; i < keyChars.length; i++) {
+      if (!charMatches(nameChars[start + i], keyChars[i])) { allMatch = false; break; }
+    }
+    if (allMatch) return true;
+  }
+  return false;
+}
+
+// 검색창에 초성만 입력해도, 완성형+초성 섞어 입력해도, 일반 단어 입력해도 다 처리
 function matchesQuery(name, keyword) {
   if (!keyword) return true;
   if (!name) return false;
-  if (keyword.length === 1 && CHO.includes(keyword)) {
-    return choseongListOf(name).includes(keyword);
-  }
-  return name.includes(keyword);
+  return matchesSequential(name, keyword);
 }
 
 /* ─────────────────────────────────────────────
@@ -295,27 +373,35 @@ function renderChoSidebar() {
   if (!sidebar) return;
   sidebar.querySelectorAll(".cho-group").forEach(el => el.remove());
 
+  // CHO 19개(된소리 포함) + 모음 + 기타 로 그룹 구성
+  const groupKeys = [...CHO, "모음", "기타"];
   const groups = {};
-  BASIC_CHO.forEach(c => groups[c] = []);
-  groups["기타"] = [];
+  groupKeys.forEach(k => groups[k] = []);
 
+  // classifyGroups로 분류 (단독모음->모음, 단독자음/완성형 초성->해당 초성, 괄호로 시작->기타, 못찾으면->기타)
+  // 쉼표(,)로 여러 표현이 묶인 단어는 각 표현의 초성마다 전부 걸리도록 배열로 리턴받음
   ALL_WORDS.forEach(w => {
-    const cho = firstChoseongOf(w.signWordName);
-    if (BASIC_CHO.includes(cho)) groups[cho].push(w);
-    else groups["기타"].push(w);
+    const keys = classifyGroups(w.signWordName);
+    keys.forEach(key => {
+      (groups[key] || groups["기타"]).push(w);
+    });
   });
 
-  [...BASIC_CHO, "기타"].forEach(cho => {
-    const words = groups[cho].sort((a, b) => a.signWordName.localeCompare(b.signWordName, "ko"));
-    if (cho === "기타" && words.length === 0) return;
+  // 그룹별 가나다순 정렬
+  groupKeys.forEach(key => {
+    const words = groups[key].sort((a, b) => a.signWordName.localeCompare(b.signWordName, "ko"));
+    // 모음/기타 그룹은 비어있으면 아예 렌더링 스킵
+    if (words.length === 0 && (key === "기타" || key === "모음")) return;
 
     const details = document.createElement("details");
     details.className = "cho-group";
 
+    // 개수 표시
     const summary = document.createElement("summary");
-    summary.innerHTML = "<span>" + cho + "</span><span class=\"cho-count\">" + words.length + "</span>";
+    summary.innerHTML = "<span>" + key + "</span><span class=\"cho-count\">" + words.length + "</span>";
     details.appendChild(summary);
 
+    // 그룹 비었을시 안내, 있으면 클릭가능 항목 제공.
     const list = document.createElement("div");
     list.className = "cho-group-list";
     if (words.length === 0) {
@@ -359,6 +445,7 @@ function wordCard(w) {
     '</div>' +
     '<div class="word-card-name"></div>';
 
+  // 페이지가 https로 서빙되기에 강제 치환(안전 장치)
   let videoUrl = w.signWordVideo || '';
   if (videoUrl.startsWith("http://")) {
     videoUrl = videoUrl.replace("http://", "https://");
@@ -411,6 +498,8 @@ function wordCard(w) {
       videoEl.play().catch(() => {});
       return;
     }
+
+    // 1.5초 마우스 호버시 실행.
     hoverTimer = setTimeout(() => {
       videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl);
       isLoaded = true;
@@ -418,6 +507,7 @@ function wordCard(w) {
     }, 150);
   });
 
+  // 이탈시... 영상타이머 취소 및 일시정지(처음으로)
   card.addEventListener("mouseleave", () => {
     if (hoverTimer) {
       clearTimeout(hoverTimer);
@@ -436,6 +526,7 @@ function wordCard(w) {
   return card;
 }
 
+// 모달
 function openDetailModal(word) {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
@@ -454,6 +545,7 @@ function openDetailModal(word) {
   modal.showModal();
   videoEl.play().catch(() => {});
 
+  // 영상설명 최신정보 요청
   fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
     .then(r => r.json())
     .then(updatedVo => {
@@ -464,6 +556,7 @@ function openDetailModal(word) {
     .catch(() => {});
 }
 
+// 모달 닫기 시 src제거 ... 백그라운드에서 영상재생되는거 막기
 document.getElementById("detailCloseBtn").addEventListener("click", () => {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
@@ -480,11 +573,12 @@ function renderMainResults(list, label) {
   container.innerHTML = "";
 
   if (!list || list.length === 0) {
-    container.innerHTML = '<div class="main-results-empty">일치하는 단어가 없어요</div>';
+    container.innerHTML = '<div class="main-results-empty">일치하는 단어가 없습니다</div>';
     document.getElementById("pagination").innerHTML = "";
     return;
   }
 
+  // 서버에 요청이아닌 가지고 있는 list배열 (slice) 보여주기.
   const totalPages = Math.ceil(list.length / PAGE_SIZE);
   if (currentPage > totalPages) currentPage = 1;
   const start = (currentPage - 1) * PAGE_SIZE;
@@ -494,6 +588,7 @@ function renderMainResults(list, label) {
   renderPagination(totalPages, list, label);
 }
 
+// 페이지 끊기.
 function renderPagination(totalPages, list, label) {
   const box = document.getElementById("pagination");
   box.innerHTML = "";
@@ -540,11 +635,14 @@ function renderPagination(totalPages, list, label) {
   }
 }
 
+// 처음 페이지 조회시 랜덤 6개 추출
+// xml에서 한번에 처리시 api 2번호출(사이드바, sql조회) >> db과부하
 function showRandomSix() {
-  const shuffled = [...ALL_WORDS].sort(() => Math.random() - 0.5);
+  const shuffled = [...ALL_WORDS].sort(() => Math.random() - 0.5); // 배열복사(원본 훼손 방지)
   renderMainResults(shuffled.slice(0, 6), "오늘의 추천 단어");
 }
 
+// 검색 창 비어있을 시 다시 랜덤
 function runSearch() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) {
@@ -578,6 +676,7 @@ loadAllWords().then(() => {
   import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
   import { SignInputSession } from "${pageContext.request.contextPath}/resources/js/sign-input.js";
 
+  // 자,모 조합 알고리즘
   const signInput = new SignInputSession({
     apiBase: CTX,
     onUpdate: function (data) {
@@ -588,12 +687,14 @@ loadAllWords().then(() => {
     },
   });
 
+  // 카메라 손 추출
   const cam = new HandCameraWidget({
     videoEl: document.getElementById("video-word"),
     canvasEl: document.getElementById("canvas-word"),
     onFrame: function (landmarks) { signInput.submitFrame(landmarks); },
   });
 
+  // 캠 클릭시 이전세션 초기화 후 카메라 인식 시작
   document.getElementById("camToggleBtn").addEventListener("click", async () => {
     document.getElementById("result-word").textContent = "-";
     document.getElementById("progressFill").style.width = "0%";
@@ -602,15 +703,18 @@ loadAllWords().then(() => {
     await cam.start();
   });
 
+  // 닫기 ... 카메라 스트림 정지
   document.getElementById("camCloseBtn").addEventListener("click", () => {
     document.getElementById("camModal").close();
     cam.stop();
   });
 
+  // 세션만 리셋(카메라 그대로)
   document.getElementById("camResetBtn").addEventListener("click", async () => {
     try { await signInput.reset(); } catch (e) { console.error(e); }
   });
 
+  // 일반검색과 로직동일
   document.getElementById("camSearchBtn").addEventListener("click", () => {
     const word = document.getElementById("result-word").textContent.trim();
     if (!word || word === "-") return;

@@ -38,7 +38,7 @@ public class LearnController {
         return "learn/dict";
     }
 
-    // /learn/dict?word=사과 형태로 진입 시 상세 (로그인 필요 - SecurityConfig 쪽 확인 후 처리 예정)
+    // /learn/dict?word=사과 형태로 진입 시 상세
     @GetMapping(value = "/dict", params = "word")
     public String dictDetail(@RequestParam("word") String word, Model model) {
         learnService.increaseViewCount(word);
@@ -46,6 +46,7 @@ public class LearnController {
         return "learn/dict";
     }
 
+    // jp안거치고 json으로 리턴값 바로받아서 파라미터 없어도 에러 x
     @GetMapping("/dict/search")
     @ResponseBody
     public List<SignWordVO> dictSearch(
