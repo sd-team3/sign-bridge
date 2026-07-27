@@ -13,6 +13,11 @@
         <result column="provider" property="provider" />
         <result column="provider_id" property="providerId" />
     </resultMap>
+    <resultMap id="dailySignupResultMap" type="com.soldesk.vo.DailySignupVO">
+        <result column="reg_day" property="day" />
+        <result column="cnt" property="count" />
+    </resultMap>
+
 
     <select id="findByEmail" parameterType="string" resultMap="memberResultMap">
         select member_id, member_password, member_email, member_name, member_profile_image, role, status, reg_date
@@ -33,5 +38,85 @@
         insert into member (member_email, member_password, member_name, provider, provider_id)
         values(#{memberEmail}, #{memberPassword}, #{memberName}, #{provider}, #{providerId})
     </insert>
+
+    <!-- 전체 회원 수 -->
+    <select id="countAll" resultType="int">
+        select count(*)
+        from member
+    </select>
+
+    <!-- 오늘 추가된 회원 수 -->
+    <select id="countTodayMember" resultType="int">
+        SELECT COUNT(*) 
+        FROM member 
+        WHERE DATE(reg_date) = CURDATE();
+    </select>
+
+    <!-- 주간 일별 유저 추가 수 -->
+    <select id="getWeeklySignupList" resultMap="dailySignupResultMap">
+        SELECT DATE(reg_date) AS reg_day, COUNT(*) AS cnt
+        FROM member
+        WHERE reg_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+        GROUP BY DATE(reg_date)
+        ORDER BY reg_day
+    </select>
+    <select id="getAllMembers" resultMap="memberResultMap">
+        SELECT
+            m.member_id,
+            m.member_name,
+            m.member_email,
+            m.role,
+            m.status,
+            m.reg_date,
+            s.end_date
+        FROM member m
+        LEFT JOIN member_suspension s
+            ON s.member_id = m.member_id
+            AND (s.end_date IS NULL OR s.end_date &gt; NOW())
+        <where>
+            <if test="role != null and role != ''">
+                AND m.role = #{role}
+            </if>
+            <if test="status != null and status != ''">
+                AND m.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (m.member_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR m.member_email LIKE CONCAT('%', #{keyword}, '%')
+                    OR m.member_id LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        <choose>
+            <when test="sort == 'oldest'">ORDER BY m.reg_date ASC</when>
+            <when test="sort == 'name'">ORDER BY m.member_name ASC</when>
+            <otherwise>ORDER BY m.reg_date DESC</otherwise>
+        </choose>
+        LIMIT #{start}, #{count}
+    </select>
+
+    
+    <select id="getMemberCount" resultType="int">
+        SELECT COUNT(*)
+        FROM member m
+        <where>
+            <if test="role != null and role != ''">
+                AND m.role = #{role}
+            </if>
+            <if test="status != null and status != ''">
+                AND m.status = #{status}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (m.member_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR m.member_email LIKE CONCAT('%', #{keyword}, '%')
+                    OR m.member_id LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="getMemberInfo" resultMap="memberResultMap">
+        select member_id, member_name, member_email, reg_date, provider, status
+        from member
+        where member_id = #{memberId}
+    </select>
 
 </mapper>
