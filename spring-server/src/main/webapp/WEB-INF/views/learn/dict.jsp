@@ -33,8 +33,8 @@
   display:grid;
   grid-template-columns:repeat(3, 1fr);
   gap:14px;
-  min-height: 520px;  /* 카드 2행 높이(대략) 고정 확보 - 실제 카드 높이 재보고 값 조정 */
-  align-content: start; /* 항목 적을 때 위쪽부터 채우고 아래는 빈 공간으로 남김 */
+  min-height: 520px;
+  align-content: start;
   overflow-y:auto;
   padding-right:4px;
 }
@@ -52,7 +52,14 @@
     background:#f0f0f0; color:var(--text-sub); font-size:13px; font-weight:600;
   }
 
-  .word-card-name { padding:8px 10px; font-weight:800; font-size:14px; }
+  .word-card-name {
+  padding:8px 10px;
+  font-weight:800;
+  font-size:14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
   .main-results-empty { padding:24px; color:var(--text-sub); font-size:14px; }
 
   .pagination { display:flex; gap:6px; justify-content:center; margin-top:16px; }
