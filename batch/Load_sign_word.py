@@ -1,6 +1,11 @@
 import os
 import re
+import requests
+import xml.etree.ElementTree as ET
+import pymysql
+import time
 
+# properties 파싱.
 def load_properties(filepath):
     props = {}
     with open(filepath, encoding="utf-8") as f:
@@ -25,7 +30,7 @@ def parse_jdbc_url(jdbc_url):
         host = "localhost"
     return host, int(port), dbname
 
-
+# 경로 찾기
 PROPS_DIR = os.path.join(
     os.path.dirname(__file__),
     "..", "spring-server", "src", "main", "resources", "properties"
@@ -52,7 +57,7 @@ DB_CONFIG = {
     "charset": "utf8mb4",
 }
 
-# 초성 추출용 상수 (유니코드 완성형 한글 = 가(0xAC00) 시작, 초성 19개 반복 주기)
+# 초성 추출 >> db초성 컬럼에 적재
 CHOSEONG_LIST = [
     "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ",
     "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ",
@@ -65,7 +70,7 @@ def extract_choseong(word: str):
         return None
     first_char = word[0]
     code = ord(first_char) - 0xAC00
-    if 0 <= code <= 11171:  # 완성형 한글 범위
+    if 0 <= code <= 11171:  # 완성형 한글 범위 밖이면 기타,영문
         return CHOSEONG_LIST[code // 588]
     return None
 
@@ -86,10 +91,10 @@ def fetch_page(page_no: int):
         "keyword": "",
     }
     res = requests.get(BASE_URL, params=params, timeout=10)
-    res.raise_for_status()
+    res.raise_for_status() # 200시 통과
     return res.text
 
-
+# xml파싱 후 객체 전환
 def parse_items(xml_text: str):
     root = ET.fromstring(xml_text)
     total_count = int(root.findtext(".//totalCount", "0"))
@@ -100,7 +105,7 @@ def parse_items(xml_text: str):
             continue  # 단어명 없는 항목은 스킵
         items.append({
             "name": title,
-            "video": (item.findtext("subDescription") or "").strip() or None,
+            "video": (item.findtext("subDescription") or "").strip() or None, # 빈문자열 허용 x 
             "thumbnail": (item.findtext("referenceIdentifier") or "").strip() or None,
             "description": (item.findtext("signDescription") or "").strip() or None,
             "api_id": extract_api_id(item.findtext("url") or ""),
@@ -108,7 +113,7 @@ def parse_items(xml_text: str):
         })
     return items, total_count
 
-
+# 기존값 유지하지만, 새로 들어온 값 있으면 새로고침
 def upsert_items(cursor, items):
     sql = """
         INSERT INTO sign_word
@@ -125,7 +130,7 @@ def upsert_items(cursor, items):
     """
     cursor.executemany(sql, items)
 
-
+# 페이지 요청해서 api 아이템 값들 획득
 def main():
     print("첫 페이지 조회해서 totalCount 확인 중...")
     xml_text = fetch_page(1)
@@ -138,7 +143,7 @@ def main():
 
     try:
         with conn.cursor() as cursor:
-            # 1페이지분 먼저 적재
+            # 1페이지분 먼저 적재 >> totalCount 인지하고 total_pages 계산
             if items:
                 upsert_items(cursor, items)
                 inserted_total += len(items)
