@@ -29,7 +29,15 @@
   .search-row { display:flex; gap:8px; margin-bottom:16px; }
   .search-row input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px; }
   .main-results-label { font-size:13px; color:var(--text-sub); margin-bottom:10px; }
-  .main-results { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; max-height:640px; overflow-y:auto; padding-right:4px; }
+  .main-results {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:14px;
+  min-height: 520px;  /* 카드 2행 높이(대략) 고정 확보 - 실제 카드 높이 재보고 값 조정 */
+  align-content: start; /* 항목 적을 때 위쪽부터 채우고 아래는 빈 공간으로 남김 */
+  overflow-y:auto;
+  padding-right:4px;
+}
   .word-card { border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fafafa; cursor:pointer; }
   .word-card video { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; display:block; }
 
