@@ -238,7 +238,7 @@ public class OAuthService {
             }
             UserDetails userDetails = memberUserDetailsService.loadUserByUsername(member.getMemberEmail());
             UsernamePasswordAuthenticationToken auth = 
-                new UsernamePasswordAuthenticationToken(userDetails, userDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 new HttpSessionSecurityContextRepository()
                     .saveContext(SecurityContextHolder.getContext(), request, response); 
