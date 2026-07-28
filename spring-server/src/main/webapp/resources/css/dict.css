@@ -1,0 +1,366 @@
+.dict-layout { display:flex; gap:24px; align-items:flex-start; }
+
+  /* 좌측 초성 아코디언 사이드바 */
+  .cho-sidebar { flex:0 0 220px; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto; border:1px solid #eee; border-radius:12px; }
+  .cho-sidebar-title { font-size:13px; color:var(--text-sub); font-weight:700; padding:12px 14px 8px; }
+  .cho-group { border-top:1px solid #f0f0f0; }
+  .cho-group summary { list-style:none; cursor:pointer; padding:10px 14px; font-weight:800; font-size:15px; display:flex; justify-content:space-between; align-items:center; }
+  .cho-group summary::-webkit-details-marker { display:none; }
+  .cho-group summary .cho-count { font-size:12px; font-weight:500; color:var(--text-sub); }
+  .cho-group[open] summary { background:#f2f8f5; color:var(--brand,#1e8e5a); }
+  .cho-group-list { max-height:220px; overflow-y:auto; padding:0 14px 10px; }
+  .cho-word-item { padding:6px 4px; font-size:14px; cursor:pointer; border-radius:6px; }
+  .cho-word-item:hover { background:#f2f8f5; }
+  .cho-group-empty { padding:6px 4px; font-size:13px; color:var(--text-sub); }
+
+  /* 메인 영역 */
+  .dict-main { flex:1; min-width:0; }
+  .search-row { display:flex; gap:8px; margin-bottom:16px; }
+  .search-row input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px; }
+  .main-results-label { font-size:13px; color:var(--text-sub); margin-bottom:10px; }
+  .main-results {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:14px;
+  min-height: 520px;
+  align-content: start;
+  overflow-y:auto;
+  padding-right:4px;
+}
+
+@media (max-width: 768px) {
+  .dict-layout {
+    flex-direction: column;
+  }
+  .cho-sidebar {
+    flex: none;
+    width: 100%;
+    position: static;
+    max-height: 300px;
+  }
+  .main-results {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .main-results {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+  .word-card { border:1px solid #eee; border-radius:14px; overflow:hidden; background:#fafafa; cursor:pointer; }
+  .word-card video { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; display:block; }
+
+  
+  /* error */
+  .word-video-wrap { position:relative; width:100%; aspect-ratio:4/3; background:#000; }
+  .word-video-wrap video { width:100%; height:100%; object-fit:cover; display:block; }
+  .word-video-wrap.no-thumb { background:#f0f0f0; }
+  .video-unavailable {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:none; align-items:center; justify-content:center;
+    background:#f0f0f0; color:var(--text-sub); font-size:13px; font-weight:600;
+  }
+
+  .word-card-name {
+  padding:8px 10px;
+  font-weight:800;
+  font-size:14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+  .main-results-empty { padding:24px; color:var(--text-sub); font-size:14px; }
+
+  .pagination { display:flex; gap:6px; justify-content:center; margin-top:16px; }
+  .page-btn { border:1px solid #ddd; background:#fff; border-radius:6px; padding:6px 12px; font-size:13px; cursor:pointer; }
+  .page-btn.active { background:var(--brand,#1e8e5a); color:#fff; border-color:var(--brand,#1e8e5a); }
+
+  .sort-btns { display:flex; gap:6px; }
+.sort-btn { border:1px solid #ddd; background:#fff; border-radius:6px; padding:5px 12px; font-size:13px; cursor:pointer; color:#333; }
+.sort-btn.active { background:var(--brand,#1e8e5a); color:#fff; border-color:var(--brand,#1e8e5a); }
+
+  /* 수어 인식 모달 */
+  .cam-modal {
+    border:none; border-radius:20px; padding:0; max-width:480px; width:92vw; max-height:85vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+  .cam-modal::backdrop { background:rgba(0,0,0,.55); }
+  .cam-modal-inner { padding:20px; position:relative; max-height:85vh; overflow-y:auto; }
+  .cam-modal-title { font-weight:800; font-size:16px; margin-bottom:12px; }
+  .cam-modal-close { position:absolute; top:14px; right:14px; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; }
+  .cam-wrap { position:relative; width:100%; aspect-ratio:4/3; margin:0 auto; border-radius:12px; overflow:hidden; background:#000; }
+  .cam-wrap video, .cam-wrap canvas { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
+  .cam-result { font-size:26px; font-weight:800; text-align:center; margin:14px 0; min-height:36px; }
+  .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
+  
+  /* 단어 상세 모달 (강의식) */
+  /* 드로어 열려도 모달 자체 크기 안변하게 max-height 말고 height로 고정 (여기가 이번 수정 핵심) */
+  .detail-modal {
+    border:none; border-radius:24px; padding:0; max-width:520px; width:92vw; height:88vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+.detail-modal::backdrop { background:rgba(0,0,0,.65); }
+/* 토글바가 스크롤 내려야 보이는 문제 있어서 구조 바꿈: modal-inner 자체는 더이상 스크롤 안하고(overflow:hidden),
+   내용은 밑에 detail-scroll-content가 스크롤 담당, 드로어는 그 아래 항상 고정으로 붙어있게 함 */
+.detail-modal-inner { padding:0; position:relative; height:100%; overflow:hidden; display:flex; flex-direction:column; align-items:stretch; }
+
+/* 영상/이름/설명 담는 스크롤 영역 - 여기서만 스크롤됨, 드로어는 이 영역 밖이라 항상 보임 */
+.detail-scroll-content { flex:1; min-height:0; overflow:hidden; width:100%; display:flex; flex-direction:column; align-items:center; padding:48px 32px 14px; }
+.detail-modal-close { border:none; background:none; font-size:22px; cursor:pointer; line-height:1; color:var(--text-sub); }
+/* 영상 작아보인다길래 440->520으로 키움 */
+.detail-video-wrap { width:100%; max-width:400px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#000; box-shadow:0 8px 24px rgba(0,0,0,.15); flex-shrink:0; }
+.detail-word-name { font-size:20px; font-weight:900; letter-spacing:-0.5px; margin-top:8px; text-align:center; flex-shrink:0; }
+.detail-divider { width:48px; height:3px; background:var(--brand,#1e8e5a); border-radius:2px; margin:10px 0 6px; flex-shrink:0; }
+.detail-section-label { font-size:13px; font-weight:800; color:var(--brand,#1e8e5a); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; text-align:center; }
+.detail-video-wrap video { width:100%; height:100%; object-fit:contain; display:block; }
+.detail-description { font-size:15px; line-height:1.6; color:#333; text-align:center; max-width:480px; width:100%; flex:1; min-height:0; overflow-y:auto; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:16px 20px; box-sizing:border-box; }
+ .page-dots { color:var(--text-sub); font-weight:700; }
+
+  /* 오류신고 왼쪽위로 뺐음, 닫기랑 분리 */
+
+  .detail-report-btn:hover {
+    background: #fde8e8;
+  }
+
+/* 이제 닫기버튼만 남음 (오른쪽위) */
+.detail-report-btn { position:absolute; top:14px; left:18px; height:24px; display:flex; align-items:center; box-sizing:border-box; z-index:5; border:1px solid #e2c4c4; background:#fff5f5; color:#b23b3b; font-size:12px; font-weight:700; padding:0 5px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+
+.detail-top-actions { position:absolute; top:14px; right:16px; display:flex; align-items:center; gap:8px; z-index:5; }
+
+/* 이전/이후 단어 이동 버튼 - 모달 중간라인 양옆에 배치, 히스토리 없으면 JS로 숨김 */
+.detail-nav-btn {
+  position: absolute;
+  top: 198px; /* 영상(detail-video-wrap) 세로 중앙에 맞춤: 스크롤영역 패딩 48px + 영상높이(최대 400px*3/4=300px) 절반 */
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: none;
+  color: #999;
+  font-size: 30px;
+  cursor: pointer;
+  display: none; /* 기본은 숨김, updateDetailNavButtons에서 flex로 전환 */
+  align-items: center;
+  justify-content: center;
+  z-index: 6;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+.detail-nav-btn:hover {
+  color: #333;
+  transform: translateY(-50%) scale(1.15);
+}
+.detail-nav-prev { left: 12px; }
+.detail-nav-next { right: 12px; }
+
+.detail-modal-close { width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; color:var(--text-sub); padding:0; border-radius:8px; transition:background 0.15s ease, color 0.15s ease; }
+.detail-modal-close:hover { background:#f2f2f2; color:#333; }
+/* 조회수 이 라인 왼쪽끝에 넣기로해서 space-between으로 바꾸고, 영상이랑 너비 맞춤(520px) */
+.detail-video-controls { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; max-width:340px; margin:8px auto 0; flex-shrink:0; }
+/* 배속/다시보기는 여기 오른쪽으로 묶음 */
+.detail-video-controls-right {
+  display: flex;
+  gap: 8px;
+}
+
+.detail-ctrl-btn {
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #333;
+}
+.detail-ctrl-btn:hover {
+  background: #f2f8f5;
+  border-color: var(--brand, #1e8e5a);
+  color: var(--brand, #1e8e5a);
+}
+.detail-ctrl-btn.active {
+  background: var(--brand, #1e8e5a);
+  border-color: var(--brand, #1e8e5a);
+  color: #fff;
+}
+
+/* 스피드 버튼 */
+.detail-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0 10px;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.detail-speed-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  min-width: 34px;
+  text-align: center;
+}
+
+.detail-speed-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 140px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ddd;
+  outline: none;
+  cursor: pointer;
+}
+.detail-speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand, #1e8e5a);
+  cursor: pointer;
+}
+.detail-speed-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand, #1e8e5a);
+  border: none;
+  cursor: pointer;
+}
+
+/* 조회수 메타 - 이름 밑 별도줄이었는데 컨트롤라인 왼쪽으로 옮김 */
+.detail-meta {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin: 0;
+  text-align: left;
+}
+
+/* 슬라이드업 드로어 */
+/* 전에는 드로어 자체를 모달 전체높이 기준 absolute로 띄웠더니, 스크롤영역이 모달 전체라서
+   토글바 보려면 맨밑까지 스크롤 내려야하는 문제 생김.
+   그래서 토글바는 detail-scroll-content 밖(즉 flex 흐름 맨아래)에 고정으로 두고 항상 보이게 하고,
+   실제 관련단어 리스트(detail-slide-content)만 토글바 바로 위에서 absolute로 펼쳐지게 분리함 */
+.detail-slide-drawer {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  background: #fff;
+  border-top: 1px solid #eee;
+  z-index: 10;
+}
+
+.detail-slide-toggle {
+  width: 100%;
+  flex-shrink: 0;
+  border: none;
+  background: #fafafa;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-sub);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.detail-slide-toggle:hover {
+  background: #f2f8f5;
+  color: var(--brand, #1e8e5a);
+}
+
+.detail-slide-arrow {
+  display: inline-block;
+  transition: transform 0.25s ease;
+  font-size: 11px;
+}
+.detail-slide-drawer.open .detail-slide-arrow {
+  transform: rotate(180deg);
+}
+
+/* 관련단어 리스트 - 토글바 바로 위(bottom:100%)에서 위로 펼쳐짐. 모달크기/스크롤영역 안건드림 */
+.detail-slide-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  max-height: 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -6px 20px rgba(0,0,0,.08);
+  transition: max-height 0.28s ease;
+}
+.detail-slide-drawer.open .detail-slide-content {
+  max-height: min(50vh, 320px);
+  overflow-y: auto;
+}
+
+/* 관련 단어 리스트 (유튜브 관련영상 스타일 - 썸네일+제목 카드형) */
+.detail-related-list {
+  padding: 14px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.related-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 10px;
+}
+.related-item:hover {
+  background: #f2f8f5;
+}
+
+.related-thumb {
+  width: 88px;
+  aspect-ratio: 4/3;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+  flex-shrink: 0;
+}
+.related-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.related-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.related-name {
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.related-desc {
+  font-size: 12px;
+  color: var(--text-sub);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
