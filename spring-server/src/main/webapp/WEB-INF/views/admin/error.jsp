@@ -64,14 +64,14 @@
 
     <!-- 상태 탭: 서버사이드 필터링 (category, status 파라미터로 재조회) -->
     <div class="tabs">
-      <a href="?category=${currentCategory}&status=WAIT&keyword=${keyword}" class="tab ${currentStatus == 'WAIT' ? 'active' : ''}">
+      <a href="?category=${currentCategory}&status=WAIT" class="tab ${currentStatus == 'WAIT' ? 'active' : ''}">
         대기 <span class="pill pill-red" style="margin-left:4px;padding:1px 7px">${waitCount}</span>
       </a>
-      <a href="?category=${currentCategory}&status=PROCESSING&keyword=${keyword}" class="tab ${currentStatus == 'PROCESSING' ? 'active' : ''}">
+      <a href="?category=${currentCategory}&status=PROCESSING" class="tab ${currentStatus == 'PROCESSING' ? 'active' : ''}">
         처리중 <span class="pill pill-red" style="margin-left:4px;padding:1px 7px">${processingCount}</span>
       </a>
-      <a href="?category=${currentCategory}&status=COMPLETE&keyword=${keyword}" class="tab ${currentStatus == 'COMPLETE' ? 'active' : ''}">완료</a>
-      <a href="?category=${currentCategory}&status=ALL&keyword=${keyword}" class="tab ${currentStatus == 'ALL' ? 'active' : ''}">전체</a>
+      <a href="?category=${currentCategory}&status=COMPLETE" class="tab ${currentStatus == 'COMPLETE' ? 'active' : ''}">완료</a>
+      <a href="?category=${currentCategory}&status=ALL" class="tab ${currentStatus == 'ALL' ? 'active' : ''}">전체</a>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:12px" id="error-list">
