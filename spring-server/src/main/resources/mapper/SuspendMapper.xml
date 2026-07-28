@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.SuspendMapper">
+    <insert id="suspendMember" parameterType="com.soldesk.vo.SuspendVO">
+        INSERT INTO member_suspension (member_id, admin_id, reason, start_date, end_date)
+        VALUES (#{memberId}, #{adminId}, #{reason}, #{startDate}, #{endDate, jdbcType=TIMESTAMP})
+    </insert>
+
+    <!-- 정지 기한 찾기 -->
+    <select id="findLatestEndDate" resultType="java.time.LocalDateTime">
+        SELECT end_date FROM member_suspension
+        WHERE member_id = #{memberId}
+        ORDER BY start_date DESC
+        LIMIT 1
+    </select>
+
+</mapper>
