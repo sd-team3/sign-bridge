@@ -31,9 +31,14 @@
         <label class="form-label" for="password">비밀번호</label>
         <input type="password" id="password" name="memberPassword" class="form-input" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
       </div>
-      <c:if test="${param.error != null}">
-        <div class="form-error">이메일 또는 비밀번호가 일치하지 않습니다</div>
-      </c:if>
+      <c:choose>
+        <c:when test="${param.error == 'suspended'}">
+          <div class="form-error">정지된 계정입니다.</div>
+        </c:when>
+        <c:when test="${param.error != null}">
+          <div class="form-error">이메일 또는 비밀번호가 일치하지 않습니다</div>
+        </c:when>
+      </c:choose>
 
       <button type="submit" class="btn btn-primary btn-full" style="margin-top:8px;">로그인</button>
     </form>

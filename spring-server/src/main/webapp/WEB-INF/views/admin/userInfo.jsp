@@ -92,7 +92,8 @@
 <div class="modal-overlay" id="modal-stop">
   <div class="modal">
     <form method="post" action="${pageContext.request.contextPath}/admin/user/stop">
-      <input type="hidden" name="uid" value="${user.uid}">
+      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+      <input type="hidden" name="memberId" value="${member.memberId}">
       <div class="modal-title">⏸ 유저 정지</div>
       <div class="modal-desc">
         <b>${member.memberName}</b> 계정을 정지하시겠습니까?<br>
@@ -118,15 +119,12 @@
 <div class="modal-overlay" id="modal-delete">
   <div class="modal">
     <form method="post" action="${pageContext.request.contextPath}/admin/user/delete">
-      <input type="hidden" name="uid" value="${user.uid}">
+      <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+      <input type="hidden" name="memberId" value="${member.memberId}">
       <div class="modal-title">🗑 유저 강퇴</div>
       <div class="modal-desc">
-        <b>${user.name}</b> 계정을 영구 강퇴하시겠습니까?<br>
+        <b>${member.memberName}</b> 계정을 영구 강퇴하시겠습니까?<br>
         이 작업은 <b style="color:var(--rose)">되돌릴 수 없습니다</b>. 모든 데이터가 삭제됩니다.
-        <div style="margin-top:14px">
-          <label class="fl" style="display:block;margin-bottom:6px">강퇴 사유</label>
-          <textarea class="fi" name="reason" style="min-height:70px" placeholder="강퇴 사유를 입력하세요"></textarea>
-        </div>
       </div>
       <div class="modal-actions">
         <button type="button" class="topbar-btn btn-ghost" onclick="closeModal('modal-delete')">취소</button>
@@ -137,5 +135,17 @@
 </div>
 
 <jsp:include page="includes/footer.jsp" />
+
+<script>
+  // 정지 모달 열고 닫기
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+  
+</script>
+
 </body>
 </html>

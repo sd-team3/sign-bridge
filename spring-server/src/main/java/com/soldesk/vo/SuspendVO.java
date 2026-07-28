@@ -3,29 +3,28 @@ package com.soldesk.vo;
 import java.time.LocalDateTime;
 
 public class SuspendVO {
-    int suspension_id;
-    int member_id;
-    int admin_id;
+    int suspensionId;
+    int memberId;
+    int adminId;
     String reason;
-    LocalDateTime start_date;
-    LocalDateTime end_date;
-    public int getSuspension_id() {
-        return suspension_id;
+    LocalDateTime startDate;
+    public int getSuspensionId() {
+        return suspensionId;
     }
-    public void setSuspension_id(int suspension_id) {
-        this.suspension_id = suspension_id;
+    public void setSuspensionId(int suspensionId) {
+        this.suspensionId = suspensionId;
     }
-    public int getMember_id() {
-        return member_id;
+    public int getMemberId() {
+        return memberId;
     }
-    public void setMember_id(int member_id) {
-        this.member_id = member_id;
+    public void setMemberId(int memberId) {
+        this.memberId = memberId;
     }
-    public int getAdmin_id() {
-        return admin_id;
+    public int getAdminId() {
+        return adminId;
     }
-    public void setAdmin_id(int admin_id) {
-        this.admin_id = admin_id;
+    public void setAdminId(int adminId) {
+        this.adminId = adminId;
     }
     public String getReason() {
         return reason;
@@ -33,16 +32,17 @@ public class SuspendVO {
     public void setReason(String reason) {
         this.reason = reason;
     }
-    public LocalDateTime getStart_date() {
-        return start_date;
+    public LocalDateTime getStartDate() {
+        return startDate;
     }
-    public void setStart_date(LocalDateTime start_date) {
-        this.start_date = start_date;
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
     }
-    public LocalDateTime getEnd_date() {
-        return end_date;
+    public LocalDateTime getEndDate() {
+        return endDate;
     }
-    public void setEnd_date(LocalDateTime end_date) {
-        this.end_date = end_date;
-    } 
+    public void setEndDate(LocalDateTime endDate) {
+        this.endDate = endDate;
+    }
+    LocalDateTime endDate; 
 }

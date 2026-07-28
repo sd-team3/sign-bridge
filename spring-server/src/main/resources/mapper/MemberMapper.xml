@@ -60,6 +60,7 @@
         GROUP BY DATE(reg_date)
         ORDER BY reg_day
     </select>
+    <!-- role에 따라 검색 기능 -->
     <select id="getAllMembers" resultMap="memberResultMap">
         SELECT
             m.member_id,
@@ -113,10 +114,37 @@
         </where>
     </select>
 
-    <select id="getMemberInfo" resultMap="memberResultMap">
+    <select id="findById" resultMap="memberResultMap">
         select member_id, member_name, member_email, reg_date, provider, status
         from member
         where member_id = #{memberId}
     </select>
+
+    <select id="getMemberByEmail" resultMap="memberResultMap">
+        select member_id
+        from member
+        where member_email = #{email}
+    </select>
+
+    <!-- 로그인 전에 정지 기한 검사하고 풀어주기 -->
+    <update id="updateStatus">
+        update member
+        set status = #{status}
+        where member_id = #{memberId}   
+    </update>
+
+    <!-- 정지 추가하면 정지 때리기 -->
+    <update id="suspendStatus">
+        update member
+        set status = 'SUSPEND'
+        where member_id = #{memberId}
+    </update>
+
+    <!-- 회원만 삭제 -->
+    <delete id="deleteMember">
+        delete 
+        from member
+        where member_id = #{memberId}
+    </delete>
 
 </mapper>

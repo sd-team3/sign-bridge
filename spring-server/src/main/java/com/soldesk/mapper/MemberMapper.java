@@ -36,5 +36,13 @@ public interface MemberMapper {
     int getMemberCount(@Param("role") String role, @Param("status") String status, @Param("keyword") String keyword);
 
     // 특정 회원 정보 가져오기
-    MemberVO getMemberInfo(int memberId);
+    MemberVO findById(int memberId);
+
+    MemberVO getMemberByEmail(String email);
+
+    void updateStatus(@Param("memberId") int memberId, @Param("status") String status);
+
+    void suspendStatus(int memberId);
+
+    void deleteMember(int memberId);
 }

@@ -2,6 +2,7 @@ package com.soldesk.service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.soldesk.mapper.MemberMapper;
+import com.soldesk.mapper.SuspendMapper;
 import com.soldesk.vo.DailySignupVO;
 import com.soldesk.vo.MemberVO;
 
@@ -23,6 +25,7 @@ public class MemberService {
     private MemberMapper memberMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired SuspendMapper suspendMapper;
     
     @Transactional
     public boolean isEmailAvailable(String email) {
@@ -81,7 +84,38 @@ public class MemberService {
     // 특정 회원 정보 가져오기
     @Transactional
     public MemberVO getMemberInfo(int memberId) {
-        return memberMapper.getMemberInfo(memberId);
+        MemberVO member = memberMapper.findById(memberId);
+        checkAndReleaseIfExpired(member);
+        return member;
     }
 
+    // 이메일로 특정 회원 찾기
+    @Transactional
+    public MemberVO getMemberByEmail(String adminEmail) {
+        return memberMapper.getMemberByEmail(adminEmail);
+    }
+
+    // 정지상태 변경
+    @Transactional
+    public void suspendMember(int memberId) {
+        memberMapper.suspendStatus(memberId);
+    }
+
+    // 정지된 회원을 검사해서 풀어준다.
+    @Transactional
+    public void checkAndReleaseIfExpired(MemberVO member) {
+        if (!"SUSPEND".equals(member.getStatus())) return;
+
+        LocalDateTime latestEndDate = suspendMapper.findLatestEndDate(member.getMemberId());
+        if (latestEndDate != null && latestEndDate.isBefore(LocalDateTime.now())) {
+            memberMapper.updateStatus(member.getMemberId(), "ACTIVE");
+            member.setStatus("ACTIVE"); // 방금 조회해둔 객체도 동기화
+        }
+    }
+
+    // 멤버 삭제
+    @Transactional
+    public void deleteMember(int memberId) {
+        memberMapper.deleteMember(memberId);
+    }
 }

@@ -106,13 +106,28 @@ public class AdminController {
     }
     
     @PostMapping("/user/stop")
-    public String userStop(Model model,
-                            @RequestParam int memberId,
+    public String userStop(@RequestParam int memberId,
                             @RequestParam String suspendDays,
-                            @RequestParam String reason
+                            @RequestParam String reason,
+                            Authentication authentication
     ) {
-        memberService.suspendMember(memberId, suspendDays, reason);
+        
+        String adminEmail = authentication.getName();
+        MemberVO admin = memberService.getMemberByEmail(adminEmail);
+        int adminId = admin.getMemberId();
+
+        suspendService.suspendMember(memberId, suspendDays, reason, adminId);
+        memberService.suspendMember(memberId);
         return "redirect:/admin/user/info?memberId=" + memberId;
+    }
+
+    // 연쇄 삭제는 회의 후 결정
+    @PostMapping("/user/delete")
+    public String userDelete(@RequestParam int memberId) {
+
+        memberService.deleteMember(memberId);
+        
+        return "redirect:/admin/user/list";
     }
 
 }

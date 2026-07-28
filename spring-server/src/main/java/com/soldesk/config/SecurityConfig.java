@@ -3,6 +3,8 @@ package com.soldesk.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,7 +44,10 @@ public class SecurityConfig {
             .usernameParameter("memberEmail")
             .passwordParameter("memberPassword")
             .defaultSuccessUrl("/", true)
-            .failureUrl("/member/login")
+            .failureHandler((request, response, exception) -> {
+                String error = (exception instanceof DisabledException) ? "suspended" : "badCredentials";
+                response.sendRedirect(request.getContextPath() + "/member/login?error=" + error);
+            })
             .permitAll()
         ).logout(logout -> logout
             .logoutUrl("/member/logout")
