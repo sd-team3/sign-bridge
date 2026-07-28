@@ -24,7 +24,8 @@ public class LearnController {
     private LearnService learnService;
 
     @GetMapping("")
-    public String main(){
+    public String main(Model model){
+        model.addAttribute("jamoCount", learnService.countAll());
         return "learn/main";
     }
 

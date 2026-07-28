@@ -42,15 +42,11 @@
     <!-- 카테고리 -->
     <div class="section-title">학습 카테고리</div>
     <div class="cat-grid">
-      <a href="/" class="cat-card">
+      <a href="/learn/jamo" class="cat-card">
         <span class="cat-card-new">NEW</span>
         <div class="cat-card-icon">🤟</div>
         <div class="cat-card-title">자음 · 모음 지문자</div>
-        <div class="cat-card-desc">수어의 기초, 지문자 24개를 처음부터 차근차근 익혀요.</div>
-        <div class="cat-card-meta">
-          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:15%"></div></div></div>
-          <span class="cat-card-pct">15%</span>
-        </div>
+        <div class="cat-card-desc">수어의 기초, 지문자 ${jamoCount}개를 처음부터 차근차근 익혀요.</div>
       </a>
 
       <!-- <a href="learn_basic.html" class="cat-card">
@@ -86,14 +82,14 @@
       <a href="/learn/dict" class="cat-card">
         <div class="cat-card-icon">🔍</div>
         <div class="cat-card-title">개별 어휘 검색</div>
-        <div class="cat-card-desc">원하는 단어를 검색하거나 분야별 필터로 자유롭게 학습해요.</div>
-        <div class="cat-card-meta">
+        <div class="cat-card-desc">초성별로 찾거나 검색·수어 인식으로 원하는 단어를 학습하세요.</div>
+        <!-- <div class="cat-card-meta">
           <span style="font-size:13px; font-weight:700; color:var(--text-muted);">총 124개 단어</span>
           <span class="cat-card-arrow">›</span>
-        </div>
+        </div> -->
       </a>
 
-      <a href="mypage_history.html" class="cat-card">
+      <a href="/member/mypage" class="cat-card">
         <div class="cat-card-icon">📋</div>
         <div class="cat-card-title">나의 학습 기록</div>
         <div class="cat-card-desc">지금까지 학습한 단어와 정확도를 한눈에 확인해요.</div>
