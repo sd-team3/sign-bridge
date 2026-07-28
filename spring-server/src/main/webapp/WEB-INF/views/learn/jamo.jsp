@@ -21,7 +21,7 @@
         <h1>🤟 자음 · 모음 지문자 학습</h1>
         <p>수어의 기본이 되는 지문자(指文字)를 하나씩 익혀보세요. 자음 ${fn:length(consonants)}개, 모음 ${fn:length(vowels)}개로 구성되어 있어요.</p>
       </div>
-      <a href="learn_basic.html" class="btn btn-ghost">← 학습 홈</a>
+      <a href="/learn" class="btn btn-ghost">← 학습 홈</a>
     </div>
 
     <div class="jamo-tabs">
@@ -59,7 +59,7 @@
             <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas"></canvas>
           </div>
-          <div id="result" style="font-size: large;">-</div>
+          <div id="result" style="font-size: large; cursor: pointer;">클릭해서 시작</div>
         </div>
       </div>
     </div>
@@ -67,35 +67,49 @@
     <!-- 자음 섹션 -->
     <div class="jamo-section active" id="section-consonant">
       <div class="result-count">기본 자음 ${fn:length(consonants)}개</div>
-      <div class="jamo-grid" id="grid-consonant">
-        <c:forEach var="jamo" items="${consonants}">
-          <div class="jamo-card" 
-              data-char="${jamo.jamoChar}"
-              data-name="${jamo.jamoName}"
-              data-tip="${jamo.jamoInfo}"
-              data-image="${jamo.jamoImage}">
-            <div class="jamo-char">${jamo.jamoChar}</div>
-            <div class="jamo-name">${jamo.jamoName}</div>
+      <c:choose>
+         <c:when test="${empty consonants}">
+          <div style="text-align:center;color:var(--text-muted);padding:40px 0">자음 데이터를 불러오지 못했습니다.</div>
+        </c:when>
+        <c:otherwise>
+          <div class="jamo-grid" id="grid-consonant">
+            <c:forEach var="jamo" items="${consonants}">
+              <div class="jamo-card" 
+                  data-char="${jamo.jamoChar}"
+                  data-name="${jamo.jamoName}"
+                  data-tip="${jamo.jamoInfo}"
+                  data-image="${jamo.jamoImage}">
+                <div class="jamo-char">${jamo.jamoChar}</div>
+                <div class="jamo-name">${jamo.jamoName}</div>
+              </div>
+            </c:forEach>
           </div>
-        </c:forEach>
-      </div>
+        </c:otherwise>
+      </c:choose>
     </div>
 
     <!-- 모음 섹션 -->
     <div class="jamo-section" id="section-vowel">
       <div class="result-count">기본 모음 ${fn:length(vowels)}개</div>
-      <div class="jamo-grid" id="grid-vowel">
-        <c:forEach var="jamo" items="${vowels}">
-          <div class="jamo-card"
-              data-char="${jamo.jamoChar}"
-              data-name="${jamo.jamoName}"
-              data-tip="${jamo.jamoInfo}"
-              data-image="${jamo.jamoImage}">
-            <div class="jamo-char">${jamo.jamoChar}</div>
-            <div class="jamo-name">${jamo.jamoName}</div>
+      <c:choose>
+        <c:when test="${empty vowels}">
+          <div style="text-align:center;color:var(--text-muted);padding:40px 0">모음 데이터를 불러오지 못했습니다.</div>
+        </c:when>
+        <c:otherwise>
+          <div class="jamo-grid" id="grid-vowel">
+            <c:forEach var="jamo" items="${vowels}">
+              <div class="jamo-card"
+                  data-char="${jamo.jamoChar}"
+                  data-name="${jamo.jamoName}"
+                  data-tip="${jamo.jamoInfo}"
+                  data-image="${jamo.jamoImage}">
+                <div class="jamo-char">${jamo.jamoChar}</div>
+                <div class="jamo-name">${jamo.jamoName}</div>
+              </div>
+            </c:forEach>
           </div>
-        </c:forEach>
-      </div>
+        </c:otherwise>
+      </c:choose>
     </div>
   </div>
 </main>
@@ -103,6 +117,11 @@
 <jsp:include page="../includes/footer.jsp" />
 
 <script>
+// 카메라 시작 상태를 저장하는 전역 변수
+window.jamoCamStarted = false;
+// 현재 선택된 지문자 (module 스크립트에서도 참조하므로 전역으로 관리)
+window.currentJamoChar = null;
+
 // 탭 전환
 const tabs = document.querySelectorAll('.jamo-tab');
 tabs.forEach(tab => {
@@ -113,23 +132,34 @@ tabs.forEach(tab => {
     document.getElementById('section-' + tab.dataset.target).classList.add('active');
     document.getElementById('jamoDetail').classList.remove('show');
     window.stopJamoCam?.();
+    window.currentJamoChar = null;
+
+    const resultEl = document.getElementById('result');
+    resultEl.textContent = '클릭해서 시작';
+    resultEl.style.cursor = 'pointer';
+    resultEl.style.color = '';
   });
 });
 
 /// 카드 클릭 -> 상세 표시
-let currentJamoChar = null;
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.jamo-card');
   if (!card) return;
 
-  currentJamoChar = card.dataset.char;
+  window.currentJamoChar = card.dataset.char;
 
   document.getElementById('jdChar').textContent = card.dataset.char;
   document.getElementById('jdName').textContent = card.dataset.name;
   document.getElementById('jdTip').textContent = card.dataset.tip;
 
   const resultEl = document.getElementById('result');
-  resultEl.textContent = '-';
+  if (window.jamoCamStarted) {
+    resultEl.textContent = '-';
+    resultEl.style.cursor = 'default';
+  } else {
+    resultEl.textContent = '클릭해서 시작';
+    resultEl.style.cursor = 'pointer';
+  }
   resultEl.style.color = '';
 
   const img = document.getElementById('jdImage');
@@ -151,6 +181,12 @@ document.addEventListener('click', (e) => {
 document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('jamoDetail').classList.remove('show');
   window.stopJamoCam?.();
+  window.currentJamoChar = null;
+
+  const resultEl = document.getElementById('result');
+  resultEl.textContent = '클릭해서 시작';
+  resultEl.style.cursor = 'pointer';
+  resultEl.style.color = '';
 });
 </script>
 <script type="module">
@@ -177,13 +213,13 @@ document.getElementById('jdClose').addEventListener('click', () => {
         return;
       }
 
-      if (!currentJamoChar) {
+      if (!window.currentJamoChar) {
         resultEl.textContent = result.label;
         resultEl.style.color = '';
         return;
       }
 
-      const isCorrect = result.label === currentJamoChar;
+      const isCorrect = result.label === window.currentJamoChar;
       resultEl.textContent = isCorrect
         ? '✅ 정답! (' + result.label + ')'
         : '인식: ' + result.label;
@@ -195,12 +231,20 @@ document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById("jdCam").addEventListener("click", async () => {
     if (started) return;
     started = true;
+    window.jamoCamStarted = true;
+
+    const resultEl = document.getElementById("result");
+    resultEl.style.cursor = 'default';
+    resultEl.textContent = '-';
+
     try {
       await cam.start();
     } catch (error) {
       console.error('카메라 시작 실패: ', error);
       started = false;
-      document.getElementById("result").textContent = '카메라를 켤 수 없어요';
+      window.jamoCamStarted = false;
+      resultEl.textContent = message;
+      resultEl.style.cursor = 'pointer';
     }
   });
 
@@ -208,7 +252,11 @@ document.getElementById('jdClose').addEventListener('click', () => {
   window.stopJamoCam = () => {
     cam.stopCamera();
     started = false; // 다시 클릭하면 재시작 가능하게
+    window.jamoCamStarted = false;
   };
+  window.addEventListener('beforeunload', () =>{
+    window.stopJamoCam?.();
+  }); // 카메라 자원 정리 - 페이지 이탈 시
 </script>
 
 </body>
