@@ -97,6 +97,7 @@ select.form-input{cursor:pointer}
 .oauth-buttons a.btn-google:hover{border-color:var(--border-strong)}
 .oauth-buttons a.btn-naver{background:#03c75a;color:#fff}
 .oauth-buttons a.btn-naver:hover{background:#02b350}.oauth-icon{flex-shrink:0}
+.oauth-buttons a.btn-kakao{background:#FEE500;color:#181600}
 /* 알림 */
 .alert{padding:16px 20px;border-radius:var(--radius-sm);font-size:15px;font-weight:600;margin-bottom:20px;border-left:4px solid}
 .alert-danger{background:#fdf2f2;border-color:var(--danger);color:var(--danger)}
