@@ -1,83 +1,88 @@
-<html lang="ko"><head>
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+<!DOCTYPE html>
+<html lang="ko">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SignBridge - 수어 학습 플랫폼</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/resources/css/shared.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${ctx}/resources/css/shared.css">
 </head>
 <body class="page-index">
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo">
+  <a href="${ctx}/" class="nav-logo">
     <div class="nav-logo-icon">✋</div>
     <span class="nav-logo-text">SignBridge</span>
   </a>
   <div class="nav-links">
     <div class="nav-item has-sub">
-      <a href="learn_basic.html" class="nav-link">학습<span class="nav-caret">▾</span></a>
+      <a href="${ctx}/learn" class="nav-link">학습<span class="nav-caret">▾</span></a>
       <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
-          <a href="learn_basic.html" class="nav-dropdown-link">
+          <a href="${ctx}/learn/jamo" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔤</span>
             <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">기초 어휘</span>
+              <span class="nav-dropdown-title">자음,모음</span>
               <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
             </span>
           </a>
-          <a href="learn_list.html" class="nav-dropdown-link">
+          <a href="${ctx}/learn/dict" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🚨</span>
             <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">상황별 수어 학습</span>
-              <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
-            </span>
-          </a>
-          <a href="learn_word.html" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔍</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">개별 어휘 학습</span>
+              <span class="nav-dropdown-title">수어 사전</span>
               <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
             </span>
           </a>
         </div>
       </div>
     </div>
-    
-    <a href="/exam/setup" class="nav-link">시험</a>
+
+    <a href="${ctx}/exam/setup" class="nav-link">시험</a>
 
     <div class="nav-item has-sub">
-      <a href="play_chain.html" class="nav-link">플레이존 <span class="nav-caret">▾</span></a>
+      <a href="#" class="nav-link">플레이존 <span class="nav-caret">▾</span></a>
       <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
-          <a href="play_chain.html" class="nav-dropdown-link">
+          <a href="#" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔗</span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 끝말잇기</span>
-              <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
+              <span class="nav-dropdown-desc">준비중입니다</span>
             </span>
           </a>
-          <a href="play_defense.html" class="nav-dropdown-link">
+          <a href="#" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🎯</span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 디펜스</span>
-              <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
+              <span class="nav-dropdown-desc">준비중입니다</span>
             </span>
           </a>
         </div>
       </div>
     </div>
-    
-    <a href="board_list.html" class="nav-link">게시판</a>
+
+    <a href="#" class="nav-link">게시판</a>
   </div>
+
   <div class="nav-cta">
-    <div class="nav-cta-guest">
-      <a href="auth_login.html" class="btn btn-ghost">로그인</a>
-      <a href="auth_register.html" class="btn btn-primary">회원가입</a>
-    </div>
-    <a href="mypage.html" class="nav-user-chip">
-      <span class="nav-user-avatar">👤</span>
-      <span class="nav-user-name">홍길동</span>
-    </a>
+    <sec:authorize access="isAnonymous()">
+      <div class="nav-cta-guest">
+        <a href="${ctx}/member/login" class="btn btn-ghost">로그인</a>
+        <a href="${ctx}/member/join" class="btn btn-primary">회원가입</a>
+      </div>
+    </sec:authorize>
+    <sec:authorize access="isAuthenticated()">
+      <form action="${ctx}/member/logout" method="post" style="display:inline; margin-left:12px;">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+        <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>
+      </form>
+      <a href="${ctx}/member/info" class="active btn btn-primary btn-sm" style="margin-left:8px;">내 계정</a>
+    </sec:authorize>
   </div>
 </nav>
 
@@ -104,8 +109,8 @@
   </p>
 
   <div class="hero-btns">
-    <a href="learn_basic.html" class="btn btn-primary btn-large">학습 시작하기</a>
-    <a href="play_chain.html" class="btn btn-ghost btn-large">플레이존 가기</a>
+    <a href="${ctx}/learn/dict" class="btn btn-primary btn-large">학습 시작하기</a>
+    <a href="#" class="btn btn-ghost btn-large">플레이존 가기</a>
   </div>
 
   <div class="hero-signs-row">
@@ -270,31 +275,23 @@
         <div class="section-eyebrow">학습</div>
         <div class="section-title-lg">어휘 학습</div>
       </div>
-      <a href="learn_basic.html" class="btn btn-primary">전체 보기 →</a>
+      <a href="${ctx}/learn" class="btn btn-primary">전체 보기 →</a>
     </div>
     <div class="menu-grid">
-      <a href="learn_basic.html" class="menu-card" style="--card-color: #2d9b6f; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
+      <a href="${ctx}/learn/jamo" class="menu-card" style="--card-color: #2d9b6f; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
         <div class="menu-arrow">→</div>
         <div class="menu-card-bg">🔤</div>
         <span class="menu-icon">🔤</span>
-        <h3>기초 어휘</h3>
-        <p>사과, 문, 자동차 등 일상에서 자주 쓰는 기본 단어를 배워요.</p>
+        <h3>자음, 모음</h3>
+        <p>ㄱ부터 ㅎ까지, 자음과 모음 손모양 익히기</p>
         <span class="pill pill-p">추천 시작</span>
       </a>
-      <a href="learn_list.html" class="menu-card" style="--card-color: #c0392b; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="menu-arrow">→</div>
-        <div class="menu-card-bg">🚨</div>
-        <span class="menu-icon">🚨</span>
-        <h3>상황별 수어 학습</h3>
-        <p>지진 대피, 화재 등 긴급 상황에서 꼭 알아야 할 수어.</p>
-        <span class="pill pill-rose">필수 추천</span>
-      </a>
-      <a href="learn_word.html" class="menu-card" style="--card-color: #27ae7a; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
+      <a href="${ctx}/learn/dict" class="menu-card" style="--card-color: #27ae7a; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
         <div class="menu-arrow">→</div>
         <div class="menu-card-bg">🔍</div>
         <span class="menu-icon">🔍</span>
-        <h3>개별 어휘 학습</h3>
-        <p>분야별로 찾거나 직접 검색해서 원하는 단어를 학습해요.</p>
+        <h3>수어 사전</h3>
+        <p>초성으로 찾고 검색해서 단어 학습.</p>
         <span class="pill pill-teal">자유 탐색</span>
       </a>
     </div>
@@ -309,24 +306,24 @@
         <div class="section-eyebrow">플레이존</div>
         <div class="section-title-lg">게임으로 배워요</div>
       </div>
-      <a href="play_chain.html" class="btn btn-primary">전체 보기 →</a>
+      <a href="#" class="btn btn-primary">전체 보기 →</a>
     </div>
     <div class="menu-grid">
-      <a href="play_chain.html" class="menu-card" style="--card-color: #7c3aed; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
+      <a href="#" class="menu-card" style="--card-color: #7c3aed; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
         <div class="menu-arrow">→</div>
         <div class="menu-card-bg">🔗</div>
         <span class="menu-icon">🔗</span>
         <h3>수어 끝말잇기</h3>
-        <p>AI가 인식한 수어로 끝말잇기 대결. 실력이 있어야 버틸 수 있어요.</p>
-        <span class="pill" style="background:var(--purple-light);color:var(--purple)">도전</span>
+        <p>준비중인 기능입니다.</p>
+        <span class="pill" style="background:var(--purple-light);color:var(--purple)">준비중</span>
       </a>
-      <a href="play_defense.html" class="menu-card" style="--card-color: #d4840a; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
+      <a href="#" class="menu-card" style="--card-color: #d4840a; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
         <div class="menu-arrow">→</div>
         <div class="menu-card-bg">🎯</div>
         <span class="menu-icon">🎯</span>
         <h3>수어 디펜스</h3>
-        <p>떨어지는 단어를 수어로 막아내는 타자 연습 스타일 게임.</p>
-        <span class="pill pill-amber">액션</span>
+        <p>준비중인 기능입니다.</p>
+        <span class="pill pill-amber">준비중</span>
       </a>
     </div>
   </div>
@@ -399,14 +396,18 @@
   }
 </style>
 
-
 <div class="cta-section">
   <div class="cta-inner">
     <div class="cta-title">지금 바로 시작해보세요<br><span>첫 단어는 오늘, SignBridge에서</span></div>
     <div class="cta-sub">회원가입 무료 · 별도 앱 설치 없음 · AI 실시간 피드백</div>
     <div class="cta-btns">
-      <a href="auth_register.html" class="btn btn-white btn-large">무료로 학습 시작하기</a>
-      <a href="auth_login.html" class="btn btn-outline-white btn-large">로그인</a>
+      <sec:authorize access="isAnonymous()">
+        <a href="${ctx}/member/join" class="btn btn-white btn-large">무료로 학습 시작하기</a>
+        <a href="${ctx}/member/login" class="btn btn-outline-white btn-large">로그인</a>
+      </sec:authorize>
+      <sec:authorize access="isAuthenticated()">
+        <a href="${ctx}/learn/dict" class="btn btn-white btn-large">학습 이어하기</a>
+      </sec:authorize>
     </div>
   </div>
 </div>
@@ -417,22 +418,9 @@
 </div>
 <div id="result-word">-</div>
 <div class="progress-bar"><div id="progressFill"></div></div>
-<script type="module" src="/resources/js/word-camera.js"></script>
-
-
-
-<!-- <div class="cam-wrap">
-  <video id="video-jamo" autoplay playsinline muted></video>
-  <canvas id="canvas-jamo"></canvas>
-</div>
-<div id="result-jamo">-</div>
-<script type="module" src="/resources/js/jamo-camera.js"></script> -->
-
-
+<script type="module" src="${ctx}/resources/js/word-camera.js"></script>
 
 <!-- FOOTER -->
-
-
 <footer>
   <div class="footer-inner">
     <div class="footer-logo">
@@ -443,18 +431,13 @@
       <a href="#" class="footer-link">서비스 소개</a>
       <a href="#" class="footer-link">개인정보처리방침</a>
       <a href="#" class="footer-link">이용약관</a>
-      <a href="board_list.html" class="footer-link">문의하기</a>
+      <a href="#" class="footer-link">문의하기</a>
     </div>
     <div class="footer-copy">© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</div>
   </div>
 </footer>
 
 <script>
-// TODO: 실제로는 서버 세션/토큰 여부로 판단 (예: 서버에서 렌더링 시 분기, 또는 로그인 API 응답).
-// 데모용으로 이 값만 바꾸면 로그인/비로그인 헤더를 바로 확인할 수 있음.
-const IS_LOGGED_IN = false;
-if (IS_LOGGED_IN) document.body.classList.add('is-logged-in');
-
 // Nav scroll effect
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
@@ -479,5 +462,5 @@ document.querySelectorAll('.step, .menu-card, .test-card, .feature-item').forEac
 });
 </script>
 
-
-</body></html>
+</body>
+</html>
