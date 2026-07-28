@@ -7,34 +7,35 @@
     <nav>
     <a href="/">홈</a>
     <div class="nav-item has-sub">
-        <a href="/learn">학습 <span class="nav-caret">▾</span></a>
+        <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
         <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
-            <a href="/learn/jamo" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🤟</span>
+            <a href="learn_basic.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🔤</span>
             <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">자/모음 지문자</span>
-                <!-- <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span> -->
+                <span class="nav-dropdown-title">기초 어휘</span>
+                <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
             </span>
             </a>
-            <!-- <a href="learn_list.html" class="nav-dropdown-link">
+            <a href="learn_list.html" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🚨</span>
             <span class="nav-dropdown-text">
                 <span class="nav-dropdown-title">상황별 수어 학습</span>
                 <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
             </span>
-            </a> -->
-            <a href="/learn/dict" class="nav-dropdown-link">
+            </a>
+            <a href="learn_word.html" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔍</span>
             <span class="nav-dropdown-text">
                 <span class="nav-dropdown-title">개별 어휘 학습</span>
-                <!-- <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span> -->
+                <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
             </span>
             </a>
+            
         </div>
         </div>
     </div>
-    <a href="/exam/setup">시험</a>
+    <a href="exam_setup.html">시험</a>
     <div class="nav-item has-sub">
         <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
         <div class="nav-dropdown">
