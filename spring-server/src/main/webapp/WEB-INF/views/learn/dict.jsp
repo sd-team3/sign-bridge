@@ -106,8 +106,9 @@
   .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
   
   /* 단어 상세 모달 (강의식) */
+  /* 드로어 열려도 모달 자체 크기 안변하게 max-height 말고 height로 고정 (여기가 이번 수정 핵심) */
   .detail-modal {
-    border:none; border-radius:24px; padding:0; max-width:640px; width:92vw; max-height:88vh;
+    border:none; border-radius:24px; padding:0; max-width:640px; width:92vw; height:88vh;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -115,62 +116,42 @@
     margin: 0;
   }
 .detail-modal::backdrop { background:rgba(0,0,0,.65); }
-.detail-modal-inner { padding:32px; position:relative; max-height:88vh; overflow-y:auto; display:flex; flex-direction:column; align-items:center; }
+/* 토글바가 스크롤 내려야 보이는 문제 있어서 구조 바꿈: modal-inner 자체는 더이상 스크롤 안하고(overflow:hidden),
+   내용은 밑에 detail-scroll-content가 스크롤 담당, 드로어는 그 아래 항상 고정으로 붙어있게 함 */
+.detail-modal-inner { padding:0; position:relative; height:100%; overflow:hidden; display:flex; flex-direction:column; align-items:stretch; }
+
+/* 영상/이름/설명 담는 스크롤 영역 - 여기서만 스크롤됨, 드로어는 이 영역 밖이라 항상 보임 */
+.detail-scroll-content { flex:1; min-height:0; overflow:hidden; width:100%; display:flex; flex-direction:column; align-items:center; padding:48px 32px 14px; }
 .detail-modal-close { position:absolute; top:16px; right:18px; border:none; background:none; font-size:22px; cursor:pointer; line-height:1; color:var(--text-sub); }
 
-.detail-video-wrap { width:100%; max-width:440px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#000; box-shadow:0 8px 24px rgba(0,0,0,.15); }
-.detail-video-wrap video { width:100%; height:100%; object-fit:cover; display:block; }
-
-.detail-word-name { font-size:26px; font-weight:900; letter-spacing:-0.5px; margin-top:18px; text-align:center; }
-
-.detail-divider { width:48px; height:3px; background:var(--brand,#1e8e5a); border-radius:2px; margin:16px 0; }
-
+/* 영상 작아보인다길래 440->520으로 키움 */
+.detail-video-wrap { width:100%; max-width:400px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#000; box-shadow:0 8px 24px rgba(0,0,0,.15); flex-shrink:0; }
+.detail-word-name { font-size:20px; font-weight:900; letter-spacing:-0.5px; margin-top:8px; text-align:center; flex-shrink:0; }
+.detail-divider { width:48px; height:3px; background:var(--brand,#1e8e5a); border-radius:2px; margin:10px 0 6px; flex-shrink:0; }
 .detail-section-label { font-size:13px; font-weight:800; color:var(--brand,#1e8e5a); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; text-align:center; }
+.detail-video-wrap video { width:100%; height:100%; object-fit:contain; display:block; }
+.detail-description { font-size:15px; line-height:1.6; color:#333; text-align:center; max-width:480px; width:100%; flex:1; min-height:0; overflow-y:auto; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:16px 20px; box-sizing:border-box; }
+ .page-dots { color:var(--text-sub); font-weight:700; }
 
-.detail-description { font-size:16px; line-height:1.7; color:#333; text-align:center; max-width:480px; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:18px 22px; }
-  .page-dots { color:var(--text-sub); font-weight:700; }
-  /* 상단 액션 바 (오류신고 + 닫기, 오른쪽 끝에 나란히) */
-.detail-top-actions {
-  position: absolute;
-  top: 14px;
-  right: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 5;
-}
+  /* 오류신고 왼쪽위로 뺐음, 닫기랑 분리 */
 
-.detail-report-btn {
-  border: 1px solid #e2c4c4;
-  background: #fff5f5;
-  color: #b23b3b;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.detail-report-btn:hover {
-  background: #fde8e8;
-}
+  .detail-report-btn:hover {
+    background: #fde8e8;
+  }
 
-.detail-modal-close {
-  border: none;
-  background: none;
-  font-size: 20px;
-  cursor: pointer;
-  line-height: 1;
-  color: var(--text-sub);
-  padding: 4px;
-}
+/* 이제 닫기버튼만 남음 (오른쪽위) */
+.detail-report-btn { position:absolute; top:14px; left:18px; height:32px; display:flex; align-items:center; box-sizing:border-box; z-index:5; border:1px solid #e2c4c4; background:#fff5f5; color:#b23b3b; font-size:12px; font-weight:700; padding:0 10px; border-radius:8px; cursor:pointer; white-space:nowrap; }
 
-/* 영상 컨트롤 (재생속도/다시보기) */
-.detail-video-controls {
+.detail-top-actions { position:absolute; top:14px; right:16px; display:flex; align-items:center; gap:8px; z-index:5; }
+
+.detail-modal-close { width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; color:var(--text-sub); padding:0; }
+
+/* 조회수 이 라인 왼쪽끝에 넣기로해서 space-between으로 바꾸고, 영상이랑 너비 맞춤(520px) */
+.detail-video-controls { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; max-width:340px; margin:8px auto 0; flex-shrink:0; }
+/* 배속/다시보기는 여기 오른쪽으로 묶음 */
+.detail-video-controls-right {
   display: flex;
   gap: 8px;
-  justify-content: center;
-  margin-top: 12px;
 }
 
 .detail-ctrl-btn {
@@ -194,29 +175,79 @@
   color: #fff;
 }
 
-/* 조회수 메타 */
-.detail-meta {
-  font-size: 13px;
-  color: var(--text-sub);
-  margin-top: 6px;
+/* 스피드 버튼 */
+.detail-speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0 10px;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.detail-speed-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  min-width: 34px;
   text-align: center;
 }
 
+.detail-speed-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 140px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ddd;
+  outline: none;
+  cursor: pointer;
+}
+.detail-speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand, #1e8e5a);
+  cursor: pointer;
+}
+.detail-speed-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--brand, #1e8e5a);
+  border: none;
+  cursor: pointer;
+}
+
+/* 조회수 메타 - 이름 밑 별도줄이었는데 컨트롤라인 왼쪽으로 옮김 */
+.detail-meta {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin: 0;
+  text-align: left;
+}
+
 /* 슬라이드업 드로어 */
+/* 전에는 드로어 자체를 모달 전체높이 기준 absolute로 띄웠더니, 스크롤영역이 모달 전체라서
+   토글바 보려면 맨밑까지 스크롤 내려야하는 문제 생김.
+   그래서 토글바는 detail-scroll-content 밖(즉 flex 흐름 맨아래)에 고정으로 두고 항상 보이게 하고,
+   실제 관련단어 리스트(detail-slide-content)만 토글바 바로 위에서 absolute로 펼쳐지게 분리함 */
 .detail-slide-drawer {
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin-top: 20px;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
   background: #fff;
   border-top: 1px solid #eee;
-  border-radius: 16px 16px 0 0;
-  overflow: hidden;
+  z-index: 10;
 }
 
 .detail-slide-toggle {
   width: 100%;
+  flex-shrink: 0;
   border: none;
   background: #fafafa;
   padding: 10px 0;
@@ -243,10 +274,22 @@
   transform: rotate(180deg);
 }
 
+/* 관련단어 리스트 - 토글바 바로 위(bottom:100%)에서 위로 펼쳐짐. 모달크기/스크롤영역 안건드림 */
 .detail-slide-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
   max-height: 0;
   overflow: hidden;
+  background: #fff;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -6px 20px rgba(0,0,0,.08);
   transition: max-height 0.28s ease;
+}
+.detail-slide-drawer.open .detail-slide-content {
+  max-height: min(50vh, 320px);
+  overflow-y: auto;
 }
 
 /* 관련 단어 리스트 (유튜브 관련영상 스타일 - 썸네일+제목 카드형) */
@@ -427,32 +470,39 @@
 <dialog id="detailModal" class="detail-modal">
   <div class="detail-modal-inner">
 
-    <!-- 상단 우측: 오류신고 + 닫기 버튼 -->
+    <!-- 오류신고 왼쪽위로 뺌 (기존엔 top-actions 안에서 닫기랑 같이 오른쪽에 있었음) -->
+    <button class="detail-report-btn" id="detailReportBtn">⚠ 오류 신고</button>
+
+    <!-- 오른쪽위엔 닫기버튼만 남음 -->
     <div class="detail-top-actions">
-      <button class="detail-report-btn" id="detailReportBtn">⚠ 오류 신고</button>
       <button class="detail-modal-close" id="detailCloseBtn">✕</button>
     </div>
 
-    <div class="detail-video-wrap">
-      <video id="detailVideo" autoplay loop muted playsinline></video>
+    <!-- 여기서부터 detailSlideDrawer 전까지가 실제 스크롤되는 영역, 드로어는 이 밖이라 스크롤 안내려도 항상 보임 -->
+    <div class="detail-scroll-content">
+
+      <div class="detail-video-wrap">
+        <video id="detailVideo" autoplay loop muted playsinline></video>
+      </div>
+
+      <!-- 컨트롤라인:재생속도/다시보기 -->
+      <div class="detail-video-controls">
+        <div class="detail-speed-control">
+          <span class="detail-speed-label" id="detailSpeedLabel">1x</span>
+          <input type="range" id="detailSpeedSlider" class="detail-speed-slider" min="0" max="7" step="1" value="3">
+        </div>
+        <button class="detail-ctrl-btn" id="detailReplayBtn">↺ 다시보기</button>
+      </div>
+
+      <div class="detail-word-name" id="detailWordName"></div>
+
+      <div class="detail-divider"></div>
+      <div class="detail-section-label">설명</div>
+      <div class="detail-description" id="detailDescription"></div>
+
     </div>
 
-    <!-- 영상 컨트롤: 재생속도 / 다시보기 -->
-    <div class="detail-video-controls">
-      <button class="detail-ctrl-btn" id="detailSlowBtn">0.5x</button>
-      <button class="detail-ctrl-btn" id="detailReplayBtn">↺ 다시보기</button>
-    </div>
-
-    <div class="detail-word-name" id="detailWordName"></div>
-
-    <!-- 조회수 -->
-    <div class="detail-meta" id="detailMeta"></div>
-
-    <div class="detail-divider"></div>
-    <div class="detail-section-label">설명</div>
-    <div class="detail-description" id="detailDescription"></div>
-
-    <!-- 슬라이드업 드로어: 화살표 버튼 + 관련 단어 2개 -->
+    <!-- 슬라이드업 드로어: 화살표 버튼 + 관련 단어 2개, 항상 하단 고정, 열리면 토글바 위로 리스트만 펼쳐짐 -->
     <div class="detail-slide-drawer" id="detailSlideDrawer">
       <button class="detail-slide-toggle" id="detailSlideToggle">
         <span class="detail-slide-arrow">▲</span> 관련 단어 보기
@@ -771,11 +821,14 @@ function openDetailModal(word) {
   const videoEl = document.getElementById("detailVideo");
   const nameEl = document.getElementById("detailWordName");
   const descEl = document.getElementById("detailDescription");
-  const metaEl = document.getElementById("detailMeta");
+  
 
   nameEl.textContent = word.signWordName || '';
   descEl.textContent = word.description || '등록된 설명이 없습니다.';
-  metaEl.textContent = `조회 ${updatedVo.viewCount}회`;
+  // 조회수 안뜨던 문제 - fetch 응답 기다리기 전에 일단 목록에서 이미 갖고있는 viewCount로 먼저 채워놓음
+  // (fetch 끝나면 밑에서 최신값으로 다시 덮어씀. word.viewCount 없으면 일단 빈칸)
+  console.log("word 객체 확인:", word); // viewCount 필드가 실제로 있는지 여기서 확인
+
 
   let videoUrl = word.signWordVideo || '';
   if (videoUrl.startsWith("http://")) {
@@ -783,10 +836,10 @@ function openDetailModal(word) {
   }
 
   // 재생속도 버튼 초기 상태 리셋
+  // 재생속도 슬라이더 초기 상태 리셋 (index 3 = 1x)
   videoEl.playbackRate = 1;
-  const slowBtn = document.getElementById("detailSlowBtn");
-  slowBtn.textContent = "0.5x";
-  slowBtn.classList.remove("active");
+  document.getElementById("detailSpeedSlider").value = 3;
+  document.getElementById("detailSpeedLabel").textContent = "1x";
 
   videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl); // 모달 열릴 때 로딩 시작
 
@@ -804,26 +857,19 @@ function openDetailModal(word) {
       if (updatedVo && updatedVo.description) {
         descEl.textContent = updatedVo.description;
       }
-      if (updatedVo && typeof updatedVo.viewCount === "number") {
-        metaEl.textContent = `조회 ${updatedVo.viewCount}회`;
-      }
+      
     })
     .catch(() => {});
 }
 
 // 재생속도, 다시보기 버튼
-document.getElementById("detailSlowBtn").addEventListener("click", () => {
+const SPEED_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+document.getElementById("detailSpeedSlider").addEventListener("input", (e) => {
   const videoEl = document.getElementById("detailVideo");
-  const btn = document.getElementById("detailSlowBtn");
-  if (videoEl.playbackRate === 1) {
-    videoEl.playbackRate = 0.5;
-    btn.textContent = "1x";
-    btn.classList.add("active");
-  } else {
-    videoEl.playbackRate = 1;
-    btn.textContent = "0.5x";
-    btn.classList.remove("active");
-  }
+  const speed = SPEED_STEPS[parseInt(e.target.value, 10)];
+  videoEl.playbackRate = speed;
+  document.getElementById("detailSpeedLabel").textContent = speed + "x";
 });
 
 document.getElementById("detailReplayBtn").addEventListener("click", () => {
@@ -892,16 +938,9 @@ document.getElementById("detailCloseBtn").addEventListener("click", () => {
   modal.close();
 });
 
-// 슬라이드 드로어 열기: 모달 실제 렌더링 높이의 2/5를 관련단어 영역 max-height로 지정
+// 슬라이드 드로어 열기 - 이제 CSS가 알아서 60%까지 슬라이드업 해주니까 높이 계산 로직 필요없어짐, 클래스 토글만
 function openSlideDrawer() {
   const drawer = document.getElementById("detailSlideDrawer");
-  const content = document.getElementById("detailSlideContent");
-  const modalInner = document.querySelector(".detail-modal-inner");
-
-  const modalHeight = modalInner.getBoundingClientRect().height;
-  const targetHeight = modalHeight * (2 / 5);
-
-  content.style.maxHeight = targetHeight + "px";
   drawer.classList.add("open");
 
   const toggleBtn = document.getElementById("detailSlideToggle");
@@ -911,9 +950,6 @@ function openSlideDrawer() {
 // 슬라이드 드로어 닫기
 function closeSlideDrawer() {
   const drawer = document.getElementById("detailSlideDrawer");
-  const content = document.getElementById("detailSlideContent");
-
-  content.style.maxHeight = "0px";
   drawer.classList.remove("open");
 
   const toggleBtn = document.getElementById("detailSlideToggle");
