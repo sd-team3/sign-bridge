@@ -95,21 +95,21 @@
 <dialog id="detailModal" class="detail-modal">
   <div class="detail-modal-inner">
 
-    <!-- 오류신고 왼쪽위로 뺌 (기존엔 top-actions 안에서 닫기랑 같이 오른쪽에 있었음) -->
+    <!-- 오류신고 -->
     <button class="detail-report-btn" id="detailReportBtn">⚠ 오류 신고</button>
 
-    <!-- 오른쪽위엔 닫기버튼만 남음 -->
+    <!-- 닫기버튼-->
     <div class="detail-top-actions">
       <button class="detail-modal-close" id="detailCloseBtn">✕</button>
     </div>
 
-    <!-- 이전/이후 단어 이동 버튼 - 히스토리 있을때만 JS가 display:flex로 보여줌 -->
+    <!-- 이전/이후 단어 이동 버튼 - 히스토리 있을때만 -->
     <button class="detail-nav-btn detail-nav-prev" id="detailPrevBtn">◀</button>
     <button class="detail-nav-btn detail-nav-next" id="detailNextBtn">▶</button>
 
     
 
-    <!-- 여기서부터 detailSlideDrawer 전까지가 실제 스크롤되는 영역, 드로어는 이 밖이라 스크롤 안내려도 항상 보임 -->
+    <!-- 실제 스크롤 영역 -->
     <div class="detail-scroll-content">
 
       <div class="detail-video-wrap">
