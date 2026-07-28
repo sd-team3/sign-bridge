@@ -6,7 +6,9 @@ import org.apache.ibatis.annotations.Param;
 
 import com.soldesk.vo.JamoVO;
 
-public interface LearnMapper {
+public interface JamoMapper {
     
-    List<JamoVO> findByType(@Param("jamoType") String jamoType);    
+    List<JamoVO> findByType(@Param("jamoType") String jamoType); 
+    
+    int countAll();
 }

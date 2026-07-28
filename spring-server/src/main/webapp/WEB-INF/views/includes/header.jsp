@@ -7,28 +7,35 @@
     <nav>
     <a href="/">홈</a>
     <div class="nav-item has-sub">
-        <a href="learn">학습 <span class="nav-caret">▾</span></a>
+        <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
         <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
-            <a href="learn/jamo" class="nav-dropdown-link">
+            <a href="learn_basic.html" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔤</span>
             <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">자음,모음</span>
-                <span class="nav-dropdown-desc">ㄱ부터 ㅎ까지, 자음과 모음 손모양 익히기</span>
+                <span class="nav-dropdown-title">기초 어휘</span>
+                <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
             </span>
             </a>
-            <a href="learn/dict" class="nav-dropdown-link">
+            <a href="learn_list.html" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">🚨</span>
+            <span class="nav-dropdown-text">
+                <span class="nav-dropdown-title">상황별 수어 학습</span>
+                <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
+            </span>
+            </a>
+            <a href="learn_word.html" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔍</span>
             <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">수어 사전</span>
-                <span class="nav-dropdown-desc">초성으로 찾고 검색해서 단어 학습</span>
+                <span class="nav-dropdown-title">개별 어휘 학습</span>
+                <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
             </span>
             </a>
             
         </div>
         </div>
     </div>
-    <a href="exam/setup">시험</a>
+    <a href="exam_setup.html">시험</a>
     <div class="nav-item has-sub">
         <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
         <div class="nav-dropdown">
@@ -51,6 +58,12 @@
         </div>
     </div>
     <a href="board_list.html">게시판</a>
-    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+    <sec:authorize access="isAuthenticated()">
+        <a href="/member/mypage" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
+    </sec:authorize>
+
+    <sec:authorize access="!isAuthenticated()">
+        <a href="/member/login" class="active btn btn-ghost btn-sm" style="margin-left:12px;">로그인</a>
+    </sec:authorize>
     </nav>
 </header>
