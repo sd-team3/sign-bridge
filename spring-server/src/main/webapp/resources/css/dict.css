@@ -93,7 +93,31 @@
   .cam-modal-inner { padding:20px; position:relative; max-height:85vh; overflow-y:auto; }
   .cam-modal-title { font-weight:800; font-size:16px; margin-bottom:12px; }
   .cam-modal-close { position:absolute; top:14px; right:14px; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; }
-  .cam-wrap { position:relative; width:100%; aspect-ratio:4/3; margin:0 auto; border-radius:12px; overflow:hidden; background:#000; }
+  .cam-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  margin: 0 auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+}
+.cam-pause-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: inherit;
+}
+.cam-pause-overlay.visible {
+  display: flex;
+}
   .cam-wrap video, .cam-wrap canvas { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
   .cam-result { font-size:26px; font-weight:800; text-align:center; margin:14px 0; min-height:36px; }
   .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
@@ -363,4 +387,101 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.cam-status {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: background 0.2s, color 0.2s;
+}
+.cam-status.detected {
+  background: #d1fae5;
+  color: #059669;
+}
+.cam-status.not-detected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.cam-preview {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--primary);
+  min-height: 40px;
+  margin: 4px 0;
+  transition: opacity 0.15s;
+}
+
+.cam-status {
+  text-align: center;
+  font-size: 13px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: background 0.2s, color 0.2s;
+}
+.cam-status.detected {
+  background: #d1fae5;
+  color: #059669;
+}
+.cam-status.not-detected {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* 확신도 게이지 */
+.cam-confidence-row {
+  display: flex;
+  justify-content: center;
+  margin: 12px 0;
+}
+.cam-confidence-gauge {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.cam-gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.cam-gauge-bg {
+  fill: none;
+  stroke: #e5e7eb;
+  stroke-width: 3;
+}
+.cam-gauge-fill {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100 100;
+  stroke-dashoffset: 100;
+  transition: stroke-dashoffset 0.15s ease;
+}
+.cam-gauge-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+#camSearchBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+#camSearchBtn.cam-search-ready {
+  animation: searchReadyPulse 0.6s ease;
+}
+@keyframes searchReadyPulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(45, 155, 111, 0.2); }
+  100% { transform: scale(1); }
 }
