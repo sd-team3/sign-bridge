@@ -28,6 +28,7 @@ public class MemberVO {
     private String role; // 권한 (enum: MemberRole, USER/ADMIN)
 
     private String status; // 상태 (enum: MemberStatus, ACTIVE/DORMANT/WITHDRAWN)
+    private LocalDateTime suspendEndDate; // 정지 종료 일 
     private LocalDateTime regDate; // 가입일시
 
     // oAuth용
@@ -100,5 +101,12 @@ public class MemberVO {
     }
     public void setRegDate(LocalDateTime regDate) {
         this.regDate = regDate;
+    }
+
+    public LocalDateTime getSuspendEndDate() { 
+        return suspendEndDate; 
+    }
+    public void setSuspendEndDate(LocalDateTime suspendEndDate) { 
+        this.suspendEndDate = suspendEndDate; 
     }
 }
