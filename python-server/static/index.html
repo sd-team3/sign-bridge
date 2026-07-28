@@ -100,6 +100,57 @@
     border-radius: 8px;
     overflow: hidden;
   }
+  .capture-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .capture-row .video-wrap {
+    flex: 1 1 300px;
+    max-width: 340px;
+  }
+  .reference-wrap {
+    flex: 0 0 150px;
+    width: 150px;
+  }
+  .reference-wrap .ref-frame {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #0a100d;
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .reference-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .reference-wrap .ref-missing {
+    color: var(--ink-dim);
+    font-size: 12px;
+    text-align: center;
+    padding: 8px;
+    font-family: var(--mono);
+  }
+  .reference-wrap .ref-label {
+    text-align: center;
+    margin-top: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    color: var(--accent);
+  }
+  .reference-wrap .ref-caption {
+    text-align: center;
+    font-size: 11px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
   video, canvas {
     position: absolute;
     top: 0; left: 0;
@@ -209,9 +260,27 @@
     <div class="grid">
       <div class="panel">
         <h2>웹캠 캡처</h2>
-        <div class="video-wrap">
-          <video id="collectVideo" autoplay playsinline muted></video>
-          <canvas id="collectCanvas"></canvas>
+        <div class="capture-row">
+          <div class="reference-wrap">
+            <div class="ref-frame" id="refFrame">
+              <img id="referenceImg" alt="모범 답안" style="display:none;" />
+              <span class="ref-missing" id="refMissing">모범 답안 이미지 없음<br />(static/image/{코드}.jpg)</span>
+            </div>
+            <div class="ref-label" id="refLabel">-</div>
+            <div class="ref-caption">모범 답안</div>
+          </div>
+          <div class="video-wrap">
+            <video id="collectVideo" autoplay playsinline muted></video>
+            <canvas id="collectCanvas"></canvas>
+          </div>
+        </div>
+        <div class="row" id="cameraErrorRow" style="display:none;">
+          <span class="muted" id="cameraErrorMsg" style="color:var(--danger);"></span>
+        </div>
+        <div class="row">
+          <label class="muted">이름</label>
+          <input type="text" id="collectorInput" class="btn" style="cursor:text; min-width:140px;" placeholder="예: 홍길동" />
+          <span class="muted" id="collectorHint">데이터를 넣는 사람 이름 (파일명에 그대로 저장됩니다)</span>
         </div>
         <div class="row">
           <label class="muted">라벨</label>
@@ -255,8 +324,10 @@
           <button class="btn" id="refreshStatsBtn2">현황 새로고침</button>
         </div>
         <p class="muted" style="margin-top:10px;">
-          병합은 <code>data/incoming/*.csv</code>를 <code>data/landmarks.csv</code>에 합칩니다.
-          학습은 <code>landmarks.csv</code> 전체로 모델을 다시 학습하고, 서버 재시작 없이 바로 반영합니다.
+          병합은 팀원들이 각자 올린 <code>data/temp/landmark_{일시}_{이름}.csv</code> 파일들을
+          <code>data/landmarks.csv</code> 하나로 합칩니다 (병합된 원본은 <code>data/temp/archive</code>로 이동).<br />
+          학습은 <code>landmarks.csv</code> 전체로 모델을 다시 학습하고, 기존 모델은
+          <code>model/old/{학습시각}/</code>에 백업된 뒤 서버 재시작 없이 바로 반영됩니다.
         </p>
         <div class="log" id="trainLog">여기에 실행 로그가 표시됩니다.</div>
       </div>
@@ -282,6 +353,9 @@
           <video id="predictVideo" autoplay playsinline muted></video>
           <canvas id="predictCanvas"></canvas>
         </div>
+        <div class="row" id="predictCameraErrorRow" style="display:none;">
+          <span class="muted" id="predictCameraErrorMsg" style="color:var(--danger);"></span>
+        </div>
         <div class="row">
           <label class="chk"><input type="checkbox" id="predictMirrorChk" /> 왼손 모드(반전)</label>
           <button class="btn" id="togglePredictBtn">인식 시작</button>
@@ -302,18 +376,23 @@
 </main>
 
 <script type="module">
-import { HandCameraWidget } from "./js/hand-camera.js";
-import { JamoApiClient } from "./js/api-client.js";
+import { HandCameraWidget } from "/static/js/hand-camera.js";
+import { JamoApiClient } from "/static/js/api-client.js";
 
 const api = new JamoApiClient(""); // 같은 오리진(python-server가 이 페이지도 서빙)
 
 // ── 공통: 탭 전환 ──────────────────────────────────────
+// 탭마다 카메라를 켜고 끄는 실제 처리는 switchTab()에서 담당한다 (아래쪽에서 정의).
+// 두 탭의 카메라를 동시에 켜두면(webcam 1개를 두 <video>가 동시에 열려고 시도 + 같은
+// HandLandmarker 인스턴스에 동시에 detectForVideo를 호출) 브라우저에 따라 예외가 나면서
+// 페이지가 아예 멈추는 원인이 되므로, 항상 "현재 보이는 탭의 카메라만" 켜져 있게 한다.
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    switchTab(btn.dataset.tab);
   });
 });
 
@@ -333,11 +412,38 @@ checkHealth();
 
 // ── 공통: 라벨 목록 로딩 ────────────────────────────────
 let LABELS = [];
+let LABEL_IMAGES = {};
 async function loadLabels() {
   const data = await api.getLabels();
   LABELS = data.labels;
+  LABEL_IMAGES = data.label_images || {};
   const sel = document.getElementById("labelSelect");
   sel.innerHTML = LABELS.map(l => `<option value="${l}">${l}</option>`).join("");
+  sel.addEventListener("change", updateReferenceImage);
+  updateReferenceImage();
+}
+
+function updateReferenceImage() {
+  const label = document.getElementById("labelSelect").value;
+  const img = document.getElementById("referenceImg");
+  const missing = document.getElementById("refMissing");
+  document.getElementById("refLabel").textContent = label || "-";
+
+  const code = LABEL_IMAGES[label];
+  if (!code) {
+    img.style.display = "none";
+    missing.style.display = "block";
+    return;
+  }
+  img.onload = () => {
+    img.style.display = "block";
+    missing.style.display = "none";
+  };
+  img.onerror = () => {
+    img.style.display = "none";
+    missing.style.display = "block";
+  };
+  img.src = `/static/image/${code}.jpg`;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -348,6 +454,13 @@ let frameBuffer = [];
 let lastCaptureTime = 0;
 const CAPTURE_INTERVAL_MS = 90;   // 연속 저장 시 최소 간격
 const FLUSH_EVERY_MS = 1500;      // 이 주기마다 서버로 배치 전송
+
+// 데이터를 넣는 사람 이름: 브라우저에 기억해뒀다가 다음에 열 때도 유지
+const collectorInput = document.getElementById("collectorInput");
+collectorInput.value = localStorage.getItem("jamo_collector_name") || "";
+collectorInput.addEventListener("change", () => {
+  localStorage.setItem("jamo_collector_name", collectorInput.value.trim());
+});
 
 const collectCam = new HandCameraWidget({
   videoEl: document.getElementById("collectVideo"),
@@ -372,8 +485,9 @@ async function sendFrames(frames) {
   if (!frames.length) return;
   const label = document.getElementById("labelSelect").value;
   const mirror = document.getElementById("mirrorChk").checked;
+  const collector = collectorInput.value.trim() || "unknown";
   try {
-    const data = await api.collect(label, frames.map(landmarks => ({ landmarks })), mirror);
+    const data = await api.collect(label, frames.map(landmarks => ({ landmarks })), mirror, collector);
     console.log("저장됨:", data);
     refreshStats();
   } catch (e) {
@@ -381,13 +495,23 @@ async function sendFrames(frames) {
   }
 }
 
+function requireCollectorName() {
+  if (collectorInput.value.trim()) return true;
+  collectorInput.focus();
+  collectorInput.style.borderColor = "var(--danger)";
+  setTimeout(() => { collectorInput.style.borderColor = ""; }, 1200);
+  return false;
+}
+
 document.getElementById("captureOneBtn").addEventListener("click", async () => {
+  if (!requireCollectorName()) return;
   const landmarks = collectCam.getLatestLandmarks();
   if (!landmarks) return;
   await sendFrames([landmarks]);
 });
 
 document.getElementById("continuousBtn").addEventListener("click", (e) => {
+  if (!continuousOn && !requireCollectorName()) return;
   continuousOn = !continuousOn;
   e.target.textContent = continuousOn ? "연속 저장 중지" : "연속 저장 시작";
   e.target.classList.toggle("toggled", continuousOn);
@@ -515,14 +639,69 @@ document.getElementById("togglePredictBtn").addEventListener("click", async (e) 
   predictOn = !predictOn;
   e.target.textContent = predictOn ? "인식 중지" : "인식 시작";
   e.target.classList.toggle("toggled", predictOn);
+  if (!predictOn) {
+    document.getElementById("predBig").textContent = "-";
+    document.getElementById("predConf").textContent = "대기 중";
+    document.getElementById("top3Box").innerHTML = "";
+  }
 });
+
+// ═══════════════════════════════════════════════════════
+// 탭 전환 시 카메라 시작/정지
+// 한 번에 한 탭의 카메라만 켜져 있어야 한다 (동시에 두 개를 켜면 웹캠 자원 경합/
+// MediaPipe 인스턴스 동시 호출로 인해 페이지 전체가 멈추는 문제가 있었음).
+// ═══════════════════════════════════════════════════════
+function showCameraError(rowId, msgId, err) {
+  const row = document.getElementById(rowId);
+  const msg = document.getElementById(msgId);
+  row.style.display = "flex";
+  msg.textContent = `카메라를 시작할 수 없습니다: ${err && err.message ? err.message : err}. `
+    + "브라우저 주소창의 카메라 권한을 확인해주세요.";
+}
+
+function hideCameraError(rowId) {
+  document.getElementById(rowId).style.display = "none";
+}
+
+async function startCollectCam() {
+  try {
+    await collectCam.start();
+    hideCameraError("cameraErrorRow");
+  } catch (err) {
+    console.error("collect camera 시작 실패", err);
+    showCameraError("cameraErrorRow", "cameraErrorMsg", err);
+  }
+}
+
+async function startPredictCam() {
+  try {
+    await predictCam.start();
+    hideCameraError("predictCameraErrorRow");
+  } catch (err) {
+    console.error("predict camera 시작 실패", err);
+    showCameraError("predictCameraErrorRow", "predictCameraErrorMsg", err);
+  }
+}
+
+async function switchTab(tabName) {
+  if (tabName === "collect") {
+    predictCam.stopCamera();
+    await startCollectCam();
+  } else if (tabName === "predict") {
+    collectCam.stopCamera();
+    await startPredictCam();
+  } else {
+    // 병합 & 학습 탭에서는 카메라가 필요 없으므로 둘 다 꺼서 자원을 아낀다.
+    collectCam.stopCamera();
+    predictCam.stopCamera();
+  }
+}
 
 // ── 초기화 ──────────────────────────────────────────────
 (async function init() {
   await loadLabels();
   await refreshStats();
-  await collectCam.start();
-  await predictCam.start();
+  await switchTab("collect"); // 기본으로 보이는 탭(데이터 수집)의 카메라만 켠다
 })();
 </script>
 </body>
