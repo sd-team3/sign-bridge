@@ -63,6 +63,13 @@
             </svg>
             네이버로 로그인
         </a>
+
+        <a href="/oauth2/kakao" class="btn-oauth btn-kakao">
+          <svg class="oauth-icon" viewBox="0 0 24 24" width="18" height="18">
+            <path fill="#181600" d="M12 3C6.48 3 2 6.58 2 11c0 2.85 1.86 5.35 4.66 6.79-.2.75-.73 2.72-.84 3.14-.13.51.19.5.4.37.16-.1 2.6-1.77 3.66-2.5.68.1 1.39.15 2.12.15 5.52 0 10-3.58 10-8s-4.48-8-10-8z"/>
+          </svg>
+          카카오로 로그인
+        </a>
     </div>
 
     <div class="auth-footer">
