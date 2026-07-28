@@ -29,8 +29,6 @@ import com.soldesk.mapper.MemberMapper;
 import com.soldesk.security.MemberUserDetailsService;
 import com.soldesk.vo.MemberVO;
 
-import jakarta.json.Json;
-
 @Service
 public class OAuthService {
     // google OAuth
@@ -217,8 +215,8 @@ public class OAuthService {
         }
 
         String email = account.get("email").asText();
-        String name = account.has("profile") && account.get("profile").has("profile")
-             ? account.get("name").asText() : "카카오회원"; // 차이 3
+        String name = account.has("profile") && account.get("profile").has("nickname")
+             ? account.get("profile").get("nickname").asText() : "카카오회원"; // 차이 3
         loginOrJoin("KAKAO", providerId, email, name, request, response); // 차이 4
     }
 
