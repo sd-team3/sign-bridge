@@ -299,7 +299,6 @@ function wordCard(w) {
 }
 
 // 모달
-// 모달
 // fromHistory=true면 이전/이후 버튼으로 이동한 경우라 히스토리에 새로 안쌓고 그대로 재생만 함
 function openDetailModal(word, fromHistory) {
   const modal = document.getElementById("detailModal");
