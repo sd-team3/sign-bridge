@@ -52,8 +52,6 @@ public class AdminController {
 
     @GetMapping("/main")
     public String dashboard(Model model, Authentication authentication) {
-        System.out.println("로그인 계정: " + authentication.getName());
-    System.out.println("권한 목록: " + authentication.getAuthorities());
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date nowDate = new Date();
@@ -70,6 +68,8 @@ public class AdminController {
         // 주간 회원 수 max값
         int weeklyMax = Collections.max(weeklySignups);
 
+        // 오류 신고 개수
+        int errorCount = adminService.getErrorCount();
         model.addAttribute("todayLabel", today);
         model.addAttribute("totalUsers", totalUsers);
         // model.addAttribute("totalPosts", totalPosts);
@@ -77,6 +77,7 @@ public class AdminController {
         model.addAttribute("newUsersToday", newUsersToday);
         model.addAttribute("weeklySignups", weeklySignups);
         model.addAttribute("weeklyMax", weeklyMax);
+        model.addAttribute("errorCount", errorCount);
         return "admin/dashboard";
     }
 

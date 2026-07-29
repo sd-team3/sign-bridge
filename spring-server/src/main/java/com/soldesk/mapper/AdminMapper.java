@@ -22,4 +22,8 @@ public interface AdminMapper {
             @Param("category") String category,
             @Param("title") String title,
             @Param("content") String content);
+                      @Param("answerContent") String answerContent,
+                      @Param("answeredMemberId") Long answeredMemberId);
+    // 오류 신고 미처리 개수
+    int getErrorCount();
 }

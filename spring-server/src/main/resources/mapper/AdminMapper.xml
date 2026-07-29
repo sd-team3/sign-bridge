@@ -64,5 +64,11 @@
         INSERT INTO inquiry (member_id, category, title, content, status, reg_date)
         VALUES (#{memberId}, #{category}, #{title}, #{content}, 'WAIT', NOW())
     </insert>
+    <!-- 오류 신고 미처리 개수 -->
+    <select id="getErrorCount" resultType="int">
+        select count(*)
+        from inquiry
+        where status = 'WAIT'
+    </select>
 
 </mapper>
