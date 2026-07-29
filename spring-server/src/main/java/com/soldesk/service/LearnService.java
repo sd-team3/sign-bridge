@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.soldesk.mapper.LearnMapper;
+import com.soldesk.mapper.JamoMapper;
 import com.soldesk.mapper.SignWordMapper;
 import com.soldesk.vo.JamoVO;
 import com.soldesk.vo.SignWordVO;
@@ -22,17 +22,17 @@ import com.soldesk.vo.SignWordVO;
 public class LearnService {
 
     @Autowired
-    private LearnMapper learnMapper;
+    private JamoMapper jamoMapper;
 
     @Autowired
     private SignWordMapper signWordMapper;
 
     public List<JamoVO> getConsonants() {
-        return learnMapper.findByType("CONSONANT");
+        return jamoMapper.findByType("CONSONANT");
     }
 
     public List<JamoVO> getVowels() {
-        return learnMapper.findByType("VOWEL");
+        return jamoMapper.findByType("VOWEL");
     }
 
     public List<SignWordVO> getDictWords(String choseong, String keyword) {
@@ -100,5 +100,8 @@ public class LearnService {
                             String description)
     {
         signWordMapper.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
+
+    public int countAll(){
+        return jamoMapper.countAll();
     }
 }

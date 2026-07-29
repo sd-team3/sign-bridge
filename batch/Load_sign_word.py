@@ -4,6 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 import pymysql
 import time
+import html
 
 # properties 파싱.
 def load_properties(filepath):
@@ -100,14 +101,15 @@ def parse_items(xml_text: str):
     total_count = int(root.findtext(".//totalCount", "0"))
     items = []
     for item in root.findall(".//item"):
-        title = (item.findtext("title") or "").strip()
+        title = html.unescape((item.findtext("title") or "").strip())
         if not title:
             continue  # 단어명 없는 항목은 스킵
+        description = html.unescape((item.findtext("signDescription") or "").strip()) or None
         items.append({
             "name": title,
             "video": (item.findtext("subDescription") or "").strip() or None, # 빈문자열 허용 x 
             "thumbnail": (item.findtext("referenceIdentifier") or "").strip() or None,
-            "description": (item.findtext("signDescription") or "").strip() or None,
+            "description": description,
             "api_id": extract_api_id(item.findtext("url") or ""),
             "choseong": extract_choseong(title),
         })
