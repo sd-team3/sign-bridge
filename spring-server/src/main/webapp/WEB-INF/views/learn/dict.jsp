@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SignBridge - 개별 어휘 학습</title>
+<title>SignBridge - 수어 사전</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/shared.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/dict.css">
 </head>
@@ -19,7 +19,7 @@
 
     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; gap:16px;">
       <div>
-        <h1 style="font-size:28px; font-weight:900; letter-spacing:-0.8px;">🔍 개별 어휘 학습</h1>
+        <h1 style="font-size:28px; font-weight:900; letter-spacing:-0.8px;">🔍 수어 사전</h1>
         <p style="font-size:14px; color:var(--text-sub); margin-top:5px;">초성별로 찾거나 검색·수어 인식으로 원하는 단어를 학습하세요.</p>
       </div>
       <a href="${pageContext.request.contextPath}/" class="btn btn-ghost btn-sm">← 메인으로</a>
@@ -61,14 +61,31 @@
   <div class="cam-modal-inner">
     <button class="cam-modal-close" id="camCloseBtn">✕</button>
     <div class="cam-modal-title">🖐 수어로 검색</div>
-    <div class="cam-wrap">
+    <div class="cam-wrap" id="camWrap">
       <video id="video-word" autoplay playsinline muted></video>
       <canvas id="canvas-word"></canvas>
+      <div class="cam-pause-overlay" id="camPauseOverlay">
+        <span>⏸ 클릭해서 재개</span>
+      </div>
     </div>
+    <div class="cam-status" id="camStatus">카메라를 준비하는 중...</div>
+
+    <div class="cam-confidence-row">
+      <div class="cam-confidence-gauge">
+        <svg viewBox="0 0 36 36" class="cam-gauge-svg">
+          <path class="cam-gauge-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+          <path class="cam-gauge-fill" id="camGaugeFill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+        </svg>
+        <span class="cam-gauge-label" id="camGaugeLabel">0%</span>
+      </div>
+    </div>
+
+    
+
     <div class="cam-result" id="result-word">-</div>
     <div class="progress-bar"><div id="progressFill"></div></div>
     <div class="cam-modal-btns">
-      <button class="btn btn-primary btn-sm" id="camSearchBtn">이 단어로 검색</button>
+      <button class="btn btn-primary btn-sm" id="camSearchBtn" disabled>이 단어로 검색</button>
       <button class="btn btn-ghost btn-sm" id="camResetBtn">초기화</button>
     </div>
   </div>
@@ -78,21 +95,21 @@
 <dialog id="detailModal" class="detail-modal">
   <div class="detail-modal-inner">
 
-    <!-- 오류신고 왼쪽위로 뺌 (기존엔 top-actions 안에서 닫기랑 같이 오른쪽에 있었음) -->
+    <!-- 오류신고 -->
     <button class="detail-report-btn" id="detailReportBtn">⚠ 오류 신고</button>
 
-    <!-- 오른쪽위엔 닫기버튼만 남음 -->
+    <!-- 닫기버튼-->
     <div class="detail-top-actions">
       <button class="detail-modal-close" id="detailCloseBtn">✕</button>
     </div>
 
-    <!-- 이전/이후 단어 이동 버튼 - 히스토리 있을때만 JS가 display:flex로 보여줌 -->
+    <!-- 이전/이후 단어 이동 버튼 - 히스토리 있을때만 -->
     <button class="detail-nav-btn detail-nav-prev" id="detailPrevBtn">◀</button>
     <button class="detail-nav-btn detail-nav-next" id="detailNextBtn">▶</button>
 
     
 
-    <!-- 여기서부터 detailSlideDrawer 전까지가 실제 스크롤되는 영역, 드로어는 이 밖이라 스크롤 안내려도 항상 보임 -->
+    <!-- 실제 스크롤 영역 -->
     <div class="detail-scroll-content">
 
       <div class="detail-video-wrap">
@@ -136,56 +153,15 @@ const CTX = "${pageContext.request.contextPath}";
 
 <!-- 수어 인식 모듈 -->
 <script type="module">
-  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-  import { SignInputSession } from "${pageContext.request.contextPath}/resources/js/sign-input.js";
+  import { initDictCamera } from "${pageContext.request.contextPath}/resources/js/dict-camera.js";
 
-  // 자,모 조합 알고리즘
-  const signInput = new SignInputSession({
-    apiBase: CTX,
-    onUpdate: function (data) {
-      var composed = data.composedText || "";
-      document.getElementById("result-word").textContent = composed || "-";
-      var pct = (data.holdProgress || 0) * 100;
-      document.getElementById("progressFill").style.width = pct + "%";
+  const { cam, signInput } = initDictCamera({
+    ctx: CTX,
+    onSearch: function (word) {
+      document.getElementById("searchInput").value = word;
+      currentPage = 1;
+      runSearch();
     },
-  });
-
-  // 카메라 손 추출
-  const cam = new HandCameraWidget({
-    videoEl: document.getElementById("video-word"),
-    canvasEl: document.getElementById("canvas-word"),
-    onFrame: function (landmarks) { signInput.submitFrame(landmarks); },
-  });
-
-  // 캠 클릭시 이전세션 초기화 후 카메라 인식 시작
-  document.getElementById("camToggleBtn").addEventListener("click", async () => {
-    document.getElementById("result-word").textContent = "-";
-    document.getElementById("progressFill").style.width = "0%";
-    try { await signInput.reset(); } catch (e) { console.error(e); }
-    document.getElementById("camModal").showModal();
-    await cam.start();
-  });
-
-  // 닫기 ... 카메라 스트림 정지
-  document.getElementById("camCloseBtn").addEventListener("click", () => {
-    document.getElementById("camModal").close();
-    cam.stop();
-  });
-
-  // 세션만 리셋(카메라 그대로)
-  document.getElementById("camResetBtn").addEventListener("click", async () => {
-    try { await signInput.reset(); } catch (e) { console.error(e); }
-  });
-
-  // 일반검색과 로직동일
-  document.getElementById("camSearchBtn").addEventListener("click", () => {
-    const word = document.getElementById("result-word").textContent.trim();
-    if (!word || word === "-") return;
-    document.getElementById("searchInput").value = word;
-    document.getElementById("camModal").close();
-    cam.stop();
-    currentPage = 1;
-    runSearch();
   });
 
   window.cam = cam;

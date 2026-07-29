@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.soldesk.mapper.JamoMapper;
 import com.soldesk.mapper.SignWordMapper;
@@ -77,6 +78,28 @@ public class LearnService {
             in.transferTo(out);
         }
     }
+    // 어드민 간단한 단어 리스트 (페이징)
+    public List<SignWordVO> getWordList(String keyword, int offset, int pageSize) {
+        return signWordMapper.getWordList(keyword, offset, pageSize);
+    }
+
+    // 단어 개수
+    public int getWordCount(String keyword) {
+        return signWordMapper.getCount(keyword);
+    }
+    // 아이디로 단어 이름 가져오기
+    public SignWordVO getDictWordDetailById(int signWordId) {
+        return signWordMapper.getDictWordDetailById(signWordId);
+    }
+
+    public void updateWord( int signWordId,
+                            String signWordName, 
+                            String choseong, 
+                            String signWordVideo, 
+                            String signWordThumbnail, 
+                            String description)
+    {
+        signWordMapper.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
 
     public int countAll(){
         return jamoMapper.countAll();

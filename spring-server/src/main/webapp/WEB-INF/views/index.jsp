@@ -109,7 +109,7 @@
   </p>
 
   <div class="hero-btns">
-    <a href="${ctx}/learn/dict" class="btn btn-primary btn-large">학습 시작하기</a>
+    <a href="${ctx}/learn" class="btn btn-primary btn-large">학습 시작하기</a>
     <a href="#" class="btn btn-ghost btn-large">플레이존 가기</a>
   </div>
 
