@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,12 +14,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.soldesk.service.AdminService;
 import com.soldesk.service.LearnService;
 import com.soldesk.service.MemberService;
 import com.soldesk.service.SuspendService;
+import com.soldesk.vo.AnswerRequest;
+import com.soldesk.vo.InquiryVO;
 import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
 import com.soldesk.vo.SignWordVO;
@@ -37,6 +45,9 @@ public class AdminController {
 
     @Autowired
     private LearnService learnService;
+
+    @Autowired
+    private AdminService adminService;
 
 
     @GetMapping("/main")
@@ -168,6 +179,37 @@ public class AdminController {
     ) {
         learnService.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
         return "redirect:/admin/word/info?signWordId=" + signWordId;
+    }
+
+    @GetMapping("/inquiry")
+    public String inquiryForm(@RequestParam(value = "category",
+                                            required = false,
+                                            defaultValue = "ERROR_REPORT") String category,
+                               @RequestParam(value = "status",
+                                            required = false,
+                                            defaultValue = "WAIT") String status,
+                               Model model) {
+
+        List<InquiryVO> inquiryList = adminService.getInquiryList(category, status);
+        int waitCount = adminService.getStatusCount(category, "WAIT");
+        int processingCount = adminService.getStatusCount(category, "PROCESSING");
+
+        model.addAttribute("inquiryList", inquiryList);
+        model.addAttribute("waitCount", waitCount);
+        model.addAttribute("processingCount", processingCount);
+        model.addAttribute("currentStatus", status);
+        model.addAttribute("currentCategory", category);
+        return "admin/error";
+    }
+
+    @PostMapping("/inquiry/answer")
+    @ResponseBody
+    public Map<String, Object> submitAnswer(@RequestBody AnswerRequest request,
+                                             HttpSession session) {
+        Long adminMemberId = (Long) session.getAttribute("memberId");
+        boolean result = adminService.answerInquiry(
+                request.getInquiryId(), request.getAnswerContent(), adminMemberId);
+        return Map.of("success", result);
     }
 
 }

@@ -100,6 +100,7 @@ public class LearnService {
                             String description)
     {
         signWordMapper.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
+    }
 
     public int countAll(){
         return jamoMapper.countAll();
