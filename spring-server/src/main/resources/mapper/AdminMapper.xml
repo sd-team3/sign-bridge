@@ -60,4 +60,11 @@
         WHERE inquiry_id = #{inquiryId}
     </update>
 
+    <!-- 오류 신고 미처리 개수 -->
+    <select id="getErrorCount" resultType="int">
+        select count(*)
+        from inquiry
+        where status = 'WAIT'
+    </select>
+
 </mapper>

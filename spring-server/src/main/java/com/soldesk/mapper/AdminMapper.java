@@ -13,4 +13,6 @@ public interface AdminMapper {
     int updateAnswer(@Param("inquiryId") Long inquiryId,
                       @Param("answerContent") String answerContent,
                       @Param("answeredMemberId") Long answeredMemberId);
+    // 오류 신고 미처리 개수
+    int getErrorCount();
 }
