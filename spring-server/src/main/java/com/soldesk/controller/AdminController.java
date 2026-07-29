@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.soldesk.service.LearnService;
 import com.soldesk.service.MemberService;
 import com.soldesk.service.SuspendService;
 import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
+import com.soldesk.vo.SignWordVO;
 
 
 @Controller
@@ -32,6 +34,9 @@ public class AdminController {
 
     @Autowired
     private SuspendService suspendService;
+
+    @Autowired
+    private LearnService learnService;
 
 
     @GetMapping("/main")
@@ -89,7 +94,6 @@ public class AdminController {
         int count = memberService.adminGetMemberCount(role, status, keyword);
         PageBean pageBean = new PageBean(page, count, pageSize);
         List<MemberVO> members = memberService.getMemberList(pageBean.getCurrentPage(), pageSize, role, status, keyword, sort);
-        System.out.println("currentPage = " + pageBean.getCurrentPage());
         model.addAttribute("pageBean", pageBean);
         model.addAttribute("userList", members);
         model.addAttribute("filterType", filterType);
@@ -128,6 +132,42 @@ public class AdminController {
         memberService.deleteMember(memberId);
         
         return "redirect:/admin/user/list";
+    }
+
+    @GetMapping("/word/update")
+    public String wordList(Model model,
+                            @RequestParam(defaultValue = "1") int page,
+                            @RequestParam(required = false) String keyword
+    ) {
+        int pageSize = 20;
+        int count = learnService.getWordCount(keyword);
+        PageBean pageBean = new PageBean(page, count, pageSize);
+
+        int offset = (page - 1) * pageSize;
+        model.addAttribute("words", learnService.getWordList(keyword, offset, pageSize));
+        model.addAttribute("pageBean", pageBean);
+        return "admin/wordUpdate";
+    }
+
+    @GetMapping("/word/info")
+    public String wordInfo(Model model,
+                            @RequestParam int signWordId) {
+        SignWordVO word = learnService.getDictWordDetailById(signWordId);
+        model.addAttribute("word", word);
+
+        return "admin/wordInfo";
+    }
+
+    @PostMapping("/word/update")
+    public String wordUpdate(@RequestParam int signWordId,
+                            @RequestParam String signWordName, 
+                            @RequestParam String choseong, 
+                            @RequestParam String signWordVideo, 
+                            @RequestParam String signWordThumbnail, 
+                            @RequestParam String description
+    ) {
+        learnService.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
+        return "redirect:/admin/word/info?signWordId=" + signWordId;
     }
 
 }

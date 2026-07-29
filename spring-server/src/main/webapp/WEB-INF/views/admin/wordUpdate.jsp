@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="단어 수정" scope="request" />
 <c:set var="pagePath" value="/admin/word/update" scope="request" />
 <c:set var="activeMenu" value="word-update" scope="request" />
@@ -32,65 +33,44 @@
       <span class="si">🔍</span>
       <input type="text" name="keyword" value="${param.keyword}" placeholder="수정할 단어 검색...">
     </div>
-    <select class="filter-select" name="category">
-      <option value="">전체 카테고리</option>
-      <option value="basic" ${param.category == 'basic' ? 'selected' : ''}>기초 어휘</option>
-      <option value="emergency" ${param.category == 'emergency' ? 'selected' : ''}>비상 상황</option>
-    </select>
     <button type="submit" class="topbar-btn btn-primary">검색</button>
   </form>
 </div>
 
-<c:if test="${not empty word}">
-  <div class="card">
-    <div class="card-title">
-      <span class="ct-icon">✏️</span> 수정: "${word.word}"
-      <span class="pill pill-green" style="margin-left:4px">${word.categoryLabel}</span>
-    </div>
-    <form class="form-grid" method="post" action="${pageContext.request.contextPath}/admin/word/update">
-      <input type="hidden" name="wordId" value="${word.id}">
-      <div class="form-row">
-        <label class="fl">단어 (한글)</label>
-        <input class="fi" type="text" name="word" value="${word.word}">
-      </div>
-      <div class="form-row">
-        <label class="fl">카테고리</label>
-        <select class="fi" name="category">
-          <option value="basic" ${word.category == 'basic' ? 'selected' : ''}>기초 어휘</option>
-          <option value="emergency" ${word.category == 'emergency' ? 'selected' : ''}>비상 상황</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label class="fl">난이도</label>
-        <select class="fi" name="level">
-          <option value="beginner" ${word.level == 'beginner' ? 'selected' : ''}>초급</option>
-          <option value="intermediate" ${word.level == 'intermediate' ? 'selected' : ''}>중급</option>
-          <option value="advanced" ${word.level == 'advanced' ? 'selected' : ''}>고급</option>
-        </select>
-      </div>
-      <div class="form-row">
-        <label class="fl">중요도 태그</label>
-        <select class="fi" name="importance">
-          <option value="essential" ${word.importance == 'essential' ? 'selected' : ''}>필수</option>
-          <option value="normal" ${word.importance == 'normal' ? 'selected' : ''}>일반</option>
-          <option value="emergency" ${word.importance == 'emergency' ? 'selected' : ''}>비상</option>
-        </select>
-      </div>
-      <div class="form-row full">
-        <label class="fl">동영상 URL</label>
-        <input class="fi" type="text" name="videoUrl" value="${word.videoUrl}">
-      </div>
-      <div class="form-row full">
-        <label class="fl">설명 / 메모</label>
-        <textarea class="fi" name="memo">${word.memo}</textarea>
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="topbar-btn btn-primary">💾 저장</button>
-        <a href="${pageContext.request.contextPath}/admin/word/update" class="topbar-btn btn-ghost">취소</a>
-      </div>
-    </form>
+<div class="table-wrap">
+  <table id="user-table">
+    <thead>
+      <tr>
+        <th>단어ID</th>
+        <th>단어</th>
+        <th>설명</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      <c:forEach var="word" items="${words}">
+        <tr>
+          <td class="td-mono">${word.signWordId}</td>
+          <td>${word.signWordName}</td>
+          <td>
+            ${fn:length(word.description) > 20
+                ? fn:substring(word.description, 0, 7).concat('...') 
+                : word.description}
+          </td>
+          <td><a href="/admin/word/info?signWordId=${word.signWordId}" class="topbar-btn btn-ghost" style="padding:4px 10px;font-size:12px">상세</a></td>
+        </tr>
+      </c:forEach>
+    </tbody>
+  </table>
+</div>
+
+  <div class="pagination">
+    <a class="pg-btn" href="/admin/word?page=${pageBean.prevPage}">‹</a>
+    <c:forEach var="p" begin="${pageBean.min}" end="${pageBean.max}">
+      <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/word?page=${p}">${p}</a>
+    </c:forEach>
+    <a class="pg-btn" href="/admin/word?page=${pageBean.nextPage}">›</a>
   </div>
-</c:if>
 
 <jsp:include page="includes/footer.jsp" />
 </body>
