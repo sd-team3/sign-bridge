@@ -60,4 +60,9 @@
         WHERE inquiry_id = #{inquiryId}
     </update>
 
+    <insert id="insertInquiry">
+        INSERT INTO inquiry (member_id, category, title, content, status, reg_date)
+        VALUES (#{memberId}, #{category}, #{title}, #{content}, 'WAIT', NOW())
+    </insert>
+
 </mapper>
