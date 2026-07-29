@@ -16,16 +16,8 @@
 
     <select id="findByCategory" resultMap="boardResultMap">
         select 
-            b.board_id, 
-            b.board_title, 
-            b.board_content, 
-            b.category_idx, 
-            b.view_count,
-            b.notice_yn,
-            b.reg_date, 
-            b.member_id,
-            m.member_name,
-            m.role
+            b.board_id, b.board_title, b.board_content, b.category_idx, b.view_count,
+            b.notice_yn, b.reg_date, b.member_id, m.member_name, m.role
         from board b
         join member m
         on b.member_id = m.member_id
@@ -37,6 +29,7 @@
         order by b.reg_date desc
         limit #{start}, #{count}
     </select>
+
     <select id="countByCategoryBoard" parameterType="string" resultType="int">
         select count(*)
         from board
@@ -46,4 +39,44 @@
             </if>
         </where> 
     </select>
+
+    <select id="getBoardStats" resultType="map">
+        select count(*) as allBoardCnt,
+            sum(case when category_idx = 'NOTICE' then 1 else 0 end) as noticeBoardCnt,
+            sum(case when category_idx = 'FREE' then 1 else 0 end) as freeBoardCnt,
+            sum(case when category_idx = 'QNA' then 1 else 0 end) as qnaBoardCnt,
+            sum(case when category_idx = 'INFO' then 1 else 0 end) as infoBoardCnt,
+            sum(case when category_idx = 'REPORT' then 1 else 0 end) as reportBoardCnt
+        from board
+    </select>
+
+    <insert id="insertBoard" parameterType="com.soldesk.vo.BoardVO">
+        insert into board (member_id, board_title, board_content, category_idx)
+        values (#{memberId}, #{boardTitle}, #{boardContent}, #{categoryIdx})
+    </insert>
+
+    <select id="selectBoardByBoardId" parameterType="int" resultMap="boardResultMap">
+        select b.board_id, b.member_id, b.board_title, b.board_content, 
+            b.category_idx, b.view_count, b.reg_date, b.mod_date, m.member_name
+        from board b
+        join member m
+        on b.member_id = m.member_id
+        where board_id = #{boardId}
+    </select>
+
+    <update id="increaseViewCount">
+        update board
+        set view_count = view_count + 1
+        where board_id = #{boardId}
+    </update>
+
+    <update id="updateBoard" parameterType="com.soldesk.vo.BoardVO">
+        update board
+        set board_title = #{boardTitle}, board_content = #{boardContent}, category_idx = #{categoryIdx}
+        where board_id = #{boardId}
+    </update>
+
+    <delete id="deleteBoard" parameterType="int">
+        delete from board where board_id = #{boardId}
+    </delete>
 </mapper>

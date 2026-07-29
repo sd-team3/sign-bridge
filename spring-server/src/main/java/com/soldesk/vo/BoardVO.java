@@ -1,6 +1,7 @@
 package com.soldesk.vo;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class BoardVO {
     private int boardId;
@@ -74,5 +75,13 @@ public class BoardVO {
     }
     public void setModDate(LocalDateTime modDate) {
         this.modDate = modDate;
+    }
+    public String getFormattedRegDate() {
+        if (regDate == null) return "";
+        return regDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+    public String getFormattedModDate() {
+        if (modDate == null) return "";
+        return modDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
     }
 }

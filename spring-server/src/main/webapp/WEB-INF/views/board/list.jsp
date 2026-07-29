@@ -31,11 +31,12 @@
         </div>
 
         <div class="filter-tabs">
-          <button class="filter-tab active">전체</button>
-          <button class="filter-tab">질문</button>
-          <button class="filter-tab">정보</button>
-          <button class="filter-tab">⚠️ 오류신고</button>
-          <button class="filter-tab">➕ 단어건의</button>
+          <a href="/board/list" class="filter-tab ${category == '' || category == null ? 'active' : '' }">전체</a>
+          <a href="/board/list?category=NOTICE" class="filter-tab ${category == 'NOTICE' ? 'active' : '' }">공지</a>
+          <a href="/board/list?category=FREE" class="filter-tab ${category == 'FREE' ? 'active' : '' }">자유</a>
+          <a href="/board/list?category=QNA" class="filter-tab ${category == 'QNA' ? 'active' : '' }">질문</a>
+          <a href="/board/list?category=INFO" class="filter-tab ${category == 'INFO' ? 'active' : '' }">정보</a>
+          <a href="/board/list?category=REPORT" class="filter-tab ${category == 'REPORT' ? 'active' : '' }">오류신고</a>
         </div>
 
         <div class="post-list">
@@ -49,14 +50,26 @@
             </c:when>
             <c:otherwise>
               <c:forEach var="board" items="${boards}">
-                <div class="post-item" onclick="location.href='board_detail.html'">
-                  <div class="post-badge-col"><span class="badge badge-primary">${board.categoryIdx}</span></div>
+                <a href="/board/info?boardId=${board.boardId}" class="post-item">
+                  <div class="post-badge-col">
+                    <c:choose>
+                      <c:when test="${board.categoryIdx == 'FREE'}"><span class="badge badge-primary">자유</span></c:when>
+                      <c:when test="${board.categoryIdx == 'INFO'}"><span class="badge badge-primary">정보</span></c:when>
+                      <c:when test="${board.categoryIdx == 'QNA'}"><span class="badge badge-primary">질문</span></c:when>
+                      <c:when test="${board.categoryIdx == 'NOTICE'}"><span class="badge badge-warn">공지</span></c:when>
+                      <c:when test="${board.categoryIdx == 'REPORT'}"><span class="badge badge-danger">신고</span></c:when>
+                      <c:otherwise><span class="badge badge-danger">알수없음</span></c:otherwise>
+                    </c:choose>
+                  </div>
                   <div class="post-main">
                     <div class="post-title">${board.boardTitle}</div>
                     <div class="post-meta"><span>${board.memberName}</span><span>댓글 3</span></div>
                   </div>
-                  <div class="post-right"><div class="post-date">${board.regDate}</div><div class="post-views">조회 ${board.viewCount}</div></div>
-                </div>
+                  <div class="post-right">
+                    <div class="post-date">${board.formattedRegDate}</div>
+                    <div class="post-views">조회 ${board.viewCount}</div>
+                  </div>
+                </a>
               </c:forEach>
             </c:otherwise>
 
@@ -64,33 +77,31 @@
         </div>
 
         <div class="pagination">
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
-          <button class="page-btn">→</button>
-        </div>
-      </div>
+          <c:choose>
+            <c:when test="${pageBean.currentPage <= 1}">
+              <span class="page-btn disabled">←</span>
+            </c:when>
+            <c:otherwise>
+              <a href="/board/list?category=${category}&page=${pageBean.prevPage}" class="page-btn">←</a>
+            </c:otherwise>
+          </c:choose>
 
-      <!-- 사이드바 -->
-      <div class="board-sidebar">
-        <div class="sidebar-box">
-          <div class="sidebar-box-header">글쓰기</div>
-          <div class="sidebar-write-btns">
-            <a href="/board/write" class="btn btn-primary btn-sm">✏️ 일반 글쓰기</a>
-            <a href="board_report.html" class="btn btn-ghost btn-sm">⚠️ 오류 신고</a>
-            <a href="board_suggest.html" class="btn btn-ghost btn-sm">➕ 단어 건의</a>
-          </div>
-        </div>
-        <div class="sidebar-box">
-          <div class="sidebar-box-header">게시판 현황</div>
-          <div class="sidebar-stats">
-            <div class="stat-row"><span class="lbl">전체 게시글</span><span class="val">247</span></div>
-            <div class="stat-row"><span class="lbl">오류 신고</span><span class="val">18</span></div>
-            <div class="stat-row"><span class="lbl">단어 건의</span><span class="val">43</span></div>
-            <div class="stat-row"><span class="lbl">해결된 이슈</span><span class="val">31</span></div>
-          </div>
+          <c:forEach begin="${pageBean.min}" end="${pageBean.max}" var="pageNum">
+            <a href="/board/list?category=${category}&page=${pageNum}" class="page-btn ${pageNum == pageBean.currentPage ? 'active' : ''}">${pageNum}</a>
+          </c:forEach>
+
+          <c:choose>
+            <c:when test="${pageBean.currentPage >= pageBean.totalPageCnt}">
+              <span class="page-btn disabled">→</span>
+            </c:when>
+            <c:otherwise>
+              <a href="/board/list?category=${category}&page=${pageBean.nextPage}" class="page-btn">→</a>
+            </c:otherwise>
+          </c:choose>
+
         </div>
       </div>
+      <jsp:include page="sidebar.jsp" />
     </div>
   </div>
 </main>

@@ -1,14 +1,21 @@
 package com.soldesk.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
 import com.soldesk.vo.BoardVO;
 
 public interface BoardMapper {
-    public List<BoardVO> findByCategory(
+    List<BoardVO> findByCategory(
         @Param("category") String category, @Param("start") int start, @Param("count") int count);
-    public int countByCategoryBoard(String category);
+    int countByCategoryBoard(String category);
+    void insertBoard(BoardVO board);
+    BoardVO selectBoardByBoardId(int boardId);
+    Map<String, Object> getBoardStats();
+    void increaseViewCount(int boardId);
+    void updateBoard(BoardVO board);
+    void deleteBoard(int boardId);
     
 }

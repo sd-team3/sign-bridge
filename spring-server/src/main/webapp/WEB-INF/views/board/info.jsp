@@ -1,3 +1,7 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -8,64 +12,7 @@
 </head>
 <body>
 
-<header>
-  <div class="logo">✋ SignBridge</div>
-  <nav>
-    <a href="index.html">홈</a>
-    <div class="nav-item has-sub">
-      <a href="learn_basic.html">학습 <span class="nav-caret">▾</span></a>
-      <div class="nav-dropdown">
-        <div class="nav-dropdown-inner">
-          <a href="learn_basic.html" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔤</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">기초 어휘</span>
-              <span class="nav-dropdown-desc">일상 속 기본 단어부터 차근차근</span>
-            </span>
-          </a>
-          <a href="learn_list.html" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🚨</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">상황별 수어 학습</span>
-              <span class="nav-dropdown-desc">지진, 화재 등 긴급 상황 어휘</span>
-            </span>
-          </a>
-          <a href="learn_word.html" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔍</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">개별 어휘 학습</span>
-              <span class="nav-dropdown-desc">분야별로 찾거나 검색해서 학습</span>
-            </span>
-          </a>
-        </div>
-      </div>
-    </div>
-    <a href="exam_setup.html">시험</a>
-    <div class="nav-item has-sub">
-      <a href="play_chain.html">플레이존 <span class="nav-caret">▾</span></a>
-      <div class="nav-dropdown">
-        <div class="nav-dropdown-inner">
-          <a href="play_chain.html" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔗</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">수어 끝말잇기</span>
-              <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
-            </span>
-          </a>
-          <a href="play_defense.html" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🎯</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">수어 디펜스</span>
-              <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
-            </span>
-          </a>
-        </div>
-      </div>
-    </div>
-    <a href="board_list.html">게시판</a>
-    <a href="mypage.html" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
-  </nav>
-</header>
+<jsp:include page="../includes/header.jsp" />
 
 <main>
   <div class="container page-body">
@@ -77,19 +24,30 @@
         <!-- 게시글 헤더 -->
         <div class="detail-header">
           <div class="detail-badge-row">
-            <span class="badge badge-primary">질문</span>
+            <c:choose>
+              <c:when test="${board.categoryIdx == 'FREE'}"><span class="badge badge-primary">자유</span></c:when>
+              <c:when test="${board.categoryIdx == 'INFO'}"><span class="badge badge-primary">정보</span></c:when>
+              <c:when test="${board.categoryIdx == 'QNA'}"><span class="badge badge-primary">질문</span></c:when>
+              <c:when test="${board.categoryIdx == 'NOTICE'}"><span class="badge badge-warn">공지</span></c:when>
+              <c:when test="${board.categoryIdx == 'REPORT'}"><span class="badge badge-danger">신고</span></c:when>
+              <c:otherwise><span class="badge badge-danger">알수없음</span></c:otherwise>
+            </c:choose>
           </div>
-          <div class="detail-title">'감사합니다' 수어 동작이 계속 인식이 안 돼요</div>
+          <div class="detail-title">${board.boardTitle}</div>
           <div class="detail-meta">
             <div class="detail-author">
-              <div class="author-avatar">홍</div>
+              <!-- 이름 첫번째 글자만 -->
+              <div class="author-avatar">${fn:substring(board.memberName, 0, 1)}</div>
               <div>
-                <div class="author-name">홍길동</div>
-                <div class="author-date">2025.06.25 14:32</div>
+                <div class="author-name">${board.memberName}</div>
+                <div class="author-date">게시일: ${board.formattedRegDate}</div>
+                <c:if test="${not empty board.formattedModDate}">
+                  <div class="author-date">수정일: ${board.formattedModDate}</div>
+                </c:if>
               </div>
             </div>
             <div class="detail-stats">
-              <span>조회 48</span>
+              <span>조회 ${board.viewCount}</span>
               <span>댓글 4</span>
             </div>
           </div>
@@ -97,17 +55,15 @@
 
         <!-- 게시글 본문 -->
         <div class="detail-content">
-          안녕하세요, '감사합니다' 수어 동작을 계속 연습하고 있는데 카메라 인식이 잘 안 되는 것 같아요.<br><br>
-          손 모양은 튜토리얼이랑 똑같이 따라 하는 것 같은데 자꾸 다른 단어로 인식되거나 "인식 실패"가 뜹니다.
-          혹시 조명이나 손 위치 관련해서 팁이 있으면 공유 부탁드립니다. 같은 문제 겪으신 분 계신가요?
-          <div class="detail-images">
+          ${board.boardContent}
+          <!-- <div class="detail-images">
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NDAiIGhlaWdodD0iMzIwIj4KICA8cmVjdCB3aWR0aD0iNDQwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iIzBkMWExMyIvPgogIDxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjQwOCIgaGVpZ2h0PSIyODgiIHJ4PSIxMiIgZmlsbD0iIzExMWMxNyIgc3Ryb2tlPSIjMmQ5YjZmIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIyMCIgeT0iMTIwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4pyLPC90ZXh0PgogIDx0ZXh0IHg9IjIyMCIgeT0iMTgwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwuNSkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFJIOyduOyLnSDqsrDqs7w8L3RleHQ+CiAgPHRleHQgeD0iMjIwIiB5PSIyMTIiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UwNjA1YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7J247IudIOyLpO2MqDwvdGV4dD4KICA8dGV4dCB4PSIyMjAiIHk9IjI0MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjM1KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7Iug66Kw64+EIDQyJTwvdGV4dD4KPC9zdmc+Cg==" alt="인식 실패 스크린샷" onclick="window.open(this.src)">
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NDAiIGhlaWdodD0iMzIwIj4KICA8cmVjdCB3aWR0aD0iNDQwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iIzBkMWExMyIvPgogIDxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjQwOCIgaGVpZ2h0PSIyODgiIHJ4PSIxMiIgZmlsbD0iIzExMWMxNyIgc3Ryb2tlPSIjMmQ5YjZmIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIyMCIgeT0iMTEwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+ZjzwvdGV4dD4KICA8dGV4dCB4PSIyMjAiIHk9IjE3MiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjUpIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BSSDsnbjsi50g6rKw6rO8PC90ZXh0PgogIDx0ZXh0IHg9IjIyMCIgeT0iMjA0IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmMGMwNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPiLslYjrhZXtlZjshLjsmpQi66GcIOyduOyLneuQqDwvdGV4dD4KICA8dGV4dCB4PSIyMjAiIHk9IjIzMiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjM1KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7J2Y64+E7ZWcIOuLqOyWtDog6rCQ7IKs7ZWp64uI64ukPC90ZXh0Pgo8L3N2Zz4K" alt="다른 단어로 인식된 스크린샷" onclick="window.open(this.src)">
-          </div>
+          </div> -->
         </div>
 
         <div class="detail-actions">
-          <button class="btn btn-ghost btn-sm">수정</button>
+          <a href="/board/update?boardId=${board.boardId}" class="btn btn-ghost btn-sm">수정</a>
           <button class="btn btn-ghost btn-sm" onclick="openDeleteModal()">삭제</button>
         </div>
 
@@ -203,37 +159,17 @@
         </div>
 
         <div class="back-row">
-          <a href="board_list.html" class="btn btn-ghost btn-sm">← 목록으로</a>
+          <a href="/board/list?category=${board.categoryIdx}" class="btn btn-ghost btn-sm">← 목록으로</a>
         </div>
 
       </div>
-
-      <!-- 사이드바 -->
-      <div class="board-sidebar">
-        <div class="sidebar-box">
-          <div class="sidebar-box-header">글쓰기</div>
-          <div class="sidebar-write-btns">
-            <a href="board_write.html" class="btn btn-primary btn-sm">✏️ 일반 글쓰기</a>
-            <a href="board_report.html" class="btn btn-ghost btn-sm">⚠️ 오류 신고</a>
-            <a href="board_suggest.html" class="btn btn-ghost btn-sm">➕ 단어 건의</a>
-          </div>
-        </div>
-        <div class="sidebar-box">
-          <div class="sidebar-box-header">게시판 현황</div>
-          <div class="sidebar-stats">
-            <div class="stat-row"><span class="lbl">전체 게시글</span><span class="val">247</span></div>
-            <div class="stat-row"><span class="lbl">오류 신고</span><span class="val">18</span></div>
-            <div class="stat-row"><span class="lbl">단어 건의</span><span class="val">43</span></div>
-            <div class="stat-row"><span class="lbl">해결된 이슈</span><span class="val">31</span></div>
-          </div>
-        </div>
-      </div>
+      <jsp:include page="sidebar.jsp" />
     </div>
 
   </div>
 </main>
 
-<footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
+<jsp:include page="../includes/footer.jsp" />
 
 <!-- 게시글 삭제 확인 모달 -->
 <div class="modal-backdrop" id="deleteModal">
@@ -247,7 +183,11 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-sm" onclick="closeDeleteModal()">취소</button>
-      <button class="btn btn-danger btn-sm">삭제하기</button>
+      <form id="deleteForm" action="/board/delete" method="post">
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+        <input type="hidden" name="boardId" value="${board.boardId}">
+        <button type="submit" class="btn btn-danger btn-sm">삭제하기</button>
+      </form>
     </div>
   </div>
 </div>

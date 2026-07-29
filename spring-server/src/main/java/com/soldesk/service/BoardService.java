@@ -1,13 +1,16 @@
 package com.soldesk.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.soldesk.mapper.BoardMapper;
 import com.soldesk.vo.BoardVO;
+import com.soldesk.vo.MemberVO;
 
 @Service
 public class BoardService {
@@ -24,5 +27,40 @@ public class BoardService {
     @Transactional
     public int getCategoryBoardCount(String category) {
         return boardMapper.countByCategoryBoard(category);
+    }
+    @Transactional
+    public Map<String, Object> getBoardState() {
+        return boardMapper.getBoardStats();
+    }
+
+    @Transactional
+    public void writeBoard(BoardVO board) {
+        boardMapper.insertBoard(board);
+        // BoardVO indexBoard = boardMapper.findByBoardId(board.getBoardId());
+        // boardSearchService.indexBoard(indexBoard);
+        // 엘라스틱 서치 추가 후 설정
+    }
+    
+    @Transactional
+    public BoardVO getBoardByBoardId(int boardId) {
+        return boardMapper.selectBoardByBoardId(boardId);
+    }
+
+    @Transactional
+    public void increaseViewCount(int boardId) {
+        boardMapper.increaseViewCount(boardId);
+    }
+    
+    @Transactional
+    public void updateBoard(BoardVO board) {
+        boardMapper.updateBoard(board);
+        // BoardVO indexBoard = boardMapper.findByBoardId(board.getBoardId());
+        // boardSearchService.indexBoard(indexBoard);
+        // 엘라스틱 서치 추가 후 설정
+    }
+
+    @Transactional
+    public void deleteBoard(int boardId) {
+        boardMapper.deleteBoard(boardId);
     }
 }
