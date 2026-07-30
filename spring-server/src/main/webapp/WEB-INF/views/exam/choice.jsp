@@ -43,9 +43,9 @@
         <span class="badge badge-primary" id="quiz-q-badge">문제 1</span>
       </div>
       <div class="quiz-body">
-        <div class="video-box">
+        <div class="video-box" id="video-box" onclick="openSignVideo()">
           <div class="play-btn">▶</div>
-          <p>수어 동작 영상 — 클릭해서 재생</p>
+          <p>수어 동작 영상 — 클릭해서 사전 페이지로 이동</p>
         </div>
 
         <div id="multiple-choice-area">
@@ -75,6 +75,7 @@
 
 <jsp:include page="../includes/footer.jsp" />
 
+<script src="/resources/js/quizBank.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const examMode = params.get('mode');
@@ -82,12 +83,7 @@ const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
 const objectiveCount = Math.ceil(totalCount / 2);
-const quizBank = [
-  { word:'병원', choices:['사과','병원','자동차','감사합니다'], correct:1, category:'기초 어휘' },
-  { word:'지진', choices:['지진','태풍','화재','대피'], correct:0, category:'비상 어휘' },
-  { word:'구급차', choices:['소방차','경찰차','구급차','버스'], correct:2, category:'비상 어휘' },
-  { word:'사랑해요', choices:['고마워요','미안해요','사랑해요','안녕하세요'], correct:2, category:'기초 어휘' }
-];
+
 
 let timerInterval = null;
 let quizAnswered = false;
@@ -95,6 +91,7 @@ let quizIndex = 0;
 let quizCorrectCount = 0, quizWrongCount = 0;
 let wrongList = [];
 let wrongNo = 0;
+let currentVideoUrl = '';
 
 loadQuizQuestion(0);
 updateQuizProgress(1, totalCount);
@@ -102,22 +99,34 @@ startTimer('quiz-timer', 600, endQuizPhase);
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
-
-  // 앞쪽 objectiveCount 문제는 객관식, 나머지는 주관식으로 자동 전환
+  currentVideoUrl = q.videoUrl;
   const isSubjective = idx >= objectiveCount;
+
   document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
   document.getElementById('subjective-area').style.display = isSubjective ? 'block' : 'none';
   document.getElementById('quiz-type-label').textContent = isSubjective ? '✏️ 주관식' : '🖼️ 객관식';
 
-  const list = document.getElementById('choices-list');
-  const labels = ['①','②','③','④'];
-  list.innerHTML = q.choices.map((c, i) =>
-    `<button class="choice-btn" onclick="selectChoice(this, \${i})"><span class="choice-label">\${labels[i]}</span> \${c}</button>`
-  ).join('');
-  document.getElementById('subjective-input').value = '';
+  if (!isSubjective) {
+    const list = document.getElementById('choices-list');
+    const labels = ['①','②','③','④'];
+    list.innerHTML = q.choices.map((c, i) =>
+      `<button class="choice-btn" onclick="selectChoice(this, \${i})"><span class="choice-label">\${labels[i]}</span> \${c}</button>`
+    ).join('');
+  } else {
+    document.getElementById('subjective-input').value = '';
+  }
+
   document.getElementById('quiz-feedback').className = 'feedback-box';
   document.getElementById('quiz-next-btn').style.display = 'none';
   quizAnswered = false;
+}
+
+function openSignVideo() {
+  if (currentVideoUrl) {
+    window.open(currentVideoUrl, '_blank');
+  } else {
+    alert('이 단어는 아직 영상 링크가 등록되지 않았어요.');
+  }
 }
 
 function updateQuizProgress(cur, total) {
@@ -125,7 +134,7 @@ function updateQuizProgress(cur, total) {
   document.getElementById('quiz-prog-text').textContent = `퀴즈 \${cur} / \${total}`;
   document.getElementById('quiz-prog-pct').textContent = pct + '%';
   document.getElementById('quiz-prog-fill').style.width = pct + '%';
-  document.getElementById('quiz-q-badge').textContent = `문제 ${cur}`;
+  document.getElementById('quiz-q-badge').textContent = `문제 \${cur}`;
 }
 
 function startTimer(elemId, seconds, onEnd) {
@@ -161,7 +170,7 @@ function selectChoice(btn, idx) {
     fb.textContent = `❌ 틀렸습니다. 정답은 "\${q.word}"입니다.`;
     quizWrongCount++;
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
-    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', category: q.category, userAnswer: q.choices[idx], correctAnswer: q.word });
+    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', userAnswer: q.choices[idx], correctAnswer: q.word });
   }
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
@@ -183,7 +192,7 @@ function submitSubjective() {
     fb.textContent = `❌ 틀렸습니다. 정답은 "\${q.word}"입니다.`;
     quizWrongCount++;
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
-    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', category: q.category, userAnswer: val, correctAnswer: q.word });
+    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', userAnswer: val, correctAnswer: q.word });
   }
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
