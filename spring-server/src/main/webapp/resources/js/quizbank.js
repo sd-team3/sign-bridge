@@ -1,6 +1,7 @@
 const quizBank = [
-  { word:'병원', videoUrl:'https://sldict.korean.go.kr/front/sign/signContentsView.do?origin_no=10964&top_category=CTE&category=&searchKeyword=%EB%B3%91%EC%9B%90&searchCondition=&search_gubun=&museum_type=00&current_pos_index=0', choices:['사과','병원','자동차','감사합니다'], correct:1 },
-  { word:'지진', videoUrl:'https://sldict.korean.go.kr/front/sign/signContentsView.do?origin_no=12096&top_category=CTE&category=&searchKeyword=%EC%A7%80%EC%A7%84&searchCondition=&search_gubun=&museum_type=00&current_pos_index=0', choices:['지진','태풍','화재','대피'], correct:0 },
-  { word:'구급차', videoUrl:'https://sldict.korean.go.kr/front/sign/signContentsView.do?origin_no=9815&top_category=CTE&category=&searchKeyword=%EA%B5%AC%EA%B8%89%EC%B0%A8&searchCondition=&search_gubun=&museum_type=00&current_pos_index=1', choices:['소방차','경찰차','구급차','버스'], correct:2 },
-  { word:'사랑', videoUrl:'https://sldict.korean.go.kr/front/sign/signContentsView.do?origin_no=8240&top_category=CTE&category=&searchKeyword=%EC%82%AC%EB%9E%91&searchCondition=&search_gubun=&museum_type=00&current_pos_index=0', choices:['감사','사과','사랑','인사'], correct:2 }
+  { word:'병원', choices:['사과','병원','자동차','감사합니다'], correct:1 },
+  { word:'지진', choices:['지진','태풍','화재','대피'], correct:0 },
+  { word:'구급차', choices:['소방차','경찰차','구급차','버스'], correct:2 },
+  { word:'사랑', choices:['감사','사과','사랑','인사'], correct:2 },
+  { word:'하나', choices:['하나','둘','셋','넷'], correct:0}
 ];

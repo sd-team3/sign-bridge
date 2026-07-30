@@ -50,25 +50,23 @@
             <div class="cam-target-word" id="cam-target-word">🚑 구급차</div>
           </div>
           <div class="cam-wrap-exam">
-            <video id="video" autoplay playsinline muted></video>
-            <canvas id="canvas"></canvas>
+            <video id="video-word" autoplay playsinline muted></video>
+            <canvas id="canvas-word"></canvas>
           </div>
         </div>
 
         <div class="cam-right">
           <div class="cam-result-panel">
             <div class="cam-rlabel">AI 인식 결과</div>
-            <div class="cam-rword" id="cam-result-word">— 대기 중 —</div>
-            <div class="cam-rconf" id="cam-result-conf">실시간으로 인식합니다.</div>
-            <span class="badge badge-primary" id="cam-acc-badge" style="font-size:14px; padding:8px 16px; display:none; margin-top:10px;"></span>
+            <div class="cam-rword" id="result-word">-</div>
+            <div class="cam-rconf">손모양을 1.2초간 유지하면 입력돼요.</div>
+            <div class="progress-bar" style="height:6px; background:var(--surface2); border-radius:100px; overflow:hidden; margin-top:8px;">
+              <div id="progressFill" style="height:100%; background:var(--primary); width:0%; transition:width .1s;"></div>
+            </div>
           </div>
           <div class="cam-right-controls">
             <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 정답 제출</button>
             <button class="btn btn-ghost btn-sm" onclick="resetCamResult()">초기화</button>
-          </div>
-          <div class="cam-history">
-            <div class="cam-history-label">🖐️ 인식 기록</div>
-            <ul class="cam-history-list" id="cam-history-list"></ul>
           </div>
         </div>
       </div>
@@ -78,24 +76,7 @@
 
 <jsp:include page="../includes/footer.jsp" />
 
-<script type="module">
-  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
-
-  const api = new JamoApiClient("http://localhost:8000");
-
-  const cam = new HandCameraWidget({
-    videoEl: document.getElementById("video"),
-    canvasEl: document.getElementById("canvas"),
-    onFrame: async (landmarks) => {
-      if (!landmarks) return;
-      const result = await api.predict(landmarks, false);
-      document.getElementById("result").textContent = result.label;
-    },
-  });
-
-  await cam.start();
-</script>
+<script type="module" src="/resources/js/word-camera.js"></script>
 
 <script>
 const params = new URLSearchParams(location.search);
@@ -116,8 +97,6 @@ let camCorrectCount = 0, camWrongCount = 0;
 let camConfidences = [];
 let wrongList = [];
 let wrongNo = 0;
-let camResultReady = false;
-let currentCamCorrect = false;
 
 loadCamQuestion(0);
 updateCamProgress(1, totalCount);
@@ -127,13 +106,6 @@ function loadCamQuestion(idx) {
   const c = camBank[idx % camBank.length];
   document.getElementById('cam-target-word').textContent = `\${c.emoji} \${c.word}`;
   resetCamResult();
-}
-
-function resetCamResult() {
-  document.getElementById('cam-result-word').textContent = '— 대기 중 —';
-  document.getElementById('cam-result-conf').textContent = '카메라를 시작하면 실시간으로 인식합니다.';
-  document.getElementById('cam-acc-badge').style.display = 'none';
-  camResultReady = false;
 }
 
 function updateCamProgress(cur, total) {
@@ -159,23 +131,34 @@ function startTimer(elemId, seconds, onEnd) {
   timerInterval = setInterval(tick, 1000);
 }
 
+function resetCamResult() {
+  fetch('/api/sign/reset', { method: 'POST', credentials: 'same-origin' })
+    .then(() => {
+      document.getElementById('result-word').textContent = '-';
+      document.getElementById('progressFill').style.width = '0%';
+    })
+    .catch(err => console.error('세션 초기화 실패', err));
+}
+
 function submitCam() {
-  if (!camResultReady) return;
+  const composed = document.getElementById('result-word').textContent.trim();
+  if (!composed || composed === '-') return;
+
   const c = camBank[camIndex % camBank.length];
-  if (currentCamCorrect) {
+  const isCorrect = composed === c.word;
+
+  if (isCorrect) {
     camCorrectCount++;
     document.getElementById('cam-correct').textContent = camCorrectCount;
   } else {
     camWrongCount++;
     document.getElementById('cam-wrong').textContent = camWrongCount;
-    wrongList.push({ no: ++wrongNo, word: c.word, type: 'cam', category: c.category, userAnswer: '인식 실패', correctAnswer: c.word });
+    wrongList.push({ no: ++wrongNo, word: c.word, type: 'cam', userAnswer: composed, correctAnswer: c.word });
   }
+
   camIndex++;
-  if (camIndex >= totalCount) {
-    finishExam();
-    return;
-  }
-  loadCamQuestion(camIndex);
+  if (camIndex >= totalCount) { finishExam(); return; }
+  loadCamQuestion(camIndex); // 내부에서 resetCamResult() 호출됨
   updateCamProgress(camIndex + 1, totalCount);
 }
 

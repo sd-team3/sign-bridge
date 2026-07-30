@@ -43,9 +43,11 @@
         <span class="badge badge-primary" id="quiz-q-badge">문제 1</span>
       </div>
       <div class="quiz-body">
-        <div class="video-box" id="video-box" onclick="openSignVideo()">
-          <div class="play-btn">▶</div>
-          <p>수어 동작 영상 — 클릭해서 사전 페이지로 이동</p>
+        <div class="video-box" id="video-box">
+          <video id="quiz-video" muted loop playsinline style="width:100%; height:100%; border-radius:var(--radius-sm); object-fit:cover; display:none;"></video>
+          <div id="video-fallback" style="display:none; text-align:center;">
+            <p>이 단어는 아직 영상이 준비되지 않았어요.</p>
+          </div>
         </div>
 
         <div id="multiple-choice-area">
@@ -91,15 +93,41 @@ let quizIndex = 0;
 let quizCorrectCount = 0, quizWrongCount = 0;
 let wrongList = [];
 let wrongNo = 0;
-let currentVideoUrl = '';
+let dictWords = [];
 
-loadQuizQuestion(0);
+fetch('/learn/dict/search')
+  .then(res => res.json())
+  .then(list => { 
+    dictWords = list || []; 
+    loadQuizQuestion(0); // 사전 로드 끝나고 첫 문제 표시
+  })
+  .catch(err => {
+    console.error('단어 사전 로드 실패', err);
+    loadQuizQuestion(0); // 실패해도 시험은 진행되게
+  });
+
 updateQuizProgress(1, totalCount);
 startTimer('quiz-timer', 600, endQuizPhase);
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
-  currentVideoUrl = q.videoUrl;
+
+  const videoEl = document.getElementById('quiz-video');
+  const fallbackEl = document.getElementById('video-fallback');
+  const matched = dictWords.find(w => w.signWordName === q.word);
+  let videoUrl = matched ? (matched.signWordVideo || '') : '';
+  if (videoUrl.startsWith('http://')) videoUrl = videoUrl.replace('http://', 'https://');
+
+  if (videoUrl.toLowerCase().endsWith('.mp4')) {
+  videoEl.src = '/learn/dict/video-proxy?url=' + encodeURIComponent(videoUrl);
+  videoEl.style.display = 'block';
+  fallbackEl.style.display = 'none';
+  videoEl.play().catch(() => {});
+} else {
+  videoEl.style.display = 'none';
+  fallbackEl.style.display = 'block';
+}
+
   const isSubjective = idx >= objectiveCount;
 
   document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
@@ -119,14 +147,6 @@ function loadQuizQuestion(idx) {
   document.getElementById('quiz-feedback').className = 'feedback-box';
   document.getElementById('quiz-next-btn').style.display = 'none';
   quizAnswered = false;
-}
-
-function openSignVideo() {
-  if (currentVideoUrl) {
-    window.open(currentVideoUrl, '_blank');
-  } else {
-    alert('이 단어는 아직 영상 링크가 등록되지 않았어요.');
-  }
 }
 
 function updateQuizProgress(cur, total) {
