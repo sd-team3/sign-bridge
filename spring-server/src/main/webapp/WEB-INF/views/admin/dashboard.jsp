@@ -29,7 +29,7 @@
     <div class="stat-icon" style="background:var(--p-light)">👥</div>
     <div class="stat-body">
       <div class="stat-label">전체 유저</div>
-      <div class="stat-value">${dashboard.totalUsers}</div>
+      <div class="stat-value">${totalUsers}</div>
       <div class="stat-delta delta-up">▲ +${newUsersToday} 오늘</div>
     </div>
   </div>
@@ -37,7 +37,7 @@
     <div class="stat-icon" style="background:var(--blue-light)">💬</div>
     <div class="stat-body">
       <div class="stat-label">전체 게시글</div>
-      <div class="stat-value">${dashboard.totalPosts}</div>
+      <div class="stat-value">${totalPosts}</div>
       <div class="stat-delta delta-up">▲ +${newBoardToday} 오늘</div>
     </div>
   </div>
@@ -45,16 +45,17 @@
     <div class="stat-icon" style="background:var(--rose-light)">🚨</div>
     <div class="stat-body">
       <div class="stat-label">오류 신고 (미처리)</div>
-      <div class="stat-value">${pendingErrorCount}</div>
-      <div class="stat-delta delta-down">▼ 처리 필요</div>
-    </div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-icon" style="background:var(--amber-light)">📝</div>
-    <div class="stat-body">
-      <div class="stat-label">단어 요청 (미처리)</div>
-      <div class="stat-value">${pendingRequestCount}</div>
-      <div class="stat-delta delta-down">▼ 검토 필요</div>
+      <div class="stat-value">${errorCount}</div>
+      <div class="stat-delta ${errorCount == 0 ? 'delta-up' : 'delta-down'}">
+        <c:choose>
+          <c:when test="${errorCount == 0}">
+            ▲ 문제없음
+          </c:when>
+          <c:otherwise>
+            ▼ 처리 필요
+          </c:otherwise>
+        </c:choose>
+      </div>
     </div>
   </div>
 </div>

@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,13 +14,20 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.soldesk.service.AdminService;
+import com.soldesk.service.LearnService;
 import com.soldesk.service.MemberService;
 import com.soldesk.service.SuspendService;
+import com.soldesk.vo.AnswerRequest;
+import com.soldesk.vo.InquiryVO;
 import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
+import com.soldesk.vo.SignWordVO;
 
 
 @Controller
@@ -33,11 +43,15 @@ public class AdminController {
     @Autowired
     private SuspendService suspendService;
 
+    @Autowired
+    private LearnService learnService;
+
+    @Autowired
+    private AdminService adminService;
+
 
     @GetMapping("/main")
     public String dashboard(Model model, Authentication authentication) {
-        System.out.println("로그인 계정: " + authentication.getName());
-    System.out.println("권한 목록: " + authentication.getAuthorities());
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date nowDate = new Date();
@@ -54,6 +68,8 @@ public class AdminController {
         // 주간 회원 수 max값
         int weeklyMax = Collections.max(weeklySignups);
 
+        // 오류 신고 개수
+        int errorCount = adminService.getErrorCount();
         model.addAttribute("todayLabel", today);
         model.addAttribute("totalUsers", totalUsers);
         // model.addAttribute("totalPosts", totalPosts);
@@ -61,6 +77,7 @@ public class AdminController {
         model.addAttribute("newUsersToday", newUsersToday);
         model.addAttribute("weeklySignups", weeklySignups);
         model.addAttribute("weeklyMax", weeklyMax);
+        model.addAttribute("errorCount", errorCount);
         return "admin/dashboard";
     }
 
@@ -89,7 +106,6 @@ public class AdminController {
         int count = memberService.adminGetMemberCount(role, status, keyword);
         PageBean pageBean = new PageBean(page, count, pageSize);
         List<MemberVO> members = memberService.getMemberList(pageBean.getCurrentPage(), pageSize, role, status, keyword, sort);
-        System.out.println("currentPage = " + pageBean.getCurrentPage());
         model.addAttribute("pageBean", pageBean);
         model.addAttribute("userList", members);
         model.addAttribute("filterType", filterType);
@@ -128,6 +144,73 @@ public class AdminController {
         memberService.deleteMember(memberId);
         
         return "redirect:/admin/user/list";
+    }
+
+    @GetMapping("/word/update")
+    public String wordList(Model model,
+                            @RequestParam(defaultValue = "1") int page,
+                            @RequestParam(required = false) String keyword
+    ) {
+        int pageSize = 20;
+        int count = learnService.getWordCount(keyword);
+        PageBean pageBean = new PageBean(page, count, pageSize);
+
+        int offset = (page - 1) * pageSize;
+        model.addAttribute("words", learnService.getWordList(keyword, offset, pageSize));
+        model.addAttribute("pageBean", pageBean);
+        return "admin/wordUpdate";
+    }
+
+    @GetMapping("/word/info")
+    public String wordInfo(Model model,
+                            @RequestParam int signWordId) {
+        SignWordVO word = learnService.getDictWordDetailById(signWordId);
+        model.addAttribute("word", word);
+
+        return "admin/wordInfo";
+    }
+
+    @PostMapping("/word/update")
+    public String wordUpdate(@RequestParam int signWordId,
+                            @RequestParam String signWordName, 
+                            @RequestParam String choseong, 
+                            @RequestParam String signWordVideo, 
+                            @RequestParam String signWordThumbnail, 
+                            @RequestParam String description
+    ) {
+        learnService.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
+        return "redirect:/admin/word/info?signWordId=" + signWordId;
+    }
+
+    @GetMapping("/inquiry")
+    public String inquiryForm(@RequestParam(value = "category",
+                                            required = false,
+                                            defaultValue = "ERROR_REPORT") String category,
+                               @RequestParam(value = "status",
+                                            required = false,
+                                            defaultValue = "WAIT") String status,
+                               Model model) {
+
+        List<InquiryVO> inquiryList = adminService.getInquiryList(category, status);
+        int waitCount = adminService.getStatusCount(category, "WAIT");
+        int processingCount = adminService.getStatusCount(category, "PROCESSING");
+
+        model.addAttribute("inquiryList", inquiryList);
+        model.addAttribute("waitCount", waitCount);
+        model.addAttribute("processingCount", processingCount);
+        model.addAttribute("currentStatus", status);
+        model.addAttribute("currentCategory", category);
+        return "admin/error";
+    }
+
+    @PostMapping("/inquiry/answer")
+    @ResponseBody
+    public Map<String, Object> submitAnswer(@RequestBody AnswerRequest request,
+                                             HttpSession session) {
+        Long adminMemberId = (Long) session.getAttribute("memberId");
+        boolean result = adminService.answerInquiry(
+                request.getInquiryId(), request.getAnswerContent(), adminMemberId);
+        return Map.of("success", result);
     }
 
 }

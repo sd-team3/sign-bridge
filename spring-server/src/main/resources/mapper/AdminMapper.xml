@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.AdminMapper">
+
+    <resultMap id="inquiryResultMap" type="com.soldesk.vo.InquiryVO">
+        <id     property="inquiryId"        column="inquiry_id"/>
+        <result property="memberId"         column="member_id"/>
+        <result property="category"         column="category"/>
+        <result property="title"            column="title"/>
+        <result property="content"          column="content"/>
+        <result property="status"           column="status"/>
+        <result property="answerContent"    column="answer_content"/>
+        <result property="answeredMemberId" column="answered_member_id"/>
+        <result property="answeredDate"     column="answered_date"/>
+        <result property="regDate"          column="reg_date"/>
+        <result property="regDateStr"       column="reg_date_str"/>
+        <result property="modDate"          column="mod_date"/>
+        <result property="memberName"       column="member_name"/>
+    </resultMap>
+
+    <sql id="inquiryBaseSelect">
+        SELECT
+            i.inquiry_id, i.member_id, i.category, i.title, i.content,
+            i.status, i.answer_content, i.answered_member_id, i.answered_date,
+            i.reg_date, 
+            DATE_FORMAT(i.reg_date, '%Y-%m-%d') AS reg_date_str,
+            i.mod_date,
+            m.member_name AS member_name
+        FROM inquiry i
+        JOIN member m ON i.member_id = m.member_id
+    </sql>
+
+    <select id="selectByCategoryAndStatus" resultMap="inquiryResultMap">
+        <include refid="inquiryBaseSelect"/>
+        WHERE i.category = #{category}
+          AND i.status = #{status}
+        ORDER BY i.reg_date DESC
+    </select>
+
+    <select id="selectByCategory" resultMap="inquiryResultMap">
+        <include refid="inquiryBaseSelect"/>
+        WHERE i.category = #{category}
+        ORDER BY i.reg_date DESC
+    </select>
+
+    <select id="countByCategoryAndStatus" resultType="int">
+        SELECT COUNT(*)
+        FROM inquiry
+        WHERE category = #{category}
+          AND status = #{status}
+    </select>
+
+    <update id="updateAnswer">
+        UPDATE inquiry
+        SET answer_content     = #{answerContent},
+            status             = 'COMPLETE',
+            answered_member_id = #{answeredMemberId},
+            answered_date      = NOW()
+        WHERE inquiry_id = #{inquiryId}
+    </update>
+
+    <insert id="insertInquiry">
+        INSERT INTO inquiry (member_id, category, title, content, status, reg_date)
+        VALUES (#{memberId}, #{category}, #{title}, #{content}, 'WAIT', NOW())
+    </insert>
+    <!-- 오류 신고 미처리 개수 -->
+    <select id="getErrorCount" resultType="int">
+        select count(*)
+        from inquiry
+        where status = 'WAIT'
+    </select>
+
+</mapper>
