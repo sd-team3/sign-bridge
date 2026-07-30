@@ -16,6 +16,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.soldesk.service.LearnService;
 import com.soldesk.vo.SignWordVO;
 
+import java.util.Map;
+import javax.servlet.http.HttpSession;
+import org.springframework.web.bind.annotation.PostMapping;
+import com.soldesk.service.AdminService;
+import org.springframework.security.core.Authentication;
+
+import com.soldesk.service.MemberService;
+import com.soldesk.vo.MemberVO;
+
 @Controller
 @RequestMapping("/learn")
 public class LearnController {
@@ -23,8 +32,14 @@ public class LearnController {
     @Autowired
     private LearnService learnService;
 
+    @Autowired
+    private AdminService adminService;
+
+    @Autowired
+    private MemberService memberService;
+
     @GetMapping("")
-    public String main(Model model){
+    public String main(Model model) {
         model.addAttribute("jamoCount", learnService.countAll());
         return "learn/main";
     }
@@ -85,6 +100,32 @@ public class LearnController {
     @GetMapping("/dict/video-proxy")
     public void videoProxy(@RequestParam("url") String url, HttpServletResponse response) throws IOException {
         learnService.proxyVideo(url, response);
+    }
+
+    // dict 상세 모달에서 오류 신고 접수
+    @PostMapping("/dict/report")
+    @ResponseBody
+    public Map<String, Object> reportWord(@RequestParam("word") String word,
+            @RequestParam(value = "content", required = false) String content,
+            Authentication authentication) {
+        if (authentication == null) {
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+
+        String email = authentication.getName();
+        MemberVO member = memberService.getMemberByEmail(email);
+        if (member == null) {
+            return Map.of("success", false, "message", "로그인이 필요합니다.");
+        }
+        Long memberId = (long) member.getMemberId();
+
+        String title = word + " 오류 신고";
+        String body = (content == null || content.isBlank())
+                ? "사용자가 해당 단어의 오류를 신고했습니다."
+                : content;
+
+        boolean result = adminService.createInquiry(memberId, "ERROR_REPORT", title, body);
+        return Map.of("success", result);
     }
 
 }

@@ -29,4 +29,14 @@ public class AdminService {
         int result = adminMapper.updateAnswer(inquiryId, answerContent, answeredMemberId);
         return result > 0;
     }
+
+    public boolean createInquiry(Long memberId, String category, String title, String content) {
+        int result = adminMapper.insertInquiry(memberId, category, title, content);
+        return result > 0;
+    }
+
+    // 오류 신고 미처리 카운트
+    public int getErrorCount() {
+        return adminMapper.getErrorCount();
+    }
 }

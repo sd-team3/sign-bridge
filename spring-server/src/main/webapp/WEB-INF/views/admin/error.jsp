@@ -45,9 +45,6 @@
       <a href="?category=${currentCategory}&status=WAIT" class="tab ${currentStatus == 'WAIT' ? 'active' : ''}">
         대기 <span class="pill pill-red" style="margin-left:4px;padding:1px 7px">${waitCount}</span>
       </a>
-      <a href="?category=${currentCategory}&status=PROCESSING" class="tab ${currentStatus == 'PROCESSING' ? 'active' : ''}">
-        처리중 <span class="pill pill-red" style="margin-left:4px;padding:1px 7px">${processingCount}</span>
-      </a>
       <a href="?category=${currentCategory}&status=COMPLETE" class="tab ${currentStatus == 'COMPLETE' ? 'active' : ''}">완료</a>
       <a href="?category=${currentCategory}&status=ALL" class="tab ${currentStatus == 'ALL' ? 'active' : ''}">전체</a>
     </div>
@@ -60,9 +57,6 @@
               <c:choose>
                 <c:when test="${inq.status == 'WAIT'}">
                   <span class="pill pill-red">대기</span>
-                </c:when>
-                <c:when test="${inq.status == 'PROCESSING'}">
-                  <span class="pill pill-amber">처리중</span>
                 </c:when>
                 <c:otherwise>
                   <span class="pill pill-green">완료</span>
