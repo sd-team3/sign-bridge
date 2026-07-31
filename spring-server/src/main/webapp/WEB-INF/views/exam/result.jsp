@@ -35,7 +35,7 @@
       <table class="wrong-table">
         <thead>
           <tr>
-            <th>#</th><th>단어</th><th>유형</th><th>카테고리</th><th>내 답 → 정답</th><th></th>
+            <th>#</th><th>단어</th><th>유형</th><th>내 답 → 정답</th><th></th>
           </tr>
         </thead>
         <tbody id="wrong-tbody">
@@ -43,7 +43,6 @@
             <td style="color:var(--text-sub); font-size:14px;">3번</td>
             <td style="font-size:17px; font-weight:900;">🌍 지진</td>
             <td><span class="wrong-badge quiz">객관식</span></td>
-            <td style="font-size:13px; color:var(--text-sub);">비상 어휘</td>
             <td style="font-size:14px;"><span style="color:var(--danger);">대피소</span> → <span style="color:var(--primary);">지진</span></td>
             <td><a href="learn_word_detail.html" class="retry-tag">다시 학습</a></td>
           </tr>
@@ -51,7 +50,6 @@
             <td style="color:var(--text-sub); font-size:14px;">7번</td>
             <td style="font-size:17px; font-weight:900;">🚒 소방서</td>
             <td><span class="wrong-badge cam">수어 인식</span></td>
-            <td style="font-size:13px; color:var(--text-sub);">비상 어휘</td>
             <td style="font-size:14px;"><span style="color:var(--danger);">인식 실패</span> → <span style="color:var(--primary);">소방서</span></td>
             <td><a href="learn_word_detail.html" class="retry-tag">다시 학습</a></td>
           </tr>

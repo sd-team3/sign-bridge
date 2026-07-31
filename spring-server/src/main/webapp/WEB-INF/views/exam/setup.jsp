@@ -53,14 +53,39 @@
       </div>
 
       <div class="option-group">
-        <h3>🔢 문제 수</h3>
-        <div class="count-control" style="margin-bottom:10px;">
-          <button class="count-btn" id="count-minus">−</button>
-          <span class="count-display" id="count-display">10</span>
-          <span style="font-size:15px; font-weight:600; color:var(--text-sub);">문제</span>
-          <button class="count-btn" id="count-plus">＋</button>
+        <div class="setting-row-grid">
+
+          <div class="setting-col">
+            <h3 class="setting-col-title">🔢 문제 수</h3>
+            <div class="count-control count-control-sm">
+              <button class="count-btn count-btn-sm" id="count-minus">−</button>
+              <span class="count-display count-display-sm" id="count-display">10</span>
+              <button class="count-btn count-btn-sm" id="count-plus">＋</button>
+            </div>
+            <p class="setting-hint">최소 10 · 최대 30문제</p>
+          </div>
+
+          <div class="setting-col">
+            <h3 class="setting-col-title">🎯 합격 점수</h3>
+            <div class="count-control count-control-sm">
+              <button class="count-btn count-btn-sm" id="pass-minus">−</button>
+              <span class="count-display count-display-sm" id="pass-display">70</span>
+              <button class="count-btn count-btn-sm" id="pass-plus">＋</button>
+            </div>
+            <p class="setting-hint">최소 50 · 최대 100점</p>
+          </div>
+
+          <div class="setting-col">
+            <h3 class="setting-col-title">⏱️ 시험 시간</h3>
+            <div class="count-control count-control-sm">
+              <button class="count-btn count-btn-sm" id="time-minus">−</button>
+              <span class="count-display count-display-sm" id="time-display">10</span>
+              <button class="count-btn count-btn-sm" id="time-plus">＋</button>
+            </div>
+            <p class="setting-hint">최소 5 · 최대 30분</p>
+          </div>
+
         </div>
-        <p style="font-size:13px; font-weight:500; color:var(--text-sub);">최소 10 · 최대 30문제</p>
       </div>
 
       <div class="option-group">
@@ -69,7 +94,7 @@
           <span style="font-size:14px; font-weight:700; color:var(--text-sub);">구성:</span>
           <span class="summary-tag" id="summary-mode">🖼️ 객관식/주관식</span>
           <span class="summary-tag" id="summary-count">10문제</span>
-          <span class="summary-tag">합격 기준 70점</span>
+          <span class="summary-tag" id="summary-pass">합격 기준 70점</span>
         </div>
       </div>
     </div>
@@ -89,8 +114,22 @@ let totalCount = 10;
 const minQ = 10, maxQ = 30;
 const countEl = document.getElementById('count-display');
 
+let passScore = 70;
+const minPass = 50, maxPass = 100;
+const passEl = document.getElementById('pass-display');
+
+let examMinutes = 10;
+const minTime = 5, maxTime = 30;
+const timeEl = document.getElementById('time-display');
+
 document.getElementById('count-minus').onclick = () => { if (totalCount > minQ) { totalCount -= 10; countEl.textContent = totalCount; updateSummary(); } };
 document.getElementById('count-plus').onclick  = () => { if (totalCount < maxQ) { totalCount += 10; countEl.textContent = totalCount; updateSummary(); } };
+
+document.getElementById('pass-minus').onclick = () => { if (passScore > minPass) { passScore -= 5; passEl.textContent = passScore; updateSummary(); } };
+document.getElementById('pass-plus').onclick  = () => { if (passScore < maxPass) { passScore += 5; passEl.textContent = passScore; updateSummary(); } };
+
+document.getElementById('time-minus').onclick = () => { if (examMinutes > minTime) { examMinutes -= 5; timeEl.textContent = examMinutes; updateSummary(); } };
+document.getElementById('time-plus').onclick  = () => { if (examMinutes < maxTime) { examMinutes += 5; timeEl.textContent = examMinutes; updateSummary(); } };
 
 document.querySelectorAll('input[name="exam-mode"]').forEach(r => {
   r.addEventListener('change', updateSummary);
@@ -101,17 +140,19 @@ function updateSummary() {
   const labels = { choice: '🖼️ 객관식/주관식', motion: '📷 수어 인식', both: '🔀 퀴즈 + 수어 인식' };
   document.getElementById('summary-mode').textContent = labels[mode];
   document.getElementById('summary-count').textContent = mode === 'both' ? `각 \${totalCount / 2}문제` : `\${totalCount}문제`;
+  document.getElementById('summary-pass').textContent = `합격 기준 \${passScore}점`;
   document.getElementById('both-note').style.display = mode === 'both' ? 'inline' : 'none';
 }
 
 function startExam() {
   const mode = document.querySelector('input[name="exam-mode"]:checked').value;
+  const extra = `&pass=\${passScore}&time=\${examMinutes}`;
   if (mode === 'choice') {
-    location.href = '/exam/choice?count=' + totalCount;
+    location.href = '/exam/choice?count=' + totalCount + extra;
   } else if (mode === 'motion') {
-    location.href = '/exam/motion?count=' + totalCount;
+    location.href = '/exam/motion?count=' + totalCount + extra;
   } else {
-    location.href = '/exam/choice?mode=both&count=' + totalCount;
+    location.href = '/exam/choice?mode=both&count=' + totalCount + extra;
   }
 }
 </script>
