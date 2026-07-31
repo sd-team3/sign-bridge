@@ -67,4 +67,10 @@
         where status = 'WAIT'
     </select>
 
+    <select id="findUserIdByInquiry" resultType="int">
+        select member_id
+        from inquiry
+        WHERE inquiry_id = #{inquiryId}
+    </select>
+
 </mapper>
