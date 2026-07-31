@@ -43,7 +43,6 @@
     <div class="section-title">학습 카테고리</div>
     <div class="cat-grid">
       <a href="/learn/jamo" class="cat-card">
-        <span class="cat-card-new">NEW</span>
         <div class="cat-card-icon">🤟</div>
         <div class="cat-card-title">자음 · 모음 지문자</div>
         <div class="cat-card-desc">수어의 기초, 지문자 ${jamoCount}개를 처음부터 차근차근 익혀요.</div>
