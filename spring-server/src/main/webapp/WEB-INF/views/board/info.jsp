@@ -114,42 +114,31 @@
                 </div>
               </div>
             </div>
-            <div class="comment-item">
-              <div class="comment-item-header">
-                <div class="comment-avatar">김</div>
-                <span class="comment-author">김민준</span>
-                <span class="comment-time">2025.06.25 16:44</span>
-              </div>
-              <div class="comment-body">카메라와의 거리도 중요한 것 같아요. 너무 가까우면 손 전체가 안 잡히더라고요.</div>
-              <div class="comment-actions">
-                <button class="comment-reply-btn" onclick="toggleReplyForm(this, 'reply-form-2')">답글</button>
-              </div>
-              <div class="comment-reply-form" id="reply-form-2">
-                <textarea placeholder="답글을 입력하세요..."></textarea>
-                <div class="comment-reply-form-footer">
-                  <button class="btn btn-ghost btn-sm" onclick="toggleReplyForm(this, 'reply-form-2')">취소</button>
-                  <button class="btn btn-primary btn-sm">답글 등록</button>
+            <c:choose>
+              <c:when test="${empty comments}">
+
+              </c:when>
+              <c:otherwise>
+                <div class="comment-item">
+                  <div class="comment-item-header">
+                    <div class="comment-avatar">김</div>
+                    <span class="comment-author">김민준</span>
+                    <span class="comment-time">2025.06.25 16:44</span>
+                  </div>
+                  <div class="comment-body">카메라와의 거리도 중요한 것 같아요. 너무 가까우면 손 전체가 안 잡히더라고요.</div>
+                  <div class="comment-actions">
+                    <button class="comment-reply-btn" onclick="toggleReplyForm(this, 'reply-form-2')">답글</button>
+                  </div>
+                  <div class="comment-reply-form" id="reply-form-2">
+                    <textarea placeholder="답글을 입력하세요..."></textarea>
+                    <div class="comment-reply-form-footer">
+                      <button class="btn btn-ghost btn-sm" onclick="toggleReplyForm(this, 'reply-form-2')">취소</button>
+                      <button class="btn btn-primary btn-sm">답글 등록</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div class="comment-item">
-              <div class="comment-item-header">
-                <div class="comment-avatar">홍</div>
-                <span class="comment-author">홍길동</span>
-                <span class="comment-time">2025.06.25 17:02</span>
-              </div>
-              <div class="comment-body">오 조언 감사합니다! 조명이랑 거리 조절해서 다시 시도해볼게요.</div>
-              <div class="comment-actions">
-                <button class="comment-reply-btn" onclick="toggleReplyForm(this, 'reply-form-3')">답글</button>
-              </div>
-              <div class="comment-reply-form" id="reply-form-3">
-                <textarea placeholder="답글을 입력하세요..."></textarea>
-                <div class="comment-reply-form-footer">
-                  <button class="btn btn-ghost btn-sm" onclick="toggleReplyForm(this, 'reply-form-3')">취소</button>
-                  <button class="btn btn-primary btn-sm">답글 등록</button>
-                </div>
-              </div>
-            </div>
+              </c:otherwise>
+            </c:choose>
           </div>
 
           <!-- 댓글이 없을 때 (참고용, 필요시 사용) -->
@@ -163,7 +152,7 @@
         </div>
 
       </div>
-      <jsp:include page="sidebar.jsp" />
+      <jsp:include page="./includes/sidebar.jsp" />
     </div>
 
   </div>

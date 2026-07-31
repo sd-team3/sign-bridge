@@ -79,4 +79,14 @@
     <delete id="deleteBoard" parameterType="int">
         delete from board where board_id = #{boardId}
     </delete>
+
+    <select id="findAllForIndex" resultMap="boardResultMap">
+        select 
+            b.board_id, b.member_id, b.board_title, b.board_content, b.category_idx, 
+            b.view_count, b.notice_yn, b.reg_date, b.mod_date, m.member_name
+        from board b
+        join member m
+        on b.member_id = m.member_id 
+        order by b.reg_date desc
+    </select>
 </mapper>

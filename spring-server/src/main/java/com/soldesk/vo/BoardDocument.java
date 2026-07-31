@@ -4,9 +4,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
-public class BoardVO {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BoardDocument {
     private int boardId;
     private int memberId;	
     private String boardTitle;
@@ -18,6 +19,38 @@ public class BoardVO {
     private LocalDateTime modDate;
 
     private String memberName;
+
+    public static BoardDocument from(BoardVO board) {
+        BoardDocument document = new BoardDocument();
+        document.setBoardId(board.getBoardId());
+        document.setMemberId(board.getMemberId());
+        document.setBoardTitle(board.getBoardTitle());
+        document.setBoardContent(board.getBoardContent());
+        document.setCategoryIdx(board.getCategoryIdx());
+        document.setViewCount(board.getViewCount());
+        document.setNoticeYn(board.getNoticeYn());
+        document.setRegDate(board.getRegDate());
+        document.setModDate(board.getModDate());
+        document.setMemberName(board.getMemberName());
+
+        return document;
+    }
+
+    public BoardVO toBoardVO() {
+        BoardVO board = new BoardVO();
+        board.setBoardId(boardId);
+        board.setMemberId(memberId);
+        board.setBoardTitle(boardTitle);
+        board.setBoardContent(boardContent);
+        board.setCategoryIdx(categoryIdx);
+        board.setViewCount(viewCount);
+        board.setNoticeYn(noticeYn);
+        board.setRegDate(regDate);
+        board.setModDate(modDate);
+        board.setMemberName(memberName);
+
+        return board;
+    }
 
     public String getMemberName() {
         return memberName;

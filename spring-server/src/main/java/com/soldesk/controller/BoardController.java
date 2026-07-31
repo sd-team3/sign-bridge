@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.soldesk.service.BoardSearchService;
 import com.soldesk.service.BoardService;
 import com.soldesk.service.MemberService;
 import com.soldesk.vo.BoardVO;
@@ -31,6 +32,8 @@ public class BoardController {
     private MemberService memberService;
     @Autowired
     private BoardService boardService;
+    @Autowired
+    private BoardSearchService boardSearchService;
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page, Model model) {
@@ -115,5 +118,33 @@ public class BoardController {
     public String deleteBoard(@RequestParam int boardId) {
         boardService.deleteBoard(boardId);
         return "redirect:/board/list";
+    }
+
+    @GetMapping("/search")
+    public String searchBoard(
+        @RequestParam(required = false) String keyword, 
+        @RequestParam(defaultValue = "1") int page, Model model) {
+
+        Map<String, Object> boardState = boardService.getBoardState();
+        if(boardState != null) model.addAllAttributes(boardState);
+
+        if(keyword == null || keyword.isBlank()) {
+            model.addAttribute("keyword", "");
+            return "board/list";
+        }
+        String searchKeyword = keyword.trim();
+        try {
+            long searchCnt = boardSearchService.searchCount(searchKeyword);
+            int count = 6;
+            PageBean pageBean = new PageBean(page, (int)searchCnt, count);
+            List<BoardVO> boards = boardSearchService.search(searchKeyword, page);
+            model.addAttribute("boards", boards);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("pageBean", pageBean);
+        } catch (Exception e) {
+            model.addAttribute("searchError", "검색 중 오류가 발생했습니다.");
+            e.printStackTrace();
+        }
+        return "board/list";
     }
 }

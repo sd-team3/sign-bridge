@@ -18,4 +18,6 @@ public interface BoardMapper {
     void updateBoard(BoardVO board);
     void deleteBoard(int boardId);
     
+    List<BoardVO> findAllForIndex();
+    
 }

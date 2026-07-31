@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.CommentMapper">
+    <resultMap id="commentResultMap" type="com.soldesk.vo.CommentVO">
+        <id column="comment_id" property="commentId" />
+        <result column="comment_content" property="commentContent" />
+        <result column="board_id" property="boardId" />
+        <result column="member_id" property="memberId" />
+        <result column="parent_comment_id" property="parentCommentId" />
+        <result column="reg_date" property="regDate" />
+        <result column="member_name" property="memberName" />
+    </resultMap>
+    <insert id="insertComment" parameterType="com.soldesk.vo.CommentVO" useGeneratedKeys="true" keyProperty="commentId">
+        insert into comment (comment_content, board_id, member_id)
+        values (#{commentContent}, #{boardId}, #{memberId})
+    </insert>
+    <select id="selectByComentId" parameterType="int">
+        select comment_id, comment_content, board_id, member_id, reg_date, parent_comment_id
+        from comment
+        where comment_id = commentId
+    </select>
+    <select id="selectComments" parameterType="int" resultMap="commentResultMap">
+        select c.comment_id, c.comment_content, c.board_id, c.member_id, c.reg_date, m.member_name
+        from comment c
+        join member m 
+        on c.member_id = m.member_id
+        where board_id = #{boardId}
+        order by reg_date desc
+    </select>
+    <update id="updateComment" parameterType="com.soldesk.vo.CommentVO">
+        update comment set comment_content = #{commentContent} where comment_id = #{commentId}
+    </update>
+    <delete id="deleteComment" parameterType="int">
+        delete from comment where comment_id = #{commentId}
+    </delete>
+    <delete id="deleteCommentByBoardId" parameterType="int">
+        delete from comment where board_id = #{boardId}
+    </delete>
+    <select id="countComment"  resultType="int">
+        select count(*) from comment
+    </select>
+    <select id="findComments" resultMap="commentResultMap">
+        select c.comment_id, c.comment_content, m.member_name, c.reg_date, c.board_id
+        from comment c
+        join member m
+        on m.member_id = c.member_id
+        join board b
+        on b.board_id = c.board_id
+        order by c.reg_date desc
+        limit #{start}, #{count}
+    </select>
+
+</mapper>

@@ -25,10 +25,7 @@
     <div class="board-layout">
       <!-- 메인 -->
       <div>
-        <div class="search-row">
-          <input type="text" class="search-field" placeholder="게시글 검색...">
-          <button class="btn btn-primary btn-sm">검색</button>
-        </div>
+        <jsp:include page="./includes/search.jsp" />
 
         <div class="filter-tabs">
           <a href="/board/list" class="filter-tab ${category == '' || category == null ? 'active' : '' }">전체</a>
@@ -43,9 +40,17 @@
           <c:choose>
             <c:when test="${empty boards}">
               <div class="board-empty">
-                <div class="board-empty-icon">💬</div>
-                <p class="board-empty-title">등록된 게시글이 없습니다</p>
-                <p class="board-empty-desc">첫 번째 글을 작성해보세요!</p>
+                <div class="board-empty-icon">🔍</div>
+                <c:choose>
+                  <c:when test="${not empty keyword}">
+                    <p class="board-empty-title">"<c:out value="${keyword}"/>"에 대한 검색 결과가 없습니다</p>
+                    <p class="board-empty-desc">다른 키워드로 검색해보세요</p>
+                  </c:when>
+                  <c:otherwise>
+                    <p class="board-empty-title">등록된 게시글이 없습니다</p>
+                    <p class="board-empty-desc">첫 번째 글을 작성해보세요!</p>
+                  </c:otherwise>
+                </c:choose>
               </div>
             </c:when>
             <c:otherwise>
@@ -75,19 +80,29 @@
 
           </c:choose>
         </div>
-
+        <c:if test="${not empty pageBean}">
         <div class="pagination">
+
+          <c:url var="pageUrl" value="${not empty keyword ? '/board/search' : '/board/list'}">
+            <c:if test="${empty keyword}">
+              <c:param name="category" value="${category}" />
+            </c:if>
+            <c:if test="${not empty keyword}">
+              <c:param name="keyword" value="${keyword}" />
+            </c:if>
+          </c:url>
+          
           <c:choose>
             <c:when test="${pageBean.currentPage <= 1}">
               <span class="page-btn disabled">←</span>
             </c:when>
             <c:otherwise>
-              <a href="/board/list?category=${category}&page=${pageBean.prevPage}" class="page-btn">←</a>
+              <a href="${pageUrl}&page=${pageBean.prevPage}" class="page-btn">←</a>
             </c:otherwise>
           </c:choose>
 
           <c:forEach begin="${pageBean.min}" end="${pageBean.max}" var="pageNum">
-            <a href="/board/list?category=${category}&page=${pageNum}" class="page-btn ${pageNum == pageBean.currentPage ? 'active' : ''}">${pageNum}</a>
+            <a href="${pageUrl}&page=${pageNum}" class="page-btn ${pageNum == pageBean.currentPage ? 'active' : ''}">${pageNum}</a>
           </c:forEach>
 
           <c:choose>
@@ -95,13 +110,14 @@
               <span class="page-btn disabled">→</span>
             </c:when>
             <c:otherwise>
-              <a href="/board/list?category=${category}&page=${pageBean.nextPage}" class="page-btn">→</a>
+              <a href="${pageUrl}&page=${pageBean.nextPage}" class="page-btn">→</a>
             </c:otherwise>
           </c:choose>
 
         </div>
+        </c:if>
       </div>
-      <jsp:include page="sidebar.jsp" />
+      <jsp:include page="./includes/sidebar.jsp" />
     </div>
   </div>
 </main>

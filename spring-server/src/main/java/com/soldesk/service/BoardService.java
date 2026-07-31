@@ -17,6 +17,8 @@ public class BoardService {
     
     @Autowired
     private BoardMapper boardMapper;
+    @Autowired
+    private BoardSearchService boardSearchService;
 
     @Transactional
     public List<BoardVO> getBoardByCategory(String category, int page, int count) {
@@ -36,9 +38,8 @@ public class BoardService {
     @Transactional
     public void writeBoard(BoardVO board) {
         boardMapper.insertBoard(board);
-        // BoardVO indexBoard = boardMapper.findByBoardId(board.getBoardId());
-        // boardSearchService.indexBoard(indexBoard);
-        // 엘라스틱 서치 추가 후 설정
+        BoardVO indexBoard = boardMapper.selectBoardByBoardId(board.getBoardId());
+        boardSearchService.indexBoard(indexBoard);
     }
     
     @Transactional
@@ -54,8 +55,8 @@ public class BoardService {
     @Transactional
     public void updateBoard(BoardVO board) {
         boardMapper.updateBoard(board);
-        // BoardVO indexBoard = boardMapper.findByBoardId(board.getBoardId());
-        // boardSearchService.indexBoard(indexBoard);
+        BoardVO indexBoard = boardMapper.selectBoardByBoardId(board.getBoardId());
+        boardSearchService.indexBoard(indexBoard);
         // 엘라스틱 서치 추가 후 설정
     }
 
