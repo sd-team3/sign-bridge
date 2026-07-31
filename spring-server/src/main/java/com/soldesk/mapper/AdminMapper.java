@@ -25,4 +25,7 @@ public interface AdminMapper {
 
     // 오류 신고 미처리 개수
     int getErrorCount();
+
+    int findUserIdByInquiry(Long inquiryId);
+
 }

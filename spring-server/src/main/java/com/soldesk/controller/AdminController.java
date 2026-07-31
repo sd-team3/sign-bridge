@@ -208,8 +208,9 @@ public class AdminController {
     public Map<String, Object> submitAnswer(@RequestBody AnswerRequest request,
                                              HttpSession session) {
         Long adminMemberId = (Long) session.getAttribute("memberId");
+        int sendToUserId = (int)adminService.findUserIdByInquiry(request.getInquiryId());
         boolean result = adminService.answerInquiry(
-                request.getInquiryId(), request.getAnswerContent(), adminMemberId);
+                request.getInquiryId(), request.getAnswerContent(), adminMemberId, sendToUserId);
         return Map.of("success", result);
     }
 
