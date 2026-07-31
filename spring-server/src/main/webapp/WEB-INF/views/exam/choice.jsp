@@ -85,7 +85,8 @@ const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
 const objectiveCount = Math.ceil(totalCount / 2);
-
+const timeParam = parseInt(params.get('time'), 10);
+const examSeconds = isNaN(timeParam) ? 600 : timeParam * 60;
 
 let timerInterval = null;
 let quizAnswered = false;
@@ -107,7 +108,7 @@ fetch('/learn/dict/search')
   });
 
 updateQuizProgress(1, totalCount);
-startTimer('quiz-timer', 600, endQuizPhase);
+startTimer('quiz-timer', examSeconds, endQuizPhase);
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
@@ -231,7 +232,11 @@ function endQuizPhase() {
   clearInterval(timerInterval);
   const params = new URLSearchParams(location.search);
   if (params.get('mode') === 'both') {
-    location.href = '/exam/motion?mode=both&count=' + total;
+    const passParam = params.get('pass');
+    const timeParam2 = params.get('time');
+    location.href = '/exam/motion?mode=both&count=' + total
+      + (passParam ? '&pass=' + passParam : '')
+      + (timeParam2 ? '&time=' + timeParam2 : '');
   } else {
     location.href = '/exam/result';
   }

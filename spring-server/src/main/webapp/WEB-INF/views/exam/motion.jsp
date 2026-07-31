@@ -84,6 +84,8 @@ const examMode = params.get('mode');
 const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
+const timeParam = parseInt(params.get('time'), 10);
+const examSeconds = isNaN(timeParam) ? 600 : timeParam * 60;
 const camBank = [
   { word:'구급차', emoji:'🚑', category:'비상 어휘' },
   { word:'소방서', emoji:'🚒', category:'비상 어휘' },
