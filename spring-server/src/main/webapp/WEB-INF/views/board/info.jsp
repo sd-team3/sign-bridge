@@ -73,18 +73,16 @@
 
         <!-- 댓글 섹션 -->
         <div class="comment-section" data-board-id="${board.boardId}">
-          <div class="comment-section" data-board-id="${board.boardId}">
-            <div class="comment-count-title">댓글 <span>0</span></div>
+          <div class="comment-count-title">댓글 <span>0</span></div>
 
-            <div class="comment-write">
-              <textarea placeholder="댓글을 입력하세요..."></textarea>
-              <div class="comment-write-footer">
-                <button class="btn btn-primary btn-sm">댓글 등록</button>
-              </div>
+          <div class="comment-write">
+            <textarea placeholder="댓글을 입력하세요..."></textarea>
+            <div class="comment-write-footer">
+              <button class="btn btn-primary btn-sm">댓글 등록</button>
             </div>
-
-            <div class="comment-list"></div>
           </div>
+
+          <div class="comment-list"></div>
         </div>
 
         <div class="back-row">
@@ -108,7 +106,7 @@
       <button class="modal-close" onclick="closeDeleteModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div class="modal-content">삭제한 게시글과 댓글 4개는 복구할 수 없습니다. 정말 삭제하시겠어요?</div>
+      <div class="modal-content">삭제한 게시글과 댓글 <span>0</span>개는 복구할 수 없습니다. 정말 삭제하시겠어요?</div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost btn-sm" onclick="closeDeleteModal()">취소</button>

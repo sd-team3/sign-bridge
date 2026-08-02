@@ -12,12 +12,15 @@
         <result column="reg_date" property="regDate" />
         <result column="mod_date" property="modDate" />
         <result column="member_name" property="memberName" />
+        <result column="comment_cnt" property="commentCnt" />
     </resultMap>
 
     <select id="findByCategory" resultMap="boardResultMap">
         select 
             b.board_id, b.board_title, b.board_content, b.category_idx, b.view_count,
-            b.notice_yn, b.reg_date, b.member_id, m.member_name, m.role
+            b.notice_yn, b.reg_date, b.member_id, m.member_name, m.role,
+           (select count(*) from comment c 
+            where c.board_id = b.board_id and c.del_yn = 'N') as comment_cnt
         from board b
         join member m
         on b.member_id = m.member_id
