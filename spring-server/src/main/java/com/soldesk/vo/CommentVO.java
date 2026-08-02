@@ -10,6 +10,7 @@ public class CommentVO {
    private int memberId;
    private Integer parentCommentId;
    private LocalDateTime regDate;
+   private String delYn; 
 
    private String memberName;
 
@@ -58,5 +59,11 @@ public class CommentVO {
     public String getFormattedRegDate() {
         if (regDate == null) return "";
         return regDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+    public void setDelYn(String delYn) {
+        this.delYn = delYn;
+    }
+    public String getDelYn() {
+        return delYn;
     }
 }
