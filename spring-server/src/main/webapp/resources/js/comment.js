@@ -37,7 +37,9 @@
   }
 
   function buildReplyHtml(reply) {
-    const canDelete = isLoggedIn && currentMemberId === reply.memberId;
+    const isDeleted = comment.delYn === 'Y';
+    const canDelete = !isDeleted && isLoggedIn && currentMemberId === reply.memberId;
+    const content = isDeleted ? '삭제된 댓글입니다.' : escapeHtml(reply.commentContent);
     return `
       <div class="comment-reply" data-comment-id="${reply.commentId}">
         <div class="comment-item-header">
@@ -45,7 +47,7 @@
           <span class="comment-author">${escapeHtml(reply.memberName)}</span>
           <span class="comment-time">${escapeHtml(reply.formattedRegDate)}</span>
         </div>
-        <div class="comment-body">${escapeHtml(reply.commentContent)}</div>
+        <div class="comment-body${isDeleted ? ' comment-deleted' : ''}">${content}</div>
         ${canDelete ? `
         <div class="comment-actions">
           <button class="comment-reply-btn" data-action="delete" data-comment-id="${reply.commentId}">삭제</button>
@@ -55,7 +57,9 @@
   }
 
   function buildCommentHtml(comment, replies) {
-    const canDelete = isLoggedIn && currentMemberId === comment.memberId;
+    const isDeleted = comment.delYn === 'Y';
+    const canDelete = !isDeleted && isLoggedIn && currentMemberId === comment.memberId;
+    const content = isDeleted ? '삭제된 댓글입니다.' : escapeHtml(comment.commentContent);
     const replyFormId = `reply-form-${comment.commentId}`;
     const repliesHtml = replies.map(buildReplyHtml).join('');
 
@@ -66,9 +70,9 @@
           <span class="comment-author">${escapeHtml(comment.memberName)}</span>
           <span class="comment-time">${escapeHtml(comment.formattedRegDate)}</span>
         </div>
-        <div class="comment-body">${escapeHtml(comment.commentContent)}</div>
+        <div class="comment-body${isDeleted ? ' comment-deleted' : ''}">${content}</div>
         <div class="comment-actions">
-          ${isLoggedIn ? `<button class="comment-reply-btn" data-action="toggle-reply" data-target="${replyFormId}">답글</button>` : ''}
+          ${!isDeleted && isLoggedIn ? `<button class="comment-reply-btn" data-action="toggle-reply" data-target="${replyFormId}">답글</button>` : ''}
           ${canDelete ? `<button class="comment-reply-btn" data-action="delete" data-comment-id="${comment.commentId}">삭제</button>` : ''}
         </div>
         <div class="comment-reply-form" id="${replyFormId}">

@@ -111,6 +111,11 @@ public class CommentController {
         CommentVO existing = commentService.getComment(commentId);
         if (existing == null) {
             result.put("success", false);
+            result.put("message", "존재하지 않는 댓글입니다.");
+            return result;
+        }
+        if ("Y".equals(existing.getDelYn())) {
+            result.put("success", false);
             result.put("message", "이미 삭제된 댓글입니다.");
             return result;
         }
@@ -119,14 +124,8 @@ public class CommentController {
             result.put("message", "본인이 작성한 댓글만 삭제할 수 있습니다.");
             return result;
         }
-
-        try {
-            commentService.deleteComment(commentId);
-            result.put("success", true);
-        } catch (DataIntegrityViolationException e) {
-            result.put("success", false);
-            result.put("message", "답글이 달린 댓글은 삭제할 수 없습니다.");
-        }
+        commentService.deleteComment(commentId);
+        result.put("success", true);
         return result;
     }
     

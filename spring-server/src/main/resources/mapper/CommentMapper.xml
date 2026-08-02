@@ -20,7 +20,9 @@
         where comment_id = #{commentId}
     </select>
     <select id="selectComments" parameterType="int" resultMap="commentResultMap">
-        select c.comment_id, c.comment_content, c.board_id, c.member_id, c.reg_date, m.member_name, c.parent_comment_id
+        select 
+            c.comment_id, c.comment_content, c.board_id, c.member_id, 
+            c.reg_date, m.member_name, c.parent_comment_id, c.del_yn
         from comment c
         join member m 
         on c.member_id = m.member_id
@@ -28,11 +30,15 @@
         order by reg_date desc
     </select>
     <update id="updateComment" parameterType="com.soldesk.vo.CommentVO">
-        update comment set comment_content = #{commentContent} where comment_id = #{commentId}
+        update comment 
+        set comment_content = #{commentContent} 
+        where comment_id = #{commentId}
     </update>
-    <delete id="deleteComment" parameterType="int">
-        delete from comment where comment_id = #{commentId}
-    </delete>
+    <update id="deleteComment" parameterType="int">
+        update comment 
+        set comment_content = '삭제된 댓글입니다.', del_yn = 'Y' 
+        where comment_id = #{commentId}
+    </update>
     <delete id="deleteCommentByBoardId" parameterType="int">
         delete from comment where board_id = #{boardId}
     </delete>
