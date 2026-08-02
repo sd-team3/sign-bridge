@@ -11,16 +11,16 @@
         <result column="member_name" property="memberName" />
     </resultMap>
     <insert id="insertComment" parameterType="com.soldesk.vo.CommentVO" useGeneratedKeys="true" keyProperty="commentId">
-        insert into comment (comment_content, board_id, member_id)
-        values (#{commentContent}, #{boardId}, #{memberId})
+        insert into comment (comment_content, board_id, member_id, parent_comment_id)
+        values (#{commentContent}, #{boardId}, #{memberId}, #{parentCommentId})
     </insert>
-    <select id="selectByComentId" parameterType="int">
+    <select id="selectById" parameterType="int" resultMap="commentResultMap">
         select comment_id, comment_content, board_id, member_id, reg_date, parent_comment_id
         from comment
-        where comment_id = commentId
+        where comment_id = #{commentId}
     </select>
     <select id="selectComments" parameterType="int" resultMap="commentResultMap">
-        select c.comment_id, c.comment_content, c.board_id, c.member_id, c.reg_date, m.member_name
+        select c.comment_id, c.comment_content, c.board_id, c.member_id, c.reg_date, m.member_name, c.parent_comment_id
         from comment c
         join member m 
         on c.member_id = m.member_id

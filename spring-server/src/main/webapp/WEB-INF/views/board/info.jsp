@@ -7,6 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="_csrf" content="${_csrf.token}">
+<meta name="_csrf_header" content="${_csrf.headerName}">
 <title>SignBridge - 게시글 상세</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -48,7 +50,7 @@
             </div>
             <div class="detail-stats">
               <span>조회 ${board.viewCount}</span>
-              <span>댓글 4</span>
+              <span>댓글 <span id="commentStatNum">0</span></span>
             </div>
           </div>
         </div>
@@ -62,89 +64,27 @@
           </div> -->
         </div>
 
-        <div class="detail-actions">
-          <a href="/board/update?boardId=${board.boardId}" class="btn btn-ghost btn-sm">수정</a>
-          <button class="btn btn-ghost btn-sm" onclick="openDeleteModal()">삭제</button>
-        </div>
+        <c:if test="${not empty currentMemberId and currentMemberId == board.memberId}">
+          <div class="detail-actions">
+            <a href="/board/update?boardId=${board.boardId}" class="btn btn-ghost btn-sm">수정</a>
+            <button class="btn btn-ghost btn-sm" onclick="openDeleteModal()">삭제</button>
+          </div>
+        </c:if>
 
         <!-- 댓글 섹션 -->
-        <div class="comment-section">
-          <div class="comment-count-title">댓글 <span>4</span></div>
+        <div class="comment-section" data-board-id="${board.boardId}">
+          <div class="comment-section" data-board-id="${board.boardId}">
+            <div class="comment-count-title">댓글 <span>0</span></div>
 
-          <!-- 댓글 작성 -->
-          <div class="comment-write">
-            <textarea placeholder="댓글을 입력하세요..."></textarea>
-            <div class="comment-write-footer">
-              <button class="btn btn-primary btn-sm">댓글 등록</button>
-            </div>
-          </div>
-
-          <!-- 댓글 리스트 -->
-          <div class="comment-list">
-            <div class="comment-item">
-              <div class="comment-item-header">
-                <div class="comment-avatar">이</div>
-                <span class="comment-author">이수진</span>
-                <span class="comment-time">2025.06.25 15:10</span>
-              </div>
-              <div class="comment-body">저도 처음에 비슷한 문제 겪었는데 조명을 밝게 하니까 인식률이 확 올라갔어요!</div>
-              <div class="comment-actions">
-                <button class="comment-reply-btn" onclick="toggleReplyForm(this, 'reply-form-1')">답글</button>
-              </div>
-              <div class="comment-reply-form" id="reply-form-1">
-                <textarea placeholder="답글을 입력하세요..."></textarea>
-                <div class="comment-reply-form-footer">
-                  <button class="btn btn-ghost btn-sm" onclick="toggleReplyForm(this, 'reply-form-1')">취소</button>
-                  <button class="btn btn-primary btn-sm">답글 등록</button>
-                </div>
-              </div>
-
-              <!-- 대댓글 -->
-              <div class="comment-replies">
-                <div class="comment-reply">
-                  <div class="comment-item-header">
-                    <div class="comment-avatar">홍</div>
-                    <span class="comment-author">홍길동</span>
-                    <span class="comment-time">2025.06.25 15:22</span>
-                  </div>
-                  <div class="comment-body">오 저도 조명 한번 밝게 해볼게요! 답변 감사합니다 🙏</div>
-                  <div class="comment-actions">
-                    <button class="comment-reply-btn" onclick="toggleReplyForm(this, 'reply-form-1')">답글</button>
-                  </div>
-                </div>
+            <div class="comment-write">
+              <textarea placeholder="댓글을 입력하세요..."></textarea>
+              <div class="comment-write-footer">
+                <button class="btn btn-primary btn-sm">댓글 등록</button>
               </div>
             </div>
-            <c:choose>
-              <c:when test="${empty comments}">
 
-              </c:when>
-              <c:otherwise>
-                <div class="comment-item">
-                  <div class="comment-item-header">
-                    <div class="comment-avatar">김</div>
-                    <span class="comment-author">김민준</span>
-                    <span class="comment-time">2025.06.25 16:44</span>
-                  </div>
-                  <div class="comment-body">카메라와의 거리도 중요한 것 같아요. 너무 가까우면 손 전체가 안 잡히더라고요.</div>
-                  <div class="comment-actions">
-                    <button class="comment-reply-btn" onclick="toggleReplyForm(this, 'reply-form-2')">답글</button>
-                  </div>
-                  <div class="comment-reply-form" id="reply-form-2">
-                    <textarea placeholder="답글을 입력하세요..."></textarea>
-                    <div class="comment-reply-form-footer">
-                      <button class="btn btn-ghost btn-sm" onclick="toggleReplyForm(this, 'reply-form-2')">취소</button>
-                      <button class="btn btn-primary btn-sm">답글 등록</button>
-                    </div>
-                  </div>
-                </div>
-              </c:otherwise>
-            </c:choose>
+            <div class="comment-list"></div>
           </div>
-
-          <!-- 댓글이 없을 때 (참고용, 필요시 사용) -->
-          <!--
-          <div class="comment-empty">아직 작성된 댓글이 없습니다. 첫 댓글을 남겨보세요!</div>
-          -->
         </div>
 
         <div class="back-row">
@@ -192,5 +132,6 @@ function toggleReplyForm(btn, id) {
   document.getElementById(id).classList.toggle('open');
 }
 </script>
+<script src="/resources/js/comment.js"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@ public class CommentVO {
    private String commentContent;
    private int boardId;
    private int memberId;
-   private int parentCommentId;
+   private Integer parentCommentId;
    private LocalDateTime regDate;
 
    private String memberName;
@@ -37,7 +37,7 @@ public class CommentVO {
    public void setMemberId(int memberId) {
     this.memberId = memberId;
    }
-   public int getParentCommentId() {
+   public Integer getParentCommentId() {
     return parentCommentId;
    }
    public void setParentCommentId(int parentCommentId) {

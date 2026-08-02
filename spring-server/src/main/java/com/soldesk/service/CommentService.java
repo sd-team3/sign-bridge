@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.soldesk.mapper.BoardMapper;
 import com.soldesk.mapper.CommentMapper;
 import com.soldesk.vo.CommentVO;
 
@@ -14,15 +13,20 @@ import com.soldesk.vo.CommentVO;
 public class CommentService {
     @Autowired
     private CommentMapper commentMapper;
-    @Autowired
-    private BoardMapper boardMapper;
     
-
     @Transactional
     public void insertComment(CommentVO comment) {
-        CommentVO parent = commentMapper.selectById(comment.getParentCommentId());
-        if(parent != null) comment.setParentCommentId(parent.getCommentId());
+        if(comment.getParentCommentId() != null) {
+            CommentVO parent = commentMapper.selectById(comment.getParentCommentId());
+            if(parent != null && parent.getParentCommentId() != null) {
+                comment.setParentCommentId(parent.getCommentId());
+            } 
+        }
         commentMapper.insertComment(comment);
+    }
+    @Transactional(readOnly = true)
+    public CommentVO getComment(int commentId) {
+        return commentMapper.selectById(commentId);
     }
     @Transactional
     public List<CommentVO> getComments(int boardId) {

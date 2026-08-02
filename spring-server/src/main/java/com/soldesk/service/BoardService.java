@@ -4,13 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.soldesk.mapper.BoardMapper;
 import com.soldesk.vo.BoardVO;
-import com.soldesk.vo.MemberVO;
 
 @Service
 public class BoardService {

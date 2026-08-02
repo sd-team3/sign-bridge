@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +36,21 @@ public class BoardController {
     private BoardService boardService;
     @Autowired
     private BoardSearchService boardSearchService;
+
+    private Integer getCurrentMemberId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            return null;
+        }
+        MemberVO member = memberService.getMemberByEmail(auth.getName());
+        return member != null ? member.getMemberId() : null;
+    }
+    private boolean isAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) return false;
+        return auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page, Model model) {
@@ -98,6 +115,7 @@ public class BoardController {
 
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
+        model.addAttribute("currentMemberId", getCurrentMemberId());
 
         return "board/info";
     }
@@ -110,12 +128,30 @@ public class BoardController {
     }
     @PostMapping("/update")
     public String updateSubmit(@ModelAttribute BoardVO board) {
+        Integer currentMemberId = getCurrentMemberId();
+        BoardVO original = boardService.getBoardByBoardId(board.getBoardId());
+
+        if (currentMemberId == null || original == null || !currentMemberId.equals(original.getMemberId())) {
+            throw new AccessDeniedException("수정 권한이 없습니다.");
+        }
+
+        board.setMemberId(original.getMemberId());
         boardService.updateBoard(board);
         return "redirect:/board/info?boardId=" + board.getBoardId();
     }
 
     @PostMapping("/delete")
     public String deleteBoard(@RequestParam int boardId) {
+        Integer currentMemberId = getCurrentMemberId();
+        BoardVO original = boardService.getBoardByBoardId(boardId);
+
+        boolean isOwner = currentMemberId != null && original != null
+                && currentMemberId.equals(original.getMemberId());
+
+        if (original == null || !(isOwner || isAdmin())) {
+            throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
         boardService.deleteBoard(boardId);
         return "redirect:/board/list";
     }
