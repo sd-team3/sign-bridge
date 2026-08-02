@@ -5,6 +5,7 @@
 
   const listEl = document.querySelector('.comment-list');
   const countEl = document.querySelector('.comment-count-title span');
+  const modalEl = document.querySelector('.modal-content span');
   const writeArea = document.querySelector('.comment-write');
   const writeTextarea = writeArea.querySelector('textarea');
   const writeBtn = writeArea.querySelector('.btn-primary');
@@ -111,6 +112,7 @@
     countEl.textContent = comments.length;
     const statNumEl = document.getElementById('commentStatNum');
     if (statNumEl) statNumEl.textContent = comments.length;
+    if (modalEl) modalEl.textContent = comments.length;
   }
 
   async function loadComments() {

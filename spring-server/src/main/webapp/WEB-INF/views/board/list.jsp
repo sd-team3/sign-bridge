@@ -63,12 +63,12 @@
                       <c:when test="${board.categoryIdx == 'QNA'}"><span class="badge badge-primary">질문</span></c:when>
                       <c:when test="${board.categoryIdx == 'NOTICE'}"><span class="badge badge-warn">공지</span></c:when>
                       <c:when test="${board.categoryIdx == 'REPORT'}"><span class="badge badge-danger">신고</span></c:when>
-                      <c:otherwise><span class="badge badge-danger">알수없음</span></c:otherwise>
+                      <c:otherwise><span class="badge badge-danger">알 수 없음</span></c:otherwise>
                     </c:choose>
                   </div>
                   <div class="post-main">
                     <div class="post-title">${board.boardTitle}</div>
-                    <div class="post-meta"><span>${board.memberName}</span><span>댓글 3</span></div>
+                    <div class="post-meta"><span>${board.memberName}</span><span>댓글 ${board.commentCnt}</span></div>
                   </div>
                   <div class="post-right">
                     <div class="post-date">${board.formattedRegDate}</div>

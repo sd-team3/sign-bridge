@@ -20,7 +20,6 @@
       <div class="edit-header">
         <h1>게시글 작성</h1>
         <p>질문, 자유, 오류 신고, 단어 건의 등 카테고리에 맞게 작성해주세요.</p>
-        <p style="color:red;">DEBUG isAdmin = [${isAdmin}]</p>
       </div>
 
       <div class="card">

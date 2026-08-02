@@ -16,7 +16,8 @@ public class BoardVO {
     private String noticeYn;
     private LocalDateTime regDate;
     private LocalDateTime modDate;
-
+    
+    private int commentCnt;
     private String memberName;
 
     public String getMemberName() {
@@ -88,5 +89,11 @@ public class BoardVO {
     public String getFormattedModDate() {
         if (modDate == null) return "";
         return modDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+    public int getCommentCnt() {
+        return commentCnt;
+    }
+    public void setCommentCnt(int commentCnt) {
+        this.commentCnt = commentCnt;
     }
 }
