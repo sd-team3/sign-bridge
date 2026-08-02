@@ -39,7 +39,30 @@ public class CommentService {
     }
     @Transactional
     public void deleteComment(int commentId) {
-        commentMapper.deleteComment(commentId);
+        CommentVO target = commentMapper.selectById(commentId);
+        if (target == null) return;
+
+        if (target.getParentCommentId() == null) {
+            int activeReplies = commentMapper.countActiveReplies(commentId);
+            if (activeReplies == 0) {
+                commentMapper.hardDeleteAllRepliesOf(commentId);
+                commentMapper.hardDeleteComment(commentId);
+            } else {
+                commentMapper.softDeleteComment(commentId);
+            }
+        } else {
+            commentMapper.hardDeleteComment(commentId);
+
+            int parentId = target.getParentCommentId();
+            CommentVO parent = commentMapper.selectById(parentId);
+            if (parent != null && "Y".equals(parent.getDelYn())) {
+                int remainingActive = commentMapper.countActiveReplies(parentId);
+                if (remainingActive == 0) {
+                    commentMapper.hardDeleteAllRepliesOf(parentId);
+                    commentMapper.hardDeleteComment(parentId);
+                }
+            }
+        }
     }
     @Transactional
     public List<CommentVO> getAllComments(int page, int count) {
@@ -47,7 +70,8 @@ public class CommentService {
         return commentMapper.findComments(start, count);
     }
     @Transactional
-    public void deleteCommentByBoardId(int boardId) {
-        commentMapper.deleteCommentByBoardId(boardId);
+    public void deleteAllCommentsByBoardId(int boardId) {
+        commentMapper.deleteAllRepliesByBoardId(boardId);
+        commentMapper.deleteAllRootCommentsByBoardId(boardId);
     }
 }

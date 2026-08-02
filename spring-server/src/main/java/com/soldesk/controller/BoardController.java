@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.soldesk.service.BoardSearchService;
+import com.soldesk.service.CommentService;
 import com.soldesk.service.BoardService;
 import com.soldesk.service.MemberService;
 import com.soldesk.vo.BoardVO;
@@ -36,6 +37,8 @@ public class BoardController {
     private BoardService boardService;
     @Autowired
     private BoardSearchService boardSearchService;
+    @Autowired
+    private CommentService commentService;
 
     private Integer getCurrentMemberId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -71,7 +74,8 @@ public class BoardController {
     }
 
     @GetMapping("/write")
-    public String writeBoard() {
+    public String writeBoard(Model model) {
+        model.addAttribute("isAdmin", isAdmin());
         return "board/write";
     }
     @PostMapping("/write")
@@ -79,7 +83,12 @@ public class BoardController {
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         MemberVO member = memberService.getMemberByEmail(memberEmail);
 
+        boolean isNotice = "NOTICE".equals(board.getCategoryIdx());
+        if(isNotice && !isAdmin()) {
+            throw new AccessDeniedException("공지사항은 관리자만 작성할 수 있습니다.");
+        }
         board.setMemberId(member.getMemberId());
+        board.setNoticeYn(isNotice ? "N" : "Y");
         boardService.writeBoard(board);
 
         String redirectUrl = "redirect:/board/list";
@@ -152,6 +161,7 @@ public class BoardController {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
 
+        commentService.deleteAllCommentsByBoardId(boardId);
         boardService.deleteBoard(boardId);
         return "redirect:/board/list";
     }

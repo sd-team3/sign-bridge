@@ -9,13 +9,14 @@
         <result column="parent_comment_id" property="parentCommentId" />
         <result column="reg_date" property="regDate" />
         <result column="member_name" property="memberName" />
+        <result column="del_yn" property="delYn" />
     </resultMap>
     <insert id="insertComment" parameterType="com.soldesk.vo.CommentVO" useGeneratedKeys="true" keyProperty="commentId">
         insert into comment (comment_content, board_id, member_id, parent_comment_id)
         values (#{commentContent}, #{boardId}, #{memberId}, #{parentCommentId})
     </insert>
     <select id="selectById" parameterType="int" resultMap="commentResultMap">
-        select comment_id, comment_content, board_id, member_id, reg_date, parent_comment_id
+        select comment_id, comment_content, board_id, member_id, reg_date, parent_comment_id, del_yn
         from comment
         where comment_id = #{commentId}
     </select>
@@ -34,13 +35,28 @@
         set comment_content = #{commentContent} 
         where comment_id = #{commentId}
     </update>
-    <update id="deleteComment" parameterType="int">
+    <select id="countActiveReplies" parameterType="int" resultType="int">
+        select count(*) from comment
+        where parent_comment_id = #{commentId} and del_yn = 'N'
+    </select>
+    <delete id="hardDeleteComment" parameterType="int">
+        delete from comment where comment_id = #{commentId}
+    </delete>
+    <delete id="hardDeleteAllRepliesOf" parameterType="int">
+        delete from comment where parent_comment_id = #{commentId}
+    </delete>
+    <update id="softDeleteComment" parameterType="int">
         update comment 
         set comment_content = '삭제된 댓글입니다.', del_yn = 'Y' 
         where comment_id = #{commentId}
     </update>
-    <delete id="deleteCommentByBoardId" parameterType="int">
-        delete from comment where board_id = #{boardId}
+    <delete id="deleteAllRepliesByBoardId" parameterType="int">
+        delete from comment 
+        where board_id = #{boardId} and parent_comment_id is not null
+    </delete>
+    <delete id="deleteAllRootCommentsByBoardId" parameterType="int">
+        delete from comment 
+        where board_id = #{boardId} and parent_comment_id is null
     </delete>
     <select id="countComment"  resultType="int">
         select count(*) from comment

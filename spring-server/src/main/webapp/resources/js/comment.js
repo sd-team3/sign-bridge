@@ -37,7 +37,7 @@
   }
 
   function buildReplyHtml(reply) {
-    const isDeleted = comment.delYn === 'Y';
+    const isDeleted = reply.delYn === 'Y';
     const canDelete = !isDeleted && isLoggedIn && currentMemberId === reply.memberId;
     const content = isDeleted ? '삭제된 댓글입니다.' : escapeHtml(reply.commentContent);
     return `

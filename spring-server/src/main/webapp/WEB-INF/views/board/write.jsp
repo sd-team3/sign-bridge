@@ -1,3 +1,6 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -17,6 +20,7 @@
       <div class="edit-header">
         <h1>게시글 작성</h1>
         <p>질문, 자유, 오류 신고, 단어 건의 등 카테고리에 맞게 작성해주세요.</p>
+        <p style="color:red;">DEBUG isAdmin = [${isAdmin}]</p>
       </div>
 
       <div class="card">
@@ -26,6 +30,9 @@
             <label class="form-label" for="category">카테고리</label>
             <select class="form-input" id="category" name="categoryIdx" required>
               <option value="" disabled selected>카테고리를 선택하세요</option>
+              <c:if test="${isAdmin}">
+                <option value="NOTICE">공지</option>
+              </c:if>
               <option value="QNA">질문</option>
               <option value="FREE">자유</option>
               <option value="INFO">정보</option>
@@ -143,12 +150,6 @@ updateCount();
 //   uploadZone.classList.remove('dragover');
 //   addFiles(e.dataTransfer.files);
 // });
-
-document.getElementById('writeForm').addEventListener('submit', function(e){
-  e.preventDefault();
-  // TODO: 실제 등록 로직 연결
-  window.location.href = 'board_list.html';
-});
 
 </script>
 
