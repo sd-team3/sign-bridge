@@ -43,9 +43,11 @@
         <span class="badge badge-primary" id="quiz-q-badge">문제 1</span>
       </div>
       <div class="quiz-body">
-        <div class="video-box">
-          <div class="play-btn">▶</div>
-          <p>수어 동작 영상 — 클릭해서 재생</p>
+        <div class="video-box" id="video-box">
+          <video id="quiz-video" muted loop playsinline style="width:100%; height:100%; border-radius:var(--radius-sm); object-fit:cover; display:none;"></video>
+          <div id="video-fallback" style="display:none; text-align:center;">
+            <p>이 단어는 아직 영상이 준비되지 않았어요.</p>
+          </div>
         </div>
 
         <div id="multiple-choice-area">
@@ -75,6 +77,7 @@
 
 <jsp:include page="../includes/footer.jsp" />
 
+<script src="/resources/js/quizBank.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const examMode = params.get('mode');
@@ -82,12 +85,8 @@ const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
 const objectiveCount = Math.ceil(totalCount / 2);
-const quizBank = [
-  { word:'병원', choices:['사과','병원','자동차','감사합니다'], correct:1, category:'기초 어휘' },
-  { word:'지진', choices:['지진','태풍','화재','대피'], correct:0, category:'비상 어휘' },
-  { word:'구급차', choices:['소방차','경찰차','구급차','버스'], correct:2, category:'비상 어휘' },
-  { word:'사랑해요', choices:['고마워요','미안해요','사랑해요','안녕하세요'], correct:2, category:'기초 어휘' }
-];
+const timeParam = parseInt(params.get('time'), 10);
+const examSeconds = isNaN(timeParam) ? 600 : timeParam * 60;
 
 let timerInterval = null;
 let quizAnswered = false;
@@ -95,26 +94,57 @@ let quizIndex = 0;
 let quizCorrectCount = 0, quizWrongCount = 0;
 let wrongList = [];
 let wrongNo = 0;
+let dictWords = [];
 
-loadQuizQuestion(0);
+fetch('/learn/dict/search')
+  .then(res => res.json())
+  .then(list => { 
+    dictWords = list || []; 
+    loadQuizQuestion(0); // 사전 로드 끝나고 첫 문제 표시
+  })
+  .catch(err => {
+    console.error('단어 사전 로드 실패', err);
+    loadQuizQuestion(0); // 실패해도 시험은 진행되게
+  });
+
 updateQuizProgress(1, totalCount);
-startTimer('quiz-timer', 600, endQuizPhase);
+startTimer('quiz-timer', examSeconds, endQuizPhase);
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
 
-  // 앞쪽 objectiveCount 문제는 객관식, 나머지는 주관식으로 자동 전환
+  const videoEl = document.getElementById('quiz-video');
+  const fallbackEl = document.getElementById('video-fallback');
+  const matched = dictWords.find(w => w.signWordName === q.word);
+  let videoUrl = matched ? (matched.signWordVideo || '') : '';
+  if (videoUrl.startsWith('http://')) videoUrl = videoUrl.replace('http://', 'https://');
+
+  if (videoUrl.toLowerCase().endsWith('.mp4')) {
+  videoEl.src = '/learn/dict/video-proxy?url=' + encodeURIComponent(videoUrl);
+  videoEl.style.display = 'block';
+  fallbackEl.style.display = 'none';
+  videoEl.play().catch(() => {});
+} else {
+  videoEl.style.display = 'none';
+  fallbackEl.style.display = 'block';
+}
+
   const isSubjective = idx >= objectiveCount;
+
   document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
   document.getElementById('subjective-area').style.display = isSubjective ? 'block' : 'none';
   document.getElementById('quiz-type-label').textContent = isSubjective ? '✏️ 주관식' : '🖼️ 객관식';
 
-  const list = document.getElementById('choices-list');
-  const labels = ['①','②','③','④'];
-  list.innerHTML = q.choices.map((c, i) =>
-    `<button class="choice-btn" onclick="selectChoice(this, \${i})"><span class="choice-label">\${labels[i]}</span> \${c}</button>`
-  ).join('');
-  document.getElementById('subjective-input').value = '';
+  if (!isSubjective) {
+    const list = document.getElementById('choices-list');
+    const labels = ['①','②','③','④'];
+    list.innerHTML = q.choices.map((c, i) =>
+      `<button class="choice-btn" onclick="selectChoice(this, \${i})"><span class="choice-label">\${labels[i]}</span> \${c}</button>`
+    ).join('');
+  } else {
+    document.getElementById('subjective-input').value = '';
+  }
+
   document.getElementById('quiz-feedback').className = 'feedback-box';
   document.getElementById('quiz-next-btn').style.display = 'none';
   quizAnswered = false;
@@ -125,7 +155,7 @@ function updateQuizProgress(cur, total) {
   document.getElementById('quiz-prog-text').textContent = `퀴즈 \${cur} / \${total}`;
   document.getElementById('quiz-prog-pct').textContent = pct + '%';
   document.getElementById('quiz-prog-fill').style.width = pct + '%';
-  document.getElementById('quiz-q-badge').textContent = `문제 ${cur}`;
+  document.getElementById('quiz-q-badge').textContent = `문제 \${cur}`;
 }
 
 function startTimer(elemId, seconds, onEnd) {
@@ -161,7 +191,7 @@ function selectChoice(btn, idx) {
     fb.textContent = `❌ 틀렸습니다. 정답은 "\${q.word}"입니다.`;
     quizWrongCount++;
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
-    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', category: q.category, userAnswer: q.choices[idx], correctAnswer: q.word });
+    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', userAnswer: q.choices[idx], correctAnswer: q.word });
   }
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
@@ -183,7 +213,7 @@ function submitSubjective() {
     fb.textContent = `❌ 틀렸습니다. 정답은 "\${q.word}"입니다.`;
     quizWrongCount++;
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
-    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', category: q.category, userAnswer: val, correctAnswer: q.word });
+    wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', userAnswer: val, correctAnswer: q.word });
   }
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
@@ -202,7 +232,11 @@ function endQuizPhase() {
   clearInterval(timerInterval);
   const params = new URLSearchParams(location.search);
   if (params.get('mode') === 'both') {
-    location.href = '/exam/motion?mode=both&count=' + total;
+    const passParam = params.get('pass');
+    const timeParam2 = params.get('time');
+    location.href = '/exam/motion?mode=both&count=' + total
+      + (passParam ? '&pass=' + passParam : '')
+      + (timeParam2 ? '&time=' + timeParam2 : '');
   } else {
     location.href = '/exam/result';
   }
