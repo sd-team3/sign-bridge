@@ -14,4 +14,4 @@ RUN mvn dependency:go-offline
 
 EXPOSE 8080
 
-CMD ["nodemon", "--watch", "src/main/java", "--ext", "java", "--exec", "mvn compile -q -o"]
+CMD ["nodemon", "--legacy-watch", "--watch", "src/main/java", "--watch", "src/main/resources", "--watch", "pom.xml", "--ext", "java,xml", "--exec", "mvn compile dependency:copy-dependencies -q -o -DincludeScope=runtime"]
