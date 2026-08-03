@@ -9,7 +9,11 @@
                         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
                         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
     <!-- MVC 설정 -->
-    <mvc:annotation-driven />
+    <mvc:annotation-driven>
+        <mvc:argument-resolvers>
+            <bean class="org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver"/>
+        </mvc:argument-resolvers>
+    </mvc:annotation-driven>
 
     <!-- 프로퍼티 불러오기 -->
     <context:property-placeholder location="classpath:properties/app.properties,classpath:properties/oauth.properties" />
