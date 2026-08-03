@@ -74,4 +74,8 @@ public class CommentService {
         commentMapper.deleteAllRepliesByBoardId(boardId);
         commentMapper.deleteAllRootCommentsByBoardId(boardId);
     }
+    @Transactional
+    public void anonymizeMemberComments(int memberId) {
+        commentMapper.nullifyMemberId(memberId);
+    }
 }

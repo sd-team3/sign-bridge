@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,6 +22,7 @@ import com.soldesk.service.BoardSearchService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.BoardService;
 import com.soldesk.service.MemberService;
+import com.soldesk.util.SecurityUtil;
 import com.soldesk.vo.BoardVO;
 import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
@@ -39,21 +39,8 @@ public class BoardController {
     private BoardSearchService boardSearchService;
     @Autowired
     private CommentService commentService;
-
-    private Integer getCurrentMemberId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
-            return null;
-        }
-        MemberVO member = memberService.getMemberByEmail(auth.getName());
-        return member != null ? member.getMemberId() : null;
-    }
-    private boolean isAdmin() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) return false;
-        return auth.getAuthorities().stream()
-            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-    }
+    @Autowired
+    private SecurityUtil securityUtil;
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page, Model model) {
@@ -75,7 +62,7 @@ public class BoardController {
 
     @GetMapping("/write")
     public String writeBoard(Model model) {
-        model.addAttribute("isAdmin", isAdmin());
+        model.addAttribute("isAdmin", securityUtil.isAdmin());
         return "board/write";
     }
     @PostMapping("/write")
@@ -84,7 +71,7 @@ public class BoardController {
         MemberVO member = memberService.getMemberByEmail(memberEmail);
 
         boolean isNotice = "NOTICE".equals(board.getCategoryIdx());
-        if(isNotice && !isAdmin()) {
+        if(isNotice && !securityUtil.isAdmin()) {
             throw new AccessDeniedException("공지사항은 관리자만 작성할 수 있습니다.");
         }
         board.setMemberId(member.getMemberId());
@@ -124,7 +111,7 @@ public class BoardController {
 
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
-        model.addAttribute("currentMemberId", getCurrentMemberId());
+        model.addAttribute("currentMemberId", securityUtil.getCurrentMemberId());
 
         return "board/info";
     }
@@ -137,7 +124,7 @@ public class BoardController {
     }
     @PostMapping("/update")
     public String updateSubmit(@ModelAttribute BoardVO board) {
-        Integer currentMemberId = getCurrentMemberId();
+        Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(board.getBoardId());
 
         if (currentMemberId == null || original == null || !currentMemberId.equals(original.getMemberId())) {
@@ -151,13 +138,13 @@ public class BoardController {
 
     @PostMapping("/delete")
     public String deleteBoard(@RequestParam int boardId) {
-        Integer currentMemberId = getCurrentMemberId();
+        Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(boardId);
 
         boolean isOwner = currentMemberId != null && original != null
                 && currentMemberId.equals(original.getMemberId());
 
-        if (original == null || !(isOwner || isAdmin())) {
+        if (original == null || !(isOwner || securityUtil.isAdmin())) {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
 

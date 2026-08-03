@@ -18,11 +18,12 @@
     <select id="findByCategory" resultMap="boardResultMap">
         select 
             b.board_id, b.board_title, b.board_content, b.category_idx, b.view_count,
-            b.notice_yn, b.reg_date, b.member_id, m.member_name, m.role,
+            b.notice_yn, b.reg_date, b.member_id, m.role,
+            COALESCE(m.member_name, '알 수 없음') as member_name, 
            (select count(*) from comment c 
             where c.board_id = b.board_id and c.del_yn = 'N') as comment_cnt
         from board b
-        join member m
+        left join member m 
         on b.member_id = m.member_id
         <where>
             <if test="category != null and category != ''">
@@ -60,9 +61,10 @@
 
     <select id="selectBoardByBoardId" parameterType="int" resultMap="boardResultMap">
         select b.board_id, b.member_id, b.board_title, b.board_content, 
-            b.category_idx, b.view_count, b.reg_date, b.mod_date, m.member_name
+            b.category_idx, b.view_count, b.reg_date, b.mod_date, 
+            COALESCE(m.member_name, '알 수 없음') as member_name
         from board b
-        join member m
+        left join member m 
         on b.member_id = m.member_id
         where board_id = #{boardId}
     </select>
@@ -86,10 +88,15 @@
     <select id="findAllForIndex" resultMap="boardResultMap">
         select 
             b.board_id, b.member_id, b.board_title, b.board_content, b.category_idx, 
-            b.view_count, b.notice_yn, b.reg_date, b.mod_date, m.member_name
+            b.view_count, b.notice_yn, b.reg_date, b.mod_date, 
+            COALESCE(m.member_name, '알 수 없음') as member_name
         from board b
-        join member m
-        on b.member_id = m.member_id 
+        left join member m 
+        on b.member_id = m.member_id
         order by b.reg_date desc
     </select>
+
+    <update id="nullifyMemberId" parameterType="int">
+        update board set member_id = null where member_id = #{memberId}
+    </update>
 </mapper>

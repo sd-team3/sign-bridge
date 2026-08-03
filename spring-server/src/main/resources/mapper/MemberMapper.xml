@@ -115,7 +115,7 @@
     </select>
 
     <select id="findById" resultMap="memberResultMap">
-        select member_id, member_name, member_email, reg_date, provider, status
+        select member_id, member_name, member_email, reg_date, provider, status, member_password
         from member
         where member_id = #{memberId}
     </select>
@@ -146,5 +146,17 @@
         from member
         where member_id = #{memberId}
     </delete>
+
+    <update id="updateMemberName">
+        update member
+        set member_name = #{memberName}
+        where member_id = #{memberId}
+    </update>
+
+    <update id="updatePassword">
+        update member 
+        set member_password = #{encodedPassword} 
+        where member_id = #{memberId}
+    </update>
 
 </mapper>

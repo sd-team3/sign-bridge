@@ -20,4 +20,6 @@ public interface BoardMapper {
     
     List<BoardVO> findAllForIndex();
     
+    void nullifyMemberId(int memberId);
+    
 }

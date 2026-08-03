@@ -55,11 +55,15 @@ public class BoardService {
         boardMapper.updateBoard(board);
         BoardVO indexBoard = boardMapper.selectBoardByBoardId(board.getBoardId());
         boardSearchService.indexBoard(indexBoard);
-        // 엘라스틱 서치 추가 후 설정
     }
 
     @Transactional
     public void deleteBoard(int boardId) {
         boardMapper.deleteBoard(boardId);
+    }
+
+    @Transactional
+    public void anonymizeMemberBoards(int memberId) {
+        boardMapper.nullifyMemberId(memberId);
     }
 }

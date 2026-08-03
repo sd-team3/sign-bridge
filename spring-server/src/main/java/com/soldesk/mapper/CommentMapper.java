@@ -19,4 +19,6 @@ public interface CommentMapper {
     int countComment();
     CommentVO selectById(int commentId);
     List<CommentVO> findComments(@Param("start") int start, @Param("count") int count);
+
+    void nullifyMemberId(int memberId);
 }
