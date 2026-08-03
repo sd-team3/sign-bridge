@@ -24,7 +24,7 @@ public class SseController {
     @GetMapping("/test/{userId}")
     @ResponseBody
     public String test(@PathVariable int userId) {
-        sseService.sendToClient(userId, "notification", "test noti");
+        sseService.sendToClient(userId, "notification", "테스트 메시지입니다. ");
         return "sent";
     }
 

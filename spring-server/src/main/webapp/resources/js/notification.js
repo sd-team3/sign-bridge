@@ -33,23 +33,6 @@ function addNotificationToUI(title, content) {
     li.innerHTML = '<strong>' + title + '</strong><br><span style="font-size:13px;color:#666;">' + content + '</span>';
     list.prepend(li);
 }
-const eventSource = new EventSource(`/sse/subscribe/${userId}`);
-
-eventSource.addEventListener('notification', function(event) {
-    console.log('1) raw data:', event.data);
-    console.log('2) data length:', event.data.length);
-    
-    // 각 글자의 유니코드 코드값 확인 (? 는 항상 63, 진짜 한글이면 44032~55203 범위)
-    const codes = [];
-    for (let i = 0; i < event.data.length; i++) {
-        codes.push(event.data.charCodeAt(i));
-    }
-    console.log('3) char codes:', codes);
-});
-
-eventSource.onerror = function(err) {
-    console.error('SSE error:', err);
-};
 
 // 알림기능 
 function initNotificationSSE() {
