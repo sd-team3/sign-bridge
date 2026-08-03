@@ -315,6 +315,7 @@ function openDetailModal(word, fromHistory) {
   updateDetailNavButtons();
 
   nameEl.textContent = word.signWordName || '';
+  currentDetailWord = word.signWordName;
   descEl.textContent = word.description || '등록된 설명이 없습니다.';
   // 조회수 안뜨던 문제 - fetch 응답 기다리기 전에 일단 목록에서 이미 갖고있는 viewCount로 먼저 채워놓음
   // (fetch 끝나면 밑에서 최신값으로 다시 덮어씀. word.viewCount 없으면 일단 빈칸)
@@ -369,10 +370,39 @@ document.getElementById("detailReplayBtn").addEventListener("click", () => {
   videoEl.play().catch(() => {});
 });
 
-// 오류신고(기능구현 연결x)
+// 현재 상세모달에 열려있는 단어 추적 (신고 시 word 파라미터로 사용)
+let currentDetailWord = null;
+
+// 오류신고
 document.getElementById("detailReportBtn").addEventListener("click", () => {
- 
-  alert("오류 신고 기능은 준비 중입니다.");
+  if (!currentDetailWord) return;
+
+  const reason = prompt("신고 사유를 입력해주세요 (선택사항)");
+  if (reason === null) return; // 취소시 전송 안함
+
+  const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+  const headers = { "Content-Type": "application/x-www-form-urlencoded" };
+  if (csrfToken && csrfHeader) {
+    headers[csrfHeader] = csrfToken;
+  }
+
+  fetch(CTX + "/learn/dict/report", {
+    method: "POST",
+    headers: headers,
+    body: "word=" + encodeURIComponent(currentDetailWord) +
+          "&content=" + encodeURIComponent(reason || "")
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        alert("신고가 접수되었습니다.");
+      } else {
+        alert(res.message || "신고 접수에 실패했습니다.");
+      }
+    })
+    .catch(() => alert("신고 접수 중 오류가 발생했습니다."));
 });
 
 // 이전 단어로 이동 - 히스토리 인덱스만 앞으로 옮기고 fromHistory=true로 재오픈(중복기록 방지)
