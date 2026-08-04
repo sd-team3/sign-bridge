@@ -102,7 +102,7 @@ let wrongNo = 0;
 
 loadCamQuestion(0);
 updateCamProgress(1, totalCount);
-startTimer('cam-timer', 600, finishExam);
+startTimer('cam-timer', examSeconds, finishExam);
 
 function loadCamQuestion(idx) {
   const c = camBank[idx % camBank.length];
