@@ -29,7 +29,8 @@
     <!-- 컴포넌트 스캔 -->
     <context:component-scan base-package="com.soldesk.controller, 
                                           com.soldesk.service, 
-                                          com.soldesk.config" >
+                                          com.soldesk.config
+                                          com.soldesk.util" >
     </context:component-scan>
     <!-- 뷰 리졸버 설정 -->
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

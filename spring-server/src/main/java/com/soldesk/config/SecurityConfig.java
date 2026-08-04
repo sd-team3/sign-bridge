@@ -41,6 +41,7 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/member/info"),
                 new AntPathRequestMatcher("/member/update"),
                 new AntPathRequestMatcher("/member/delete"),
+                new AntPathRequestMatcher("/member/mypage"),
                 new AntPathRequestMatcher("/board/write"),
                 new AntPathRequestMatcher("/comment/update"),
                 new AntPathRequestMatcher("/comment/write"),

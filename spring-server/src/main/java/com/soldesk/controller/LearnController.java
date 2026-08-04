@@ -18,7 +18,6 @@ import com.soldesk.vo.SignWordVO;
 import com.soldesk.service.BoardService;
 
 import java.util.Map;
-import javax.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.PostMapping;
 import com.soldesk.service.AdminService;
 import org.springframework.security.core.Authentication;
