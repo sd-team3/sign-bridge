@@ -77,11 +77,12 @@
       </div>
     </sec:authorize>
     <sec:authorize access="isAuthenticated()">
+      <jsp:include page="notification/notification.jsp" />
       <form action="${ctx}/member/logout" method="post" style="display:inline; margin-left:12px;">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
         <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>
       </form>
-      <a href="${ctx}/member/info" class="active btn btn-primary btn-sm" style="margin-left:8px;">내 계정</a>
+      <a href="${ctx}/member/mypage" class="active btn btn-primary btn-sm" style="margin-left:8px;">내 계정</a>
     </sec:authorize>
   </div>
 </nav>

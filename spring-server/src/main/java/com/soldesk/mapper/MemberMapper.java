@@ -45,4 +45,9 @@ public interface MemberMapper {
     void suspendStatus(int memberId);
 
     void deleteMember(int memberId);
+
+    void updateMemberName(@Param("memberId") int memberId, @Param("memberName") String memberName);
+
+    void updatePassword(@Param("memberId") int memberId, @Param("encodedPassword") String encodedPassword);
+
 }

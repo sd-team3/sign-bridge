@@ -18,11 +18,12 @@
     <select id="findByCategory" resultMap="boardResultMap">
         select 
             b.board_id, b.board_title, b.board_content, b.category_idx, b.view_count,
-            b.notice_yn, b.reg_date, b.member_id, m.member_name, m.role,
+            b.notice_yn, b.reg_date, b.member_id, m.role,
+            COALESCE(m.member_name, '알 수 없음') as member_name, 
            (select count(*) from comment c 
             where c.board_id = b.board_id and c.del_yn = 'N') as comment_cnt
         from board b
-        join member m
+        left join member m 
         on b.member_id = m.member_id
         <where>
             <if test="category != null and category != ''">
@@ -53,16 +54,17 @@
         from board
     </select>
 
-    <insert id="insertBoard" parameterType="com.soldesk.vo.BoardVO">
+    <insert id="insertBoard" parameterType="com.soldesk.vo.BoardVO" useGeneratedKeys="true" keyProperty="boardId">
         insert into board (member_id, board_title, board_content, category_idx, notice_yn)
         values (#{memberId}, #{boardTitle}, #{boardContent}, #{categoryIdx}, #{noticeYn})
     </insert>
 
     <select id="selectBoardByBoardId" parameterType="int" resultMap="boardResultMap">
         select b.board_id, b.member_id, b.board_title, b.board_content, 
-            b.category_idx, b.view_count, b.reg_date, b.mod_date, m.member_name
+            b.category_idx, b.view_count, b.reg_date, b.mod_date, 
+            COALESCE(m.member_name, '알 수 없음') as member_name
         from board b
-        join member m
+        left join member m 
         on b.member_id = m.member_id
         where board_id = #{boardId}
     </select>
@@ -86,10 +88,34 @@
     <select id="findAllForIndex" resultMap="boardResultMap">
         select 
             b.board_id, b.member_id, b.board_title, b.board_content, b.category_idx, 
-            b.view_count, b.notice_yn, b.reg_date, b.mod_date, m.member_name
+            b.view_count, b.notice_yn, b.reg_date, b.mod_date, 
+            COALESCE(m.member_name, '알 수 없음') as member_name
         from board b
-        join member m
-        on b.member_id = m.member_id 
+        left join member m 
+        on b.member_id = m.member_id
         order by b.reg_date desc
+    </select>
+
+    <update id="nullifyMemberId" parameterType="int">
+        update board set member_id = null where member_id = #{memberId}
+    </update>
+
+    <select id="findByMemberId" resultMap="boardResultMap">
+        select b.board_id, b.board_title, b.category_idx, b.reg_date, b.view_count,
+            (select count(*) from comment c where c.board_id = b.board_id and c.del_yn = 'N') as comment_cnt
+        from board b
+        where b.member_id = #{memberId}
+        <if test="category != null and category != ''">
+            and b.category_idx = #{category}
+        </if>
+        order by b.reg_date desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="countByMemberId" resultType="int">
+        select count(*) from board where member_id = #{memberId}
+        <if test="category != null and category != ''">
+            and category_idx = #{category}
+        </if>
     </select>
 </mapper>
