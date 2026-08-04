@@ -21,14 +21,7 @@ public interface AdminMapper {
     int insertInquiry(@Param("memberId") Long memberId,
             @Param("category") String category,
             @Param("title") String title,
-            @Param("content") String content,
-            @Param("boardId") Integer boardId);
-
-    // 답변할 때 어느 게시글에 댓글 달아야 하는지 찾는 용도
-    Integer findBoardIdByInquiry(@Param("inquiryId") Long inquiryId);
-
-    // 사용자가 게시글 내용 수정하면 inquiry 쪽도 맞춰서 갱신
-    int updateInquiryContentByBoardId(@Param("boardId") int boardId, @Param("content") String content);
+            @Param("content") String content);
 
     // 오류 신고 미처리 개수
     int getErrorCount();

@@ -1,21 +1,17 @@
 package com.soldesk.service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class SseService {
     // 만약 알림이 더 필요하다면 밑에 Map을 repository 파일 만들어서 한꺼번에 저장 해야됨
     private Map<Integer, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>(); // id 별 emitter 보관
-    private final ObjectMapper objectMapper = new ObjectMapper();
     
     public SseEmitter subscribe(int id) {
         long timeout = 60L * 1000 * 60;
@@ -34,26 +30,20 @@ public class SseService {
     }
 
     public void sendToClient(int id, String eventName, Object message) {
-    SseEmitter sseEmitter = sseEmitterMap.get(id);
-    if (sseEmitter == null) {
-        return;
+        SseEmitter sseEmitter = sseEmitterMap.get(id);
+        // 널 예외 처리
+        if (sseEmitter == null) {
+            return;
+        }
+        try {
+            sseEmitter.send(
+                SseEmitter.event()
+                            .id(String.valueOf(id))
+                            .name(eventName)
+                            .data(message, MediaType.APPLICATION_JSON)
+            );
+        } catch (IOException e) {
+            sseEmitterMap.remove(id);
+        }
     }
-    try {
-        // message를 { "message": "..." } 형태의 Map/DTO로 감싼 뒤 직렬화
-        Map<String, Object> payload = new HashMap<>();
-        payload.put("message", message);
-
-        String json = objectMapper.writeValueAsString(payload);
-        System.out.println("5) json = " + json); // 정상이면 {"message":"테스트 알림입니다"} 형태로 찍혀야 함
-
-        sseEmitter.send(
-            SseEmitter.event()
-                        .id(String.valueOf(id))
-                        .name(eventName)
-                        .data(json, MediaType.valueOf("application/json;charset=UTF-8"))
-        );
-    } catch (IOException e) {
-        sseEmitterMap.remove(id);
-    }
-}
 }

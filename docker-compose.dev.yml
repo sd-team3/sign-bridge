@@ -11,21 +11,6 @@ services:
       - PYTHONUNBUFFERED=1
     networks:
       - app-network
-      
-  es-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.es-nori
-    image: es-with-nori:8.15.0
-    container_name: es-dev
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
-    networks:
-      - app-network
 
   # Java/pom.xml 변경을 감시해서 자동으로 mvn compile + 의존성 복사를 수행.
   # Tomcat 컨테이너와는 host 폴더(spring-server/target)를 통해서만 연결되고

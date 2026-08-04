@@ -25,45 +25,14 @@
 // ─────────────────────────────────────────────────────────
 
 const FRAME_INTERVAL_MS = 150; // 0.15초마다 서버에 전송 (그보다 자주 오는 프레임은 버림)
-const CLIENT_SESSION_STORAGE_KEY = "signbridge_client_session_id";
-
-/** 로컬스토리지에 저장된 클라이언트 세션 id를 가져오거나, 없으면 새로 만들어서 저장한다.
- *  recognition_confirm_log.client_session_id 컬럼용 - 로그인 여부와 무관하게
- *  "이 브라우저가 남긴 로그들"을 하나로 묶어서 추적하기 위한 값이다. */
-function getOrCreateClientSessionId() {
-  let id = localStorage.getItem(CLIENT_SESSION_STORAGE_KEY);
-  if (!id) {
-    id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    localStorage.setItem(CLIENT_SESSION_STORAGE_KEY, id);
-  }
-  return id;
-}
 
 export class SignInputSession {
   constructor({ apiBase = "", onUpdate = null, mirror = false } = {}) {
     this.apiBase = apiBase.replace(/\/$/, "");
     this.onUpdate = onUpdate;
     this.mirror = mirror;
-    this.clientSessionId = getOrCreateClientSessionId();
-    this.memberId = null; // /notification/me 응답으로 채워짐 (비로그인이면 null 유지)
     this._lastSentAt = 0;
     this._inFlight = false;
-
-    this._loadMemberId();
-  }
-
-  /** /notification/me를 호출해서 로그인한 회원 번호를 받아온다.
-   *  ⚠️ 응답 필드명이 { memberId: ... } 라고 가정했음 - 실제 응답 형태가 다르면
-   *  아래 data.memberId 부분만 맞게 고치면 됨. 비로그인/실패 시 memberId는 null로 유지. */
-  async _loadMemberId() {
-    try {
-      const res = await fetch(`${this.apiBase}/notification/me`, { credentials: "same-origin" });
-      if (!res.ok) return; // 비로그인 등으로 실패하면 memberId null 유지
-      const data = await res.json();
-      this.memberId = data.memberId ?? null;
-    } catch (err) {
-      console.warn("/notification/me 조회 실패 (비로그인이면 정상):", err);
-    }
   }
 
   /** hand-camera.js의 onFrame 콜백에 그대로 연결. landmarks가 null이면 아무것도 안 보냄. */
@@ -81,12 +50,7 @@ export class SignInputSession {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin", // 세션 쿠키 유지 (조합 상태가 세션에 저장되므로 필수)
-      body: JSON.stringify({
-        landmarks,
-        mirror: this.mirror,
-        clientSessionId: this.clientSessionId,
-        memberId: this.memberId,
-      }),
+      body: JSON.stringify({ landmarks, mirror: this.mirror }),
     })
       .then((res) => res.json())
       .then((data) => {

@@ -373,44 +373,12 @@ document.getElementById("detailReplayBtn").addEventListener("click", () => {
 // 현재 상세모달에 열려있는 단어 추적 (신고 시 word 파라미터로 사용)
 let currentDetailWord = null;
 
-// 오류신고 전용 모달 
+// 오류신고
 document.getElementById("detailReportBtn").addEventListener("click", () => {
   if (!currentDetailWord) return;
 
-  document.getElementById("reportTargetWord").innerHTML = "대상 단어: <b>" + currentDetailWord + "</b>";
-  document.getElementById("reportReasonInput").value = "";
-  // 신고 모달 다시 열 때마다 유형 선택 초기값으로 리셋
-  document.getElementById("reportCategorySelect").selectedIndex = 0;
-  document.getElementById("reportModal").showModal();
-});
-
-// 신고 접수 결과 안내 모달 표시 (성공/실패 공용)
-function showReportStatus(success, message) {
-  const iconEl = document.getElementById("reportStatusIcon");
-  const msgEl = document.getElementById("reportStatusMsg");
-  iconEl.textContent = success ? "✓" : "!";
-  iconEl.className = "report-status-icon" + (success ? "" : " error");
-  msgEl.textContent = message;
-  document.getElementById("reportStatusModal").showModal();
-}
-document.getElementById("reportStatusOkBtn").addEventListener("click", () => {
-  document.getElementById("reportStatusModal").close();
-});
-
-// 신고 모달 - 취소/닫기
-function closeReportModal() {
-  document.getElementById("reportModal").close();
-}
-document.getElementById("reportCancelBtn").addEventListener("click", closeReportModal);
-document.getElementById("reportCloseBtn").addEventListener("click", closeReportModal);
-
-// 신고 모달 - 접수 제출
-document.getElementById("reportSubmitBtn").addEventListener("click", () => {
-  if (!currentDetailWord) return;
-
-  const reason = document.getElementById("reportReasonInput").value.trim();
-  const category = document.getElementById("reportCategorySelect").value;
-  const submitBtn = document.getElementById("reportSubmitBtn");
+  const reason = prompt("신고 사유를 입력해주세요 (선택사항)");
+  if (reason === null) return; // 취소시 전송 안함
 
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
   const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
@@ -420,25 +388,21 @@ document.getElementById("reportSubmitBtn").addEventListener("click", () => {
     headers[csrfHeader] = csrfToken;
   }
 
-  submitBtn.disabled = true;
   fetch(CTX + "/learn/dict/report", {
     method: "POST",
     headers: headers,
     body: "word=" + encodeURIComponent(currentDetailWord) +
-          "&category=" + encodeURIComponent(category) +
-          "&content=" + encodeURIComponent(reason)
+          "&content=" + encodeURIComponent(reason || "")
   })
     .then(r => r.json())
     .then(res => {
       if (res.success) {
-        closeReportModal();
-        showReportStatus(true, "신고가 접수되었습니다.");
+        alert("신고가 접수되었습니다.");
       } else {
-        showReportStatus(false, res.message || "신고 접수에 실패했습니다.");
+        alert(res.message || "신고 접수에 실패했습니다.");
       }
     })
-    .catch(() => showReportStatus(false, "신고 접수 중 오류가 발생했습니다."))
-    .finally(() => { submitBtn.disabled = false; });
+    .catch(() => alert("신고 접수 중 오류가 발생했습니다."));
 });
 
 // 이전 단어로 이동 - 히스토리 인덱스만 앞으로 옮기고 fromHistory=true로 재오픈(중복기록 방지)
@@ -466,12 +430,13 @@ function renderRelatedWords(word) {
   const box = document.getElementById("detailRelated");
   box.innerHTML = "";
 
-  // 초성 상관없이 전체 단어 풀에서 완전 랜덤 (자기 자신만 제외)
-  const pool = ALL_WORDS.filter(w => w.signWordName !== word.signWordName);
-  const related = [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
+  const cho = firstChoseongOf(word.signWordName);
+  const related = ALL_WORDS
+    .filter(w => w.signWordName !== word.signWordName && firstChoseongOf(w.signWordName) === cho)
+    .slice(0, 2);
 
   if (related.length === 0) {
-    box.innerHTML = '<div class="cho-group-empty">더이상 단어가 없습니다</div>';
+    box.innerHTML = '<div class="cho-group-empty">관련 단어가 없습니다</div>';
     return;
   }
 

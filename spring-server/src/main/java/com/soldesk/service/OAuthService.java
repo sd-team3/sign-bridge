@@ -234,8 +234,8 @@ public class OAuthService {
             memberMapper.insertMemberOAuthMember(member);
         }
         UserDetails userDetails = memberUserDetailsService.loadUserByUsername(member.getMemberEmail());
-        UsernamePasswordAuthenticationToken auth = 
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails,
+                userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
         new HttpSessionSecurityContextRepository()
                 .saveContext(SecurityContextHolder.getContext(), request, response);

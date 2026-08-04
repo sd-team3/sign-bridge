@@ -25,10 +25,6 @@ public class MemberService {
     private MemberMapper memberMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    @Autowired
-    private CommentService commentService;
-    @Autowired
-    private BoardService boardService;
     @Autowired SuspendMapper suspendMapper;
     
     @Transactional
@@ -92,12 +88,6 @@ public class MemberService {
         checkAndReleaseIfExpired(member);
         return member;
     }
-    // ID로 특정 회원 정보 가져오기
-    @Transactional
-    public MemberVO getMemberById(int memberId) {
-        MemberVO member = memberMapper.findById(memberId);
-        return member;
-    }
 
     // 이메일로 특정 회원 찾기
     @Transactional
@@ -126,19 +116,6 @@ public class MemberService {
     // 멤버 삭제
     @Transactional
     public void deleteMember(int memberId) {
-        boardService.anonymizeMemberBoards(memberId);
-        commentService.anonymizeMemberComments(memberId);
         memberMapper.deleteMember(memberId);
     }
-
-    @Transactional
-    public void updateMemberName(int memberId, String memberName) {
-        memberMapper.updateMemberName(memberId, memberName);
-    }
-
-    @Transactional
-    public void updatePassword(int memberId, String encodedPassword) {
-        memberMapper.updatePassword(memberId, encodedPassword);
-    }
-
 }
