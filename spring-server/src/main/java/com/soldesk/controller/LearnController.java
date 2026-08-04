@@ -111,6 +111,7 @@ public class LearnController {
     @PostMapping("/dict/report")
     @ResponseBody
     public Map<String, Object> reportWord(@RequestParam("word") String word,
+            @RequestParam(value = "category", required = false, defaultValue = "기타") String category,
             @RequestParam(value = "content", required = false) String content,
             Authentication authentication) {
         if (authentication == null) {
@@ -124,7 +125,8 @@ public class LearnController {
         }
         Long memberId = (long) member.getMemberId();
 
-        String title = word + " 오류 신고";
+        // report.jsp와 동일한 규칙: 오류유형은 [ ], 대상 단어는 ( ) 로 구분
+        String title = "[" + category + "] (" + word + ") 오류 신고";
         String body = (content == null || content.isBlank())
                 ? "사용자가 해당 단어의 오류를 신고했습니다."
                 : content;

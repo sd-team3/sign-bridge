@@ -379,6 +379,8 @@ document.getElementById("detailReportBtn").addEventListener("click", () => {
 
   document.getElementById("reportTargetWord").innerHTML = "대상 단어: <b>" + currentDetailWord + "</b>";
   document.getElementById("reportReasonInput").value = "";
+  // 신고 모달 다시 열 때마다 유형 선택 초기값으로 리셋
+  document.getElementById("reportCategorySelect").selectedIndex = 0;
   document.getElementById("reportModal").showModal();
 });
 
@@ -407,6 +409,7 @@ document.getElementById("reportSubmitBtn").addEventListener("click", () => {
   if (!currentDetailWord) return;
 
   const reason = document.getElementById("reportReasonInput").value.trim();
+  const category = document.getElementById("reportCategorySelect").value;
   const submitBtn = document.getElementById("reportSubmitBtn");
 
   const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
@@ -422,6 +425,7 @@ document.getElementById("reportSubmitBtn").addEventListener("click", () => {
     method: "POST",
     headers: headers,
     body: "word=" + encodeURIComponent(currentDetailWord) +
+          "&category=" + encodeURIComponent(category) +
           "&content=" + encodeURIComponent(reason)
   })
     .then(r => r.json())
