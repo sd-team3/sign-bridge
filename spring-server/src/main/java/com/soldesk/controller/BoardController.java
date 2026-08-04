@@ -87,6 +87,12 @@ public class BoardController {
         return "board/write";
     }
 
+    // /board/report -> 오류신고 전용 작성 화면
+    @GetMapping("/report")
+    public String reportBoard() {
+        return "board/report";
+    }
+
     // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
     @PostMapping("/write")
     public String writeSubmit(@ModelAttribute BoardVO board) {
