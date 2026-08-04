@@ -31,7 +31,7 @@ import com.soldesk.vo.PageBean;
 @RequestMapping("/board")
 public class BoardController {
 
-    @Autowired 
+    @Autowired
     private MemberService memberService;
     @Autowired
     private BoardService boardService;
@@ -43,19 +43,22 @@ public class BoardController {
     private SecurityUtil securityUtil;
 
     @GetMapping("/list")
-    public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page, Model model) {
+    public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
+            Model model) {
         int boardCnt = boardService.getCategoryBoardCount(category);
         int count = 6;
         PageBean pageBean = new PageBean(page, boardCnt, count);
         List<BoardVO> list = boardService.getBoardByCategory(category, page, count);
 
         model.addAttribute("boards", list);
-        if(category != null) model.addAttribute("category", category);
+        if (category != null)
+            model.addAttribute("category", category);
         model.addAttribute("pageBean", pageBean);
 
         // 게시글 현황 출력용
         Map<String, Object> boardState = boardService.getBoardState();
-        if(boardState != null) model.addAllAttributes(boardState);
+        if (boardState != null)
+            model.addAllAttributes(boardState);
 
         return "board/list";
     }
@@ -65,6 +68,14 @@ public class BoardController {
         model.addAttribute("isAdmin", securityUtil.isAdmin());
         return "board/write";
     }
+
+    // /board/report -> 오류신고 전용 작성 화면
+    @GetMapping("/report")
+    public String reportBoard() {
+        return "board/report";
+    }
+
+    // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
     @PostMapping("/write")
     public String writeSubmit(@ModelAttribute BoardVO board) {
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -76,24 +87,36 @@ public class BoardController {
         }
         board.setMemberId(member.getMemberId());
         board.setNoticeYn(isNotice ? "N" : "Y");
-        boardService.writeBoard(board);
+        boardService.writeBoard(board); // 여기서 board.getBoardId()에 새 id 채워짐
+
+        // 오류신고 게시글이면 관리자 페이지에서도 확인할 수 있게 inquiry 같이 생성
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            adminService.createInquiry(
+                    (long) member.getMemberId(),
+                    "ERROR_REPORT",
+                    board.getBoardTitle(),
+                    board.getBoardContent(),
+                    board.getBoardId());
+        }
 
         String redirectUrl = "redirect:/board/list";
         return board.getCategoryIdx() != null ? redirectUrl + "?category=" + board.getCategoryIdx() : redirectUrl;
     }
 
     @GetMapping("/info")
-    public String infoBoard(@RequestParam int boardId, Model model, HttpServletRequest request, HttpServletResponse response) {
+    public String infoBoard(@RequestParam int boardId, Model model, HttpServletRequest request,
+            HttpServletResponse response) {
         Map<String, Object> boardState = boardService.getBoardState();
-        if(boardState != null) model.addAllAttributes(boardState);
+        if (boardState != null)
+            model.addAllAttributes(boardState);
 
         String cookieName = "viewed_" + boardId;
         boolean alreadyViewed = false;
 
         Cookie[] cookies = request.getCookies();
-        if(cookies != null) {
-            for(Cookie c: cookies) {
-                if(c.getName().equals(cookieName)) {
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if (c.getName().equals(cookieName)) {
                     alreadyViewed = true;
                     break;
                 }
@@ -104,7 +127,7 @@ public class BoardController {
             boardService.increaseViewCount(boardId);
 
             Cookie newCookie = new Cookie(cookieName, "true");
-            newCookie.setMaxAge(60*60*24); // 쿠키 만료 시간: 24시간
+            newCookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간: 24시간
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
@@ -122,6 +145,7 @@ public class BoardController {
         model.addAttribute("board", board);
         return "board/update";
     }
+
     @PostMapping("/update")
     public String updateSubmit(@ModelAttribute BoardVO board) {
         Integer currentMemberId = securityUtil.getCurrentMemberId();
@@ -155,13 +179,14 @@ public class BoardController {
 
     @GetMapping("/search")
     public String searchBoard(
-        @RequestParam(required = false) String keyword, 
-        @RequestParam(defaultValue = "1") int page, Model model) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page, Model model) {
 
         Map<String, Object> boardState = boardService.getBoardState();
-        if(boardState != null) model.addAllAttributes(boardState);
+        if (boardState != null)
+            model.addAllAttributes(boardState);
 
-        if(keyword == null || keyword.isBlank()) {
+        if (keyword == null || keyword.isBlank()) {
             model.addAttribute("keyword", "");
             return "board/list";
         }
@@ -169,7 +194,7 @@ public class BoardController {
         try {
             long searchCnt = boardSearchService.searchCount(searchKeyword);
             int count = 6;
-            PageBean pageBean = new PageBean(page, (int)searchCnt, count);
+            PageBean pageBean = new PageBean(page, (int) searchCnt, count);
             List<BoardVO> boards = boardSearchService.search(searchKeyword, page);
             model.addAttribute("boards", boards);
             model.addAttribute("keyword", keyword);

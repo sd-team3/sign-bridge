@@ -54,6 +54,7 @@
     </div>
     <a href="#">게시판</a>
     <sec:authorize access="isAuthenticated()">
+        <jsp:include page="../notification/notification.jsp" />
         <a href="${ctx}/member/mypage" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
     </sec:authorize>
 
@@ -61,4 +62,11 @@
         <a href="${ctx}/member/login" class="active btn btn-ghost btn-sm" style="margin-left:12px;">로그인</a>
     </sec:authorize>
     </nav>
+
+    <sec:authorize access="isAuthenticated()">
+      <script>
+          window.ctx = "${ctx}";
+      </script>
+      <script src="${ctx}/resources/js/notification.js"></script>
+    </sec:authorize>
 </header>

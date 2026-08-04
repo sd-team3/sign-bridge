@@ -1,9 +1,10 @@
 package com.soldesk.security;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,12 +34,11 @@ public class MemberUserDetailsService implements UserDetailsService {
 
         boolean enabled = !"SUSPEND".equals(member.getStatus()); 
 
-        return User.builder()
-            .username(member.getMemberEmail())
-            .password(member.getMemberPassword())
-            .roles(resolveRole(member.getRole()))
-            .disabled(!enabled)
-            .build();
+        return new CustomUserDetail(member.getMemberId(),
+                                    member.getMemberEmail(), 
+                                    member.getMemberPassword(), 
+                                    enabled, 
+                                    List.of(new SimpleGrantedAuthority("ROLE_" + resolveRole(member.getRole()))));
     }
 
     // 정지된 회원을 검사해서 풀어준다. 

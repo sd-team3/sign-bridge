@@ -77,6 +77,7 @@
       </div>
     </sec:authorize>
     <sec:authorize access="isAuthenticated()">
+      <jsp:include page="notification/notification.jsp" />
       <form action="${ctx}/member/logout" method="post" style="display:inline; margin-left:12px;">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
         <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>

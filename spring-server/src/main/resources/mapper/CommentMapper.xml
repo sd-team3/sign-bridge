@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.soldesk.mapper.CommentMapper">
+    
     <resultMap id="commentResultMap" type="com.soldesk.vo.CommentVO">
         <id column="comment_id" property="commentId" />
         <result column="comment_content" property="commentContent" />
@@ -12,20 +13,23 @@
         <result column="del_yn" property="delYn" />
         <result column="board_title" property="boardTitle" />
         <result column="reply_cnt" property="replyCnt" />
+        <result column="is_admin_answer" property="isAdminAnswer" />
     </resultMap>
+    <!-- 변경 -->
     <insert id="insertComment" parameterType="com.soldesk.vo.CommentVO" useGeneratedKeys="true" keyProperty="commentId">
-        insert into comment (comment_content, board_id, member_id, parent_comment_id)
-        values (#{commentContent}, #{boardId}, #{memberId}, #{parentCommentId})
+        insert into comment (comment_content, board_id, member_id, parent_comment_id, is_admin_answer)
+        values (#{commentContent}, #{boardId}, #{memberId}, #{parentCommentId}, #{isAdminAnswer})
     </insert>
     <select id="selectById" parameterType="int" resultMap="commentResultMap">
         select comment_id, comment_content, board_id, member_id, reg_date, parent_comment_id, del_yn
         from comment
         where comment_id = #{commentId}
     </select>
+    <!-- 변경 -->
     <select id="selectComments" parameterType="int" resultMap="commentResultMap">
         select 
             c.comment_id, c.comment_content, c.board_id, c.member_id, 
-            c.reg_date, c.parent_comment_id, c.del_yn,
+            c.reg_date, c.parent_comment_id, c.del_yn, c.is_admin_answer
             COALESCE(m.member_name, '알 수 없음') as member_name
         from comment c
         left join member m 
