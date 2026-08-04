@@ -29,11 +29,10 @@ import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
 import com.soldesk.vo.SignWordVO;
 
-
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    
+
     @Autowired
     private MemberService memberService;
 
@@ -48,7 +47,6 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
-
 
     @GetMapping("/main")
     public String dashboard(Model model, Authentication authentication) {
@@ -87,14 +85,13 @@ public class AdminController {
             @RequestParam(required = false) String filterType,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "newest") String sort,
-            Model model
-    ) {
+            Model model) {
         String role = null;
         String status = null;
-        
+
         if (filterType != null && filterType.contains(":")) {
             String[] parts = filterType.split(":", 2);
-            if("role".equals(parts[0])){
+            if ("role".equals(parts[0])) {
                 role = parts[1];
             } else if ("status".equals(parts[0])) {
                 status = parts[1];
@@ -105,7 +102,8 @@ public class AdminController {
         int pageSize = 10;
         int count = memberService.adminGetMemberCount(role, status, keyword);
         PageBean pageBean = new PageBean(page, count, pageSize);
-        List<MemberVO> members = memberService.getMemberList(pageBean.getCurrentPage(), pageSize, role, status, keyword, sort);
+        List<MemberVO> members = memberService.getMemberList(pageBean.getCurrentPage(), pageSize, role, status, keyword,
+                sort);
         model.addAttribute("pageBean", pageBean);
         model.addAttribute("userList", members);
         model.addAttribute("filterType", filterType);
@@ -114,20 +112,18 @@ public class AdminController {
 
     @GetMapping("/user/info")
     public String userInfo(Model model,
-                            @RequestParam int memberId
-    ) {
+            @RequestParam int memberId) {
         MemberVO member = memberService.getMemberInfo(memberId);
         model.addAttribute("member", member);
         return "admin/userInfo";
     }
-    
+
     @PostMapping("/user/stop")
     public String userStop(@RequestParam int memberId,
-                            @RequestParam String suspendDays,
-                            @RequestParam String reason,
-                            Authentication authentication
-    ) {
-        
+            @RequestParam String suspendDays,
+            @RequestParam String reason,
+            Authentication authentication) {
+
         String adminEmail = authentication.getName();
         MemberVO admin = memberService.getMemberByEmail(adminEmail);
         int adminId = admin.getMemberId();
@@ -142,15 +138,14 @@ public class AdminController {
     public String userDelete(@RequestParam int memberId) {
 
         memberService.deleteMember(memberId);
-        
+
         return "redirect:/admin/user/list";
     }
 
     @GetMapping("/word/update")
     public String wordList(Model model,
-                            @RequestParam(defaultValue = "1") int page,
-                            @RequestParam(required = false) String keyword
-    ) {
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(required = false) String keyword) {
         int pageSize = 20;
         int count = learnService.getWordCount(keyword);
         PageBean pageBean = new PageBean(page, count, pageSize);
@@ -163,7 +158,7 @@ public class AdminController {
 
     @GetMapping("/word/info")
     public String wordInfo(Model model,
-                            @RequestParam int signWordId) {
+            @RequestParam int signWordId) {
         SignWordVO word = learnService.getDictWordDetailById(signWordId);
         model.addAttribute("word", word);
 
@@ -172,24 +167,20 @@ public class AdminController {
 
     @PostMapping("/word/update")
     public String wordUpdate(@RequestParam int signWordId,
-                            @RequestParam String signWordName, 
-                            @RequestParam String choseong, 
-                            @RequestParam String signWordVideo, 
-                            @RequestParam String signWordThumbnail, 
-                            @RequestParam String description
-    ) {
+            @RequestParam String signWordName,
+            @RequestParam String choseong,
+            @RequestParam String signWordVideo,
+            @RequestParam String signWordThumbnail,
+            @RequestParam String description) {
         learnService.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
         return "redirect:/admin/word/info?signWordId=" + signWordId;
     }
 
     @GetMapping("/inquiry")
-    public String inquiryForm(@RequestParam(value = "category",
-                                            required = false,
-                                            defaultValue = "ERROR_REPORT") String category,
-                               @RequestParam(value = "status",
-                                            required = false,
-                                            defaultValue = "WAIT") String status,
-                               Model model) {
+    public String inquiryForm(
+            @RequestParam(value = "category", required = false, defaultValue = "ERROR_REPORT") String category,
+            @RequestParam(value = "status", required = false, defaultValue = "WAIT") String status,
+            Model model) {
 
         List<InquiryVO> inquiryList = adminService.getInquiryList(category, status);
         int waitCount = adminService.getStatusCount(category, "WAIT");
@@ -206,9 +197,10 @@ public class AdminController {
     @PostMapping("/inquiry/answer")
     @ResponseBody
     public Map<String, Object> submitAnswer(@RequestBody AnswerRequest request,
-                                             HttpSession session) {
-        Long adminMemberId = (Long) session.getAttribute("memberId");
-        int sendToUserId = (int)adminService.findUserIdByInquiry(request.getInquiryId());
+            Authentication authentication) {
+        MemberVO admin = memberService.getMemberByEmail(authentication.getName());
+        Long adminMemberId = (long) admin.getMemberId();
+        int sendToUserId = (int) adminService.findUserIdByInquiry(request.getInquiryId());
         boolean result = adminService.answerInquiry(
                 request.getInquiryId(), request.getAnswerContent(), adminMemberId, sendToUserId);
         return Map.of("success", result);

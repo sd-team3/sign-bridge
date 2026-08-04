@@ -60,10 +60,19 @@
         WHERE inquiry_id = #{inquiryId}
     </update>
 
+    <!-- 어류신고 -->
     <insert id="insertInquiry">
-        INSERT INTO inquiry (member_id, category, title, content, status, reg_date)
-        VALUES (#{memberId}, #{category}, #{title}, #{content}, 'WAIT', NOW())
+        INSERT INTO inquiry (member_id, category, title, content, status, reg_date, board_id)
+        VALUES (#{memberId}, #{category}, #{title}, #{content}, 'WAIT', NOW(), #{boardId})
     </insert>
+
+    <select id="findBoardIdByInquiry" resultType="java.lang.Integer">
+        SELECT board_id FROM inquiry WHERE inquiry_id = #{inquiryId}
+    </select>
+
+    <update id="updateInquiryContentByBoardId">
+        UPDATE inquiry SET content = #{content} WHERE board_id = #{boardId}
+    </update>
     <!-- 오류 신고 미처리 개수 -->
     <select id="getErrorCount" resultType="int">
         select count(*)

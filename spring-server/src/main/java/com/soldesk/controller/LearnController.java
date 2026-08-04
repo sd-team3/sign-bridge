@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.soldesk.service.LearnService;
 import com.soldesk.vo.SignWordVO;
+import com.soldesk.service.BoardService;
 
 import java.util.Map;
 import javax.servlet.http.HttpSession;
@@ -24,6 +25,7 @@ import org.springframework.security.core.Authentication;
 
 import com.soldesk.service.MemberService;
 import com.soldesk.vo.MemberVO;
+import com.soldesk.vo.BoardVO;
 
 @Controller
 @RequestMapping("/learn")
@@ -37,6 +39,9 @@ public class LearnController {
 
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private BoardService boardService;
 
     @GetMapping("")
     public String main(Model model) {
@@ -102,7 +107,7 @@ public class LearnController {
         learnService.proxyVideo(url, response);
     }
 
-    // dict 상세 모달에서 오류 신고 접수
+    // dict 상세 모달에서 오류 신고 접수 -> inquiry(관리자 확인용) + board(공개 게시판) 둘 다 등록
     @PostMapping("/dict/report")
     @ResponseBody
     public Map<String, Object> reportWord(@RequestParam("word") String word,
@@ -124,8 +129,18 @@ public class LearnController {
                 ? "사용자가 해당 단어의 오류를 신고했습니다."
                 : content;
 
-        boolean result = adminService.createInquiry(memberId, "ERROR_REPORT", title, body);
-        return Map.of("success", result);
+        // board 먼저 만들고 생성된 boardId를 inquiry에 같이 넣어서 서로 연결시킴
+        BoardVO board = new BoardVO();
+        board.setMemberId(member.getMemberId());
+        board.setCategoryIdx("REPORT");
+        board.setBoardTitle(title);
+        board.setBoardContent(body);
+        board.setNoticeYn("Y");
+        boardService.writeBoard(board); // board.getBoardId()에 생성된 id 채워짐
+
+        adminService.createInquiry(memberId, "ERROR_REPORT", title, body, board.getBoardId());
+
+        return Map.of("success", true);
     }
 
 }
