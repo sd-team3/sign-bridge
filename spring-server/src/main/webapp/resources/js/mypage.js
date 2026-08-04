@@ -1,7 +1,82 @@
+const loadedTabs = { myposts: false, mycomments: false };
+const filterState = { myposts: '', mycomments: '' };
+const categoryLabel = { FREE: '자유', QNA: '질문', INFO: '정보', REPORT: '신고', NOTICE: '공지' };
+
 function mpTab(name) {
+  if (name === 'myposts' && !loadedTabs.myposts) loadMyPosts(1);
+  if (name === 'mycomments' && !loadedTabs.mycomments) loadMyComments(1);
   document.querySelectorAll('.mp-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.mp-panel').forEach(p => p.classList.toggle('active', p.id === 'mp-panel-' + name));
 }
+
+function loadMyPosts(page) {
+    fetch(`/member/mypage/board?page=${page}&category=${filterState.myposts}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            loadedTabs.myposts = true;
+            const wrap = document.querySelector('#mp-panel-myposts .mp-list-wrap');
+            wrap.innerHTML = data.boards.length ? data.boards.map(b => `
+                <div class="mp-post-row">
+                    <a class="mp-post-row-title" href="/board/info?boardId=${b.boardId}">${b.boardTitle}</a>
+                    <span class="mp-post-row-cat">${categoryLabel[b.categoryIdx] || b.categoryIdx}</span>
+                    <span class="mp-post-row-cnt">${b.commentCnt}</span>
+                    <span class="mp-post-row-date">${formatDate(b.regDate)}</span>
+                </div>
+            `).join('') : '<div class="mp-list-empty">작성한 게시글이 없습니다.</div>';
+            renderPagination('#mp-panel-myposts .pagination', data.currentPage, data.totalPages, loadMyPosts);
+        });
+}
+
+function loadMyComments(page) {
+    fetch(`/member/mypage/comment?page=${page}&category=${filterState.mycomments}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            loadedTabs.mycomments = true;
+            const wrap = document.querySelector('#mp-panel-mycomments .mp-list-wrap');
+            wrap.innerHTML = data.comments.length ? data.comments.map(c => `
+                <div class="mp-comment-row">
+                    <span class="mp-comment-row-content">${c.commentContent}</span>
+                    <span class="mp-comment-row-reply">${c.replyCnt}</span>
+                    <a class="mp-comment-row-board" href="/board/info?boardId=${c.boardId}">${c.boardTitle}</a>
+                </div>
+            `).join('') : '<div class="mp-list-empty">작성한 댓글이 없습니다.</div>';
+            renderPagination('#mp-panel-mycomments .pagination', data.currentPage, data.totalPages, loadMyComments);
+        });
+}
+
+function renderPagination(selector, current, total, loadFn) {
+    const el = document.querySelector(selector);
+    let html = '';
+    for (let i = 1; i <= total; i++) {
+        html += `<button class="page-btn ${i === current ? 'active' : ''}" data-page="${i}">${i}</button>`;
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => loadFn(Number(btn.dataset.page)));
+    });
+}
+
+function formatDate(arr) {
+    if (!Array.isArray(arr)) return arr;
+    const [y, m, d, h, min] = arr;
+    return `${y}.${String(m).padStart(2,'0')}.${String(d).padStart(2,'0')} ${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+}
+
+// myposts/mycomments 카테고리 필터칩
+document.querySelectorAll('.mp-filter-row[data-scope]').forEach(row => {
+  const scope = row.dataset.scope;
+  row.querySelectorAll('.mp-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      row.querySelectorAll('.mp-filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      filterState[scope] = chip.dataset.category;
+      if (scope === 'myposts') loadMyPosts(1);
+      if (scope === 'mycomments') loadMyComments(1);
+    });
+  });
+});
 
 // 필터 칩: 같은 .mp-filter-row 안에서만 active 토글 (탭이 여러 개라 전역으로 묶으면 서로 간섭함)
 document.querySelectorAll('.mp-filter-row').forEach(row => {
@@ -161,3 +236,4 @@ if (deleteBtn) {
     }
   });
 }
+

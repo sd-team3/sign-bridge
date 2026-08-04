@@ -1,6 +1,8 @@
 package com.soldesk.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,5 +79,18 @@ public class CommentService {
     @Transactional
     public void anonymizeMemberComments(int memberId) {
         commentMapper.nullifyMemberId(memberId);
+    }
+    @Transactional
+    public Map<String, Object> getCommentsByMember(int memberId, String category, int page) {
+        int pageSize = 10;
+        int start = (page - 1) * pageSize;
+        List<CommentVO> comments = commentMapper.findByMemberId(memberId, category, start, pageSize);
+        int totalCount = commentMapper.countByMemberId(memberId, category);
+        Map<String, Object> result = new HashMap<>();
+        result.put("comments", comments);
+        result.put("totalCount", totalCount);
+        result.put("totalPages", (int) Math.ceil((double) totalCount / pageSize));
+        result.put("currentPage", page);
+        return result;
     }
 }

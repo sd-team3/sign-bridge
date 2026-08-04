@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.soldesk.service.BoardService;
+import com.soldesk.service.CommentService;
 import com.soldesk.service.MemberService;
 import com.soldesk.util.SecurityUtil;
 import com.soldesk.vo.MemberVO;
@@ -32,6 +34,10 @@ public class MemberController {
     private SecurityUtil securityUtil;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private BoardService boardService;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/join")
     public String join(@ModelAttribute("joinMember") MemberVO member) {
@@ -139,6 +145,30 @@ public class MemberController {
         request.getSession().invalidate();
         SecurityContextHolder.clearContext();
         
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/board")
+    @ResponseBody
+    public Map<String, Object> myPosts(@RequestParam(defaultValue = "1") int page,
+                                        @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = boardService.getBoardsByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/comment")
+    @ResponseBody
+    public Map<String, Object> myComments(@RequestParam(defaultValue = "1") int page,
+                                        @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = commentService.getCommentsByMember(memberId, category, page);
         result.put("success", true);
         return result;
     }

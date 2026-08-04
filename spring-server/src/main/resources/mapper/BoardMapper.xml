@@ -99,4 +99,23 @@
     <update id="nullifyMemberId" parameterType="int">
         update board set member_id = null where member_id = #{memberId}
     </update>
+
+    <select id="findByMemberId" resultMap="boardResultMap">
+        select b.board_id, b.board_title, b.category_idx, b.reg_date, b.view_count,
+            (select count(*) from comment c where c.board_id = b.board_id and c.del_yn = 'N') as comment_cnt
+        from board b
+        where b.member_id = #{memberId}
+        <if test="category != null and category != ''">
+            and b.category_idx = #{category}
+        </if>
+        order by b.reg_date desc
+        limit #{start}, #{limit}
+    </select>
+
+    <select id="countByMemberId" resultType="int">
+        select count(*) from board where member_id = #{memberId}
+        <if test="category != null and category != ''">
+            and category_idx = #{category}
+        </if>
+    </select>
 </mapper>

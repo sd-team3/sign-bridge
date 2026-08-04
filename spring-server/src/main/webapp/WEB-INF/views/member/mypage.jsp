@@ -50,6 +50,8 @@
       <button class="mp-tab" data-tab="history" onclick="mpTab('history')">학습 기록</button>
       <button class="mp-tab" data-tab="wrongnote" onclick="mpTab('wrongnote')">오답노트</button>
       <button class="mp-tab" data-tab="badges" onclick="mpTab('badges')">뱃지</button>
+      <button class="mp-tab" data-tab="myposts" onclick="mpTab('myposts')">게시글 관리</button>
+      <button class="mp-tab" data-tab="mycomments" onclick="mpTab('mycomments')">댓글 관리</button>
       <button class="mp-tab" data-tab="settings" onclick="mpTab('settings')">계정 설정</button>
     </div>
 
@@ -178,6 +180,40 @@
           <div class="mp-badge-card locked"><div class="mp-badge-icon">🏆</div><div class="mp-badge-name">올스타</div><div class="mp-badge-desc">모든 뱃지 획득</div></div>
         </div>
       </div>
+    </div>
+    
+    <!-- 게시글 관리 -->
+    <div class="mp-panel" id="mp-panel-myposts">
+      <div class="mp-card">
+        <div class="mp-filter-row" data-scope="myposts">
+          <button class="mp-filter-chip active" data-category="">전체</button>
+          <button class="mp-filter-chip" data-category="FREE">자유</button>
+          <button class="mp-filter-chip" data-category="QNA">질문</button>
+          <button class="mp-filter-chip" data-category="INFO">정보</button>
+          <button class="mp-filter-chip" data-category="REPORT">신고</button>
+          <button class="mp-filter-chip" data-category="NOTICE">공지</button>
+        </div>
+        <div class="mp-post-table-head"><div>제목</div><div>카테고리</div><div>댓글</div><div>작성일</div></div>
+        <div class="mp-list-wrap"></div>
+      </div>
+      <div class="pagination"></div>
+    </div>
+
+    <!-- 댓글 관리 -->
+    <div class="mp-panel" id="mp-panel-mycomments">
+      <div class="mp-card">
+        <div class="mp-filter-row" data-scope="mycomments">
+          <button class="mp-filter-chip active" data-category="">전체</button>
+          <button class="mp-filter-chip" data-category="FREE">자유</button>
+          <button class="mp-filter-chip" data-category="QNA">질문</button>
+          <button class="mp-filter-chip" data-category="INFO">정보</button>
+          <button class="mp-filter-chip" data-category="REPORT">신고</button>
+          <button class="mp-filter-chip" data-category="NOTICE">공지</button>
+        </div>
+        <div class="mp-comment-table-head"><div>내용</div><div>답글</div><div>게시글</div></div>
+        <div class="mp-list-wrap"></div>
+      </div>
+      <div class="pagination"></div>
     </div>
 
     <!-- 계정 설정 -->
