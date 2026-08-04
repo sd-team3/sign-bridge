@@ -87,7 +87,8 @@ document.getElementById('reportForm').addEventListener('submit', function () {
   const titleEl = document.getElementById('title');
 
   let prefix = '[' + category + ']';
-  if (word) prefix += ' [' + word + ']';
+  if (word) prefix += ' (' + word + ')';
+
 
   titleEl.value = prefix + ' ' + titleEl.value;
 });

@@ -154,6 +154,13 @@
     <button class="report-modal-close" id="reportCloseBtn">✕</button>
     <div class="report-modal-title">⚠ 오류 신고</div>
     <div class="report-modal-word" id="reportTargetWord"></div>
+    <select id="reportCategorySelect" class="form-input">
+    <option>동작 인식 오류</option>
+    <option>영상 재생 오류</option>
+    <option>번역 · 뜻풀이 오류</option>
+    <option>화면 · 디자인 오류</option>
+    <option>기타</option>
+  </select>
     <textarea id="reportReasonInput" class="report-reason-input" placeholder="어떤 부분이 잘못됐는지 알려주세요 (선택사항)"></textarea>
     <div class="report-modal-btns">
       <button class="btn btn-ghost btn-sm" id="reportCancelBtn">취소</button>
