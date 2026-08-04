@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.soldesk.service.AdminService;
 import com.soldesk.service.BoardSearchService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.BoardService;
@@ -41,6 +42,8 @@ public class BoardController {
     private CommentService commentService;
     @Autowired
     private SecurityUtil securityUtil;
+    @Autowired
+    private AdminService adminService;
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,

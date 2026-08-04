@@ -67,12 +67,7 @@ public class BoardService {
         boardMapper.increaseViewCount(boardId);
     }
     
-    @Transactional
-    public void updateBoard(BoardVO board) {
-        boardMapper.updateBoard(board);
-        BoardVO indexBoard = boardMapper.selectBoardByBoardId(board.getBoardId());
-        boardSearchService.indexBoard(indexBoard);
-    }
+
 
     @Transactional
     public void deleteBoard(int boardId) {
