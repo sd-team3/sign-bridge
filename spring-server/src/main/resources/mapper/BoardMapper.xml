@@ -53,7 +53,7 @@
         from board
     </select>
 
-    <insert id="insertBoard" parameterType="com.soldesk.vo.BoardVO">
+    <insert id="insertBoard" parameterType="com.soldesk.vo.BoardVO" useGeneratedKeys="true" keyProperty="boardId">
         insert into board (member_id, board_title, board_content, category_idx, notice_yn)
         values (#{memberId}, #{boardTitle}, #{boardContent}, #{categoryIdx}, #{noticeYn})
     </insert>

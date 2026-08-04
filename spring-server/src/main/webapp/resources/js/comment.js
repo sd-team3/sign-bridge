@@ -57,18 +57,22 @@
     `;
   }
 
+  // 관리자 답변이면 이름 대신 "관리자"로 표시 + 뱃지 클래스 부여
   function buildCommentHtml(comment, replies) {
     const isDeleted = comment.delYn === 'Y';
+    const isAdmin = comment.isAdminAnswer === 'Y';
     const canDelete = !isDeleted && isLoggedIn && currentMemberId === comment.memberId;
     const content = isDeleted ? '삭제된 댓글입니다.' : escapeHtml(comment.commentContent);
+    const authorName = isAdmin ? '관리자' : comment.memberName;
     const replyFormId = `reply-form-${comment.commentId}`;
     const repliesHtml = replies.map(buildReplyHtml).join('');
 
     return `
-      <div class="comment-item" data-comment-id="${comment.commentId}">
+      <div class="comment-item${isAdmin ? ' comment-admin' : ''}" data-comment-id="${comment.commentId}">
         <div class="comment-item-header">
-          <div class="comment-avatar">${escapeHtml(avatarChar(comment.memberName))}</div>
-          <span class="comment-author">${escapeHtml(comment.memberName)}</span>
+          <div class="comment-avatar">${escapeHtml(avatarChar(authorName))}</div>
+          <span class="comment-author">${escapeHtml(authorName)}</span>
+          ${isAdmin ? '<span class="comment-admin-badge">ADMIN</span>' : ''}
           <span class="comment-time">${escapeHtml(comment.formattedRegDate)}</span>
         </div>
         <div class="comment-body${isDeleted ? ' comment-deleted' : ''}">${content}</div>
