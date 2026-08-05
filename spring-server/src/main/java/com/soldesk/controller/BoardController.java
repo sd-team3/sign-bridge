@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.soldesk.service.AdminService;
+import com.soldesk.service.BoardErrorReportService;
 import com.soldesk.service.BoardSearchService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.BoardService;
@@ -44,6 +45,8 @@ public class BoardController {
     private SecurityUtil securityUtil;
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private BoardErrorReportService boardErrorReportService;
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
@@ -71,16 +74,13 @@ public class BoardController {
         model.addAttribute("isAdmin", securityUtil.isAdmin());
         return "board/write";
     }
-
-    // /board/report -> 오류신고 전용 작성 화면
-    @GetMapping("/report")
-    public String reportBoard() {
-        return "board/report";
-    }
-
+    
     // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
     @PostMapping("/write")
-    public String writeSubmit(@ModelAttribute BoardVO board) {
+    public String writeSubmit(@ModelAttribute BoardVO board, 
+        @RequestParam(required = false) String errorType, 
+        @RequestParam(required = false) String relatedWord) {
+
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         MemberVO member = memberService.getMemberByEmail(memberEmail);
 
@@ -94,6 +94,9 @@ public class BoardController {
 
         // 오류신고 게시글이면 관리자 페이지에서도 확인할 수 있게 inquiry 같이 생성
         if ("REPORT".equals(board.getCategoryIdx())) {
+            // 오류 정보(오류 유형, 관련 단어/기능) 저장
+            boardErrorReportService.insertError(board.getBoardId(), errorType, relatedWord);
+
             adminService.createInquiry(
                     (long) member.getMemberId(),
                     "ERROR_REPORT",
