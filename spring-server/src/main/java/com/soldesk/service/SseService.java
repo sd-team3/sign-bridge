@@ -1,7 +1,6 @@
 package com.soldesk.service;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,12 +38,10 @@ public class SseService {
         return;
     }
     try {
-        // message를 { "message": "..." } 형태의 Map/DTO로 감싼 뒤 직렬화
         Map<String, Object> payload = new HashMap<>();
         payload.put("message", message);
 
         String json = objectMapper.writeValueAsString(payload);
-        System.out.println("5) json = " + json); // 정상이면 {"message":"테스트 알림입니다"} 형태로 찍혀야 함
 
         sseEmitter.send(
             SseEmitter.event()

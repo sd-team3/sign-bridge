@@ -46,10 +46,14 @@ public class AdminService {
             commentService.insertComment(comment);
         }
 
+        String linkUrl = (boardId != null) ? "/board/info?boardId=" + boardId : null;
+
         notificationService.notifyUser(
                 sendToUserId,
                 "문의 처리 알림",
-                "처리 완료되었습니다. 글을 확인해주세요");
+                "처리 완료되었습니다",
+                linkUrl,
+                "INQUIRY");
 
         return result > 0;
     }
