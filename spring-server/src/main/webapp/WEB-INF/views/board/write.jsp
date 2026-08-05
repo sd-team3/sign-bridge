@@ -39,6 +39,21 @@
             </select>
           </div>
 
+          <div class="form-group report-extra-fields" id="reportExtraFields" style="display:none;">
+            <label class="form-label" for="errorType">오류 유형</label>
+            <select id="errorType" name="errorType" class="form-input">
+              <option value="ACTION_RECOGNITION">동작 인식 오류</option>
+              <option value="VIDEO_PLAYBACK">영상 재생 오류</option>
+              <option value="TRANSLATION">번역 · 뜻풀이 오류</option>
+              <option value="UI_BUG">화면 · 디자인 오류</option>
+              <option value="ETC">기타</option>
+            </select>
+
+            <label class="form-label" for="relatedWord" style="margin-top:14px;">관련 단어 / 기능</label>
+            <input type="text" id="relatedWord" name="relatedWord" class="form-input" placeholder="예: 감사합니다, 자음 지문자 학습 등">
+            <div class="form-hint">문제가 발생한 학습 페이지나 단어를 적어주시면 확인이 빨라져요.</div>
+          </div>
+
           <div class="form-group">
             <label class="form-label" for="title">제목</label>
             <input type="text" class="form-input" id="title" name="boardTitle" maxlength="80" placeholder="제목을 입력하세요" required>
@@ -149,6 +164,19 @@ updateCount();
 //   uploadZone.classList.remove('dragover');
 //   addFiles(e.dataTransfer.files);
 // });
+
+const categorySelect = document.getElementById('category');
+const reportExtraFields = document.getElementById('reportExtraFields');
+const errorTypeSelect = document.getElementById('errorType');
+
+function toggleReportFields() {
+  const isReport = categorySelect.value === 'REPORT';
+  reportExtraFields.style.display = isReport ? 'block' : 'none';
+  errorTypeSelect.required = isReport; // REPORT일 때만 필수 처리
+}
+
+categorySelect.addEventListener('change', toggleReportFields);
+toggleReportFields();
 
 </script>
 
