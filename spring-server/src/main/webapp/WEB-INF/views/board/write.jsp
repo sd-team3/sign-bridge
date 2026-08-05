@@ -27,18 +27,18 @@
           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
           <div class="form-group">
             <label class="form-label" for="category">카테고리</label>
-            <select class="form-input" id="category" name="categoryIdx" required>
-              <option value="" disabled selected>카테고리를 선택하세요</option>
-              <c:if test="${isAdmin}">
-                <option value="NOTICE">공지</option>
-              </c:if>
-              <option value="QNA">질문</option>
-              <option value="FREE">자유</option>
-              <option value="INFO">정보</option>
-              <option value="REPORT">오류 신고</option>
-            </select>
+              <select class="form-input" id="category" name="categoryIdx" required>
+                <option value="" ${empty param.category ? 'selected' : ''} disabled>카테고리를 선택하세요</option>
+                <c:if test="${isAdmin}">
+                  <option value="NOTICE" ${param.category == 'NOTICE' ? 'selected' : ''}>공지</option>
+                </c:if>
+                <option value="QNA" ${param.category == 'QNA' ? 'selected' : ''}>질문</option>
+                <option value="FREE" ${param.category == 'FREE' ? 'selected' : ''}>자유</option>
+                <option value="INFO" ${param.category == 'INFO' ? 'selected' : ''}>정보</option>
+                <option value="REPORT" ${param.category == 'REPORT' ? 'selected' : ''}>오류 신고</option>
+              </select>
           </div>
-
+          <!-- 신고 카테고리 한정 -->
           <div class="form-group report-extra-fields" id="reportExtraFields" style="display:none;">
             <label class="form-label" for="errorType">오류 유형</label>
             <select id="errorType" name="errorType" class="form-input">

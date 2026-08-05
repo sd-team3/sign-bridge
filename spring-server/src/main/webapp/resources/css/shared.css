@@ -258,6 +258,11 @@ body.page-register .auth-box{max-width:480px} /* auth_register.html: 폼이 더 
 .comment-empty{padding:30px 18px;text-align:center;font-size:13px;font-weight:600;color:var(--text-muted);background:var(--surface);border-radius:var(--radius)}
 .comment-deleted{color: var(--text-muted, #888);font-style: italic;}
 .back-row{margin-top:24px;display:flex;justify-content:center}
+.report-detail-box{margin:0 0 24px;padding:18px 22px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius)}
+.report-detail-row{display:flex;gap:14px;padding:8px 0;font-size:14px}
+.report-detail-row:not(:last-child){border-bottom:1.5px solid var(--border)}
+.report-detail-row span:first-child{flex-shrink:0;width:110px;font-weight:800;color:var(--text-sub)}
+.report-detail-row span:last-child{color:var(--text);font-weight:600}
 
 /* ========================================================================
    board_write.html / board_edit.html 공통
