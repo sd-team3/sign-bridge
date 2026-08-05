@@ -1,11 +1,15 @@
 package com.soldesk.mapper;
 
-import org.apache.ibatis.annotations.Param;
+import java.util.List;
+
+import com.soldesk.vo.NotificationVO;
 
 public interface NotificationMapper {
 
-    void notifyUser(@Param("userId") int userId, 
-                     @Param("title") String title, 
-                     @Param("content") String content);
+    void notifyUser(NotificationVO vo);
+
+    List<NotificationVO> notiList(int memberId);
+
+    void isRead(int notificationId);
 
 }

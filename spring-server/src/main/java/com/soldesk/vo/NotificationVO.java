@@ -3,32 +3,32 @@ package com.soldesk.vo;
 import java.time.LocalDateTime;
 
 public class NotificationVO {
-    int notification_id;
-    int member_id;
-    String notification_type;
+    int notificationId;
+    int memberId;
+    String notificationType;
     String title;
     String content; 
-    String link_url;
-    char is_read;
-    LocalDateTime reg_date;
-    LocalDateTime read_date;
-    public int getNotification_id() {
-        return notification_id;
+    String linkUrl;
+    char isRead;
+    LocalDateTime regDate;
+    LocalDateTime readDate;
+    public int getNotificationId() {
+        return notificationId;
     }
-    public void setNotification_id(int notification_id) {
-        this.notification_id = notification_id;
+    public void setNotificationId(int notificationId) {
+        this.notificationId = notificationId;
     }
-    public int getMember_id() {
-        return member_id;
+    public int getMemberId() {
+        return memberId;
     }
-    public void setMember_id(int member_id) {
-        this.member_id = member_id;
+    public void setMemberId(int memberId) {
+        this.memberId = memberId;
     }
-    public String getNotification_type() {
-        return notification_type;
+    public String getNotificationType() {
+        return notificationType;
     }
-    public void setNotification_type(String notification_type) {
-        this.notification_type = notification_type;
+    public void setNotificationType(String notificationType) {
+        this.notificationType = notificationType;
     }
     public String getTitle() {
         return title;
@@ -42,30 +42,31 @@ public class NotificationVO {
     public void setContent(String content) {
         this.content = content;
     }
-    public String getLink_url() {
-        return link_url;
+    public String getLinkUrl() {
+        return linkUrl;
     }
-    public void setLink_url(String link_url) {
-        this.link_url = link_url;
+    public void setLinkUrl(String linkUrl) {
+        this.linkUrl = linkUrl;
     }
-    public char getIs_read() {
-        return is_read;
+    public char getIsRead() {
+        return isRead;
     }
-    public void setIs_read(char is_read) {
-        this.is_read = is_read;
+    public void setIsRead(char isRead) {
+        this.isRead = isRead;
     }
-    public LocalDateTime getReg_date() {
-        return reg_date;
+    public LocalDateTime getRegDate() {
+        return regDate;
     }
-    public void setReg_date(LocalDateTime reg_date) {
-        this.reg_date = reg_date;
+    public void setRegDate(LocalDateTime regDate) {
+        this.regDate = regDate;
     }
-    public LocalDateTime getRead_date() {
-        return read_date;
+    public LocalDateTime getReadDate() {
+        return readDate;
     }
-    public void setRead_date(LocalDateTime read_date) {
-        this.read_date = read_date;
+    public void setReadDate(LocalDateTime readDate) {
+        this.readDate = readDate;
     }
+    
 
     
 }
