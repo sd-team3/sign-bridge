@@ -35,12 +35,18 @@ public class SecurityConfig {
             .requestMatchers( // 어드민 접근 영역
                 new AntPathRequestMatcher("/admin/**")
             ).hasRole("ADMIN")
+            .requestMatchers(
+                new AntPathRequestMatcher("/comment/list")
+            ).permitAll()
             .requestMatchers( // 로그인 시 접근 영역
                 new AntPathRequestMatcher("/member/info"),
                 new AntPathRequestMatcher("/member/update"),
                 new AntPathRequestMatcher("/member/delete"),
+                new AntPathRequestMatcher("/member/mypage"),
                 new AntPathRequestMatcher("/board/write"),
-                new AntPathRequestMatcher("/comment/**")
+                new AntPathRequestMatcher("/comment/update"),
+                new AntPathRequestMatcher("/comment/write"),
+                new AntPathRequestMatcher("/comment/delete")
             ).authenticated().anyRequest().permitAll()
         ).formLogin(form -> form
             .loginPage("/member/login")
