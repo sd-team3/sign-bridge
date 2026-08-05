@@ -34,4 +34,10 @@ public interface SignWordMapper {
                     @Param("signWordThumbnail") String signWordThumbnail,
                     @Param("description") String description
     );
+
+    // 시험 문제 랜덤 출제
+    List<SignWordVO> findRandomList(@Param("count") int count);
+
+    // 시험 객관식 오답 보기
+    List<SignWordVO> findRandomChoices(@Param("excludeId") long excludeId, @Param("limit") int limit);
 }

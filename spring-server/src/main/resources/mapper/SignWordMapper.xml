@@ -108,4 +108,27 @@
         where sign_word_id = #{signWordId}
     </update>
 
+    <select id="findRandomList" resultType="com.soldesk.vo.SignWordVO">
+        select
+            sign_word_id as signWordId,
+            sign_word_name as signWordName,
+            sign_word_video as signWordVideo,
+            sign_word_thumbnail as signWordThumbnail
+        from sign_word
+        where sign_word_name not like '%,%'
+        order by rand()
+        limit #{count}
+    </select>
+
+    <select id="findRandomChoices" resultType="com.soldesk.vo.SignWordVO">
+        select
+            sign_word_id as signWordId,
+            sign_word_name as signWordName
+        from sign_word
+        where sign_word_id != #{excludeId}
+          and sign_word_name not like '%,%'
+        order by rand()
+        limit #{limit}
+    </select>
+
 </mapper>

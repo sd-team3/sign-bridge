@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.ExamMapper">
+
+    <insert id="insertSession" parameterType="com.soldesk.vo.TestSessionVO"
+            useGeneratedKeys="true" keyProperty="testSessionId" keyColumn="test_session_id">
+        insert into test_session (
+            member_id, test_session_type, num_of_question, started_date
+        ) values (
+            #{memberId}, #{testSessionType}, #{numOfQuestion}, now()
+        )
+    </insert>
+
+    <update id="updateSessionResult">
+        update test_session
+        set correct_count = #{correctCount},
+            score = #{score},
+            ended_date = now()
+        where test_session_id = #{testSessionId}
+    </update>
+
+    <select id="selectSession" resultType="com.soldesk.vo.TestSessionVO">
+        select
+            test_session_id as testSessionId,
+            member_id as memberId,
+            test_session_type as testSessionType,
+            num_of_question as numOfQuestion,
+            correct_count as correctCount,
+            score as score,
+            started_date as startedDate,
+            ended_date as endedDate
+        from test_session
+        where test_session_id = #{testSessionId}
+    </select>
+
+    <insert id="insertAnswer" parameterType="com.soldesk.vo.TestSessionDetailVO">
+        insert into test_session_detail (
+            test_session_id, sign_word_id, question_no, user_answer, is_correct, answer_date
+        ) values (
+            #{testSessionId}, #{signWordId}, #{questionNo}, #{userAnswer}, #{isCorrect}, now()
+        )
+    </insert>
+
+    <select id="selectWrongAnswers" resultType="com.soldesk.vo.WrongAnswerVO">
+        select
+            d.question_no as questionNo,
+            w.sign_word_name as signWordName,
+            d.user_answer as userAnswer
+        from test_session_detail d
+        join sign_word w on w.sign_word_id = d.sign_word_id
+        where d.test_session_id = #{testSessionId}
+          and d.is_correct = 'N'
+        order by d.question_no
+    </select>
+
+</mapper>

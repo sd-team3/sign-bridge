@@ -141,19 +141,41 @@ function updateSummary() {
   document.getElementById('summary-mode').textContent = labels[mode];
   document.getElementById('summary-count').textContent = mode === 'both' ? `각 \${totalCount / 2}문제` : `\${totalCount}문제`;
   document.getElementById('summary-pass').textContent = `합격 기준 \${passScore}점`;
-  document.getElementById('both-note').style.display = mode === 'both' ? 'inline' : 'none';
 }
 
 function startExam() {
   const mode = document.querySelector('input[name="exam-mode"]:checked').value;
   const extra = `&pass=\${passScore}&time=\${examMinutes}`;
-  if (mode === 'choice') {
-    location.href = '/exam/choice?count=' + totalCount + extra;
-  } else if (mode === 'motion') {
-    location.href = '/exam/motion?count=' + totalCount + extra;
-  } else {
-    location.href = '/exam/choice?mode=both&count=' + totalCount + extra;
-  }
+
+  const formData = new URLSearchParams();
+  formData.append('mode', mode);
+  formData.append('count', totalCount);
+
+  fetch('/exam/api/start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        alert('로그인이 필요합니다.');
+        location.href = '/member/login';
+        return;
+      }
+      const sessionId = data.sessionId;
+      if (mode === 'choice') {
+        location.href = '/exam/choice?sessionId=' + sessionId + '&count=' + totalCount + extra;
+      } else if (mode === 'motion') {
+        location.href = '/exam/motion?sessionId=' + sessionId + '&count=' + totalCount + extra;
+      } else {
+        location.href = '/exam/choice?sessionId=' + sessionId + '&mode=both&count=' + totalCount + extra;
+      }
+    })
+    .catch(err => {
+      console.error('시험 시작 실패', err);
+      alert('시험을 시작하지 못했습니다. 잠시 후 다시 시도해주세요.');
+    });
 }
 </script>
 </body>
