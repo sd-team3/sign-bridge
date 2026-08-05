@@ -7,7 +7,7 @@ public class CommentVO {
     private int commentId;
     private String commentContent;
     private int boardId;
-    private int memberId;
+    private Integer memberId;
     private Integer parentCommentId;
     private LocalDateTime regDate;
     private String delYn;
@@ -71,6 +71,23 @@ public class CommentVO {
         this.memberName = memberName;
     }
 
+   private String boardTitle;
+
+   // 자식 댓글 개수 저장용
+   private String replyCnt;
+
+   public String getReplyCnt() {
+    return replyCnt;
+}
+   public void setReplyCnt(String replyCnt) {
+    this.replyCnt = replyCnt;
+   }
+   public String getBoardTitle() {
+    return boardTitle;
+    }
+   public void setBoardTitle(String boardTitle) {
+    this.boardTitle = boardTitle;
+   }
     public String getFormattedRegDate() {
         if (regDate == null)
             return "";

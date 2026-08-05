@@ -1,5 +1,6 @@
 package com.soldesk.service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,9 +66,30 @@ public class BoardService {
     public void increaseViewCount(int boardId) {
         boardMapper.increaseViewCount(boardId);
     }
+    
+
 
     @Transactional
     public void deleteBoard(int boardId) {
         boardMapper.deleteBoard(boardId);
+    }
+
+    @Transactional
+    public void anonymizeMemberBoards(int memberId) {
+        boardMapper.nullifyMemberId(memberId);
+    }
+
+    @Transactional
+    public Map<String, Object> getBoardsByMember(int memberId, String category, int page) {
+        int pageSize = 10;
+        int start = (page - 1) * pageSize;
+        List<BoardVO> boards = boardMapper.findByMemberId(memberId, category, start, pageSize);
+        int totalCount = boardMapper.countByMemberId(memberId, category);
+        Map<String, Object> result = new HashMap<>();
+        result.put("boards", boards);
+        result.put("totalCount", totalCount);
+        result.put("totalPages", (int) Math.ceil((double) totalCount / pageSize));
+        result.put("currentPage", page);
+        return result;
     }
 }

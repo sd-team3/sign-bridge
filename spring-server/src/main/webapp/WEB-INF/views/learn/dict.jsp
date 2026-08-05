@@ -148,6 +148,36 @@
   </div>
 </dialog>
 
+<!-- 오류 신고 모달 -->
+<dialog id="reportModal" class="report-modal">
+  <div class="report-modal-inner">
+    <button class="report-modal-close" id="reportCloseBtn">✕</button>
+    <div class="report-modal-title">⚠ 오류 신고</div>
+    <div class="report-modal-word" id="reportTargetWord"></div>
+    <select id="reportCategorySelect" class="form-input">
+    <option>동작 인식 오류</option>
+    <option>영상 재생 오류</option>
+    <option>번역 · 뜻풀이 오류</option>
+    <option>화면 · 디자인 오류</option>
+    <option>기타</option>
+  </select>
+    <textarea id="reportReasonInput" class="report-reason-input" placeholder="어떤 부분이 잘못됐는지 알려주세요 (선택사항)"></textarea>
+    <div class="report-modal-btns">
+      <button class="btn btn-ghost btn-sm" id="reportCancelBtn">취소</button>
+      <button class="btn btn-danger btn-sm" id="reportSubmitBtn">신고 접수</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- 신고 접수 결과 안내 모달 (성공/실패 공용) -->
+<dialog id="reportStatusModal" class="report-status-modal">
+  <div class="report-status-inner">
+    <div class="report-status-icon" id="reportStatusIcon">✓</div>
+    <div class="report-status-msg" id="reportStatusMsg"></div>
+    <button class="btn btn-primary btn-sm" id="reportStatusOkBtn">확인</button>
+  </div>
+</dialog>
+
 <script>
 const CTX = "${pageContext.request.contextPath}";
 </script>
