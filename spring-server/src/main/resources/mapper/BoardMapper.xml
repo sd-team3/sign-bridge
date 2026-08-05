@@ -46,6 +46,13 @@
         </where> 
     </select>
 
+    <!-- 오늘 추가된 게시판 개수 -->
+    <select id="countTodayBoard" resultType="int">
+        SELECT COUNT(*) 
+        FROM member 
+        WHERE DATE(reg_date) = CURDATE();
+    </select>
+
     <select id="getBoardStats" resultType="map">
         select count(*) as allBoardCnt,
             sum(case when category_idx = 'NOTICE' then 1 else 0 end) as noticeBoardCnt,
@@ -122,4 +129,5 @@
             and category_idx = #{category}
         </if>
     </select>
+
 </mapper>
