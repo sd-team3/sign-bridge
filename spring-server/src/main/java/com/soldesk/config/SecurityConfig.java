@@ -25,7 +25,8 @@ public class SecurityConfig {
         HttpSecurity http, DaoAuthenticationProvider authenticationProvider) throws Exception {
         http.csrf(csrf -> csrf
             .ignoringRequestMatchers(
-                new AntPathRequestMatcher("/api/sign/**")
+                new AntPathRequestMatcher("/api/sign/**"),
+                new AntPathRequestMatcher("/exam/api/**")
             )
         ).authorizeHttpRequests(auth -> auth
             .requestMatchers(
@@ -41,6 +42,7 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/member/info"),
                 new AntPathRequestMatcher("/member/update"),
                 new AntPathRequestMatcher("/member/delete"),
+                new AntPathRequestMatcher("/member/mypage"),
                 new AntPathRequestMatcher("/board/write"),
                 new AntPathRequestMatcher("/comment/update"),
                 new AntPathRequestMatcher("/comment/write"),

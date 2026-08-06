@@ -81,28 +81,40 @@
 <script>
 const params = new URLSearchParams(location.search);
 const examMode = params.get('mode');
+const sessionId = params.get('sessionId');
 const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
 const timeParam = parseInt(params.get('time'), 10);
 const examSeconds = isNaN(timeParam) ? 600 : timeParam * 60;
-const camBank = [
-  { word:'구급차', emoji:'🚑', category:'비상 어휘' },
-  { word:'소방서', emoji:'🚒', category:'비상 어휘' },
-  { word:'병원', emoji:'🏥', category:'기초 어휘' },
-  { word:'경찰서', emoji:'🚓', category:'비상 어휘' }
-];
+const prevQuizCorrect = parseInt(params.get('quizCorrect'), 10) || 0;
+const prevQuizWrong = parseInt(params.get('quizWrong'), 10) || 0;
 
+let camBank = [];
 let timerInterval = null;
 let camIndex = 0;
-let camCorrectCount = 0, camWrongCount = 0;
+let camCorrectCount = prevQuizCorrect, camWrongCount = prevQuizWrong;
 let camConfidences = [];
 let wrongList = [];
 let wrongNo = 0;
 
-loadCamQuestion(0);
-updateCamProgress(1, totalCount);
-startTimer('cam-timer', 600, finishExam);
+fetch(`/exam/api/questions?sessionId=\${sessionId}&phase=motion`)
+  .then(res => res.json())
+  .then(list => {
+    camBank = (list || []).map(w => ({
+      signWordId: w.signWordId,
+      word: w.word,
+      emoji: '🖐️'
+    }));
+    document.getElementById('cam-correct').textContent = camCorrectCount;
+    document.getElementById('cam-wrong').textContent = camWrongCount;
+    loadCamQuestion(0);
+    updateCamProgress(1, totalCount);
+    startTimer('cam-timer', examSeconds, finishExam);
+  })
+  .catch(err => {
+    console.error('문제 로드 실패', err);
+  });
 
 function loadCamQuestion(idx) {
   const c = camBank[idx % camBank.length];
@@ -158,16 +170,53 @@ function submitCam() {
     wrongList.push({ no: ++wrongNo, word: c.word, type: 'cam', userAnswer: composed, correctAnswer: c.word });
   }
 
+  saveAnswer(c, camIndex, composed, isCorrect);
+
   camIndex++;
   if (camIndex >= totalCount) { finishExam(); return; }
-  loadCamQuestion(camIndex); // 내부에서 resetCamResult() 호출됨
+  loadCamQuestion(camIndex);
   updateCamProgress(camIndex + 1, totalCount);
+}
+
+function saveAnswer(c, questionNo, userAnswer, isCorrect) {
+  const body = new URLSearchParams();
+  body.append('signWordId', c.signWordId);
+  body.append('questionNo', questionNo + 1);
+  body.append('userAnswer', userAnswer);
+  body.append('isCorrect', isCorrect);
+
+  fetch(`/exam/api/\${sessionId}/answer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  }).catch(err => console.error('답안 저장 실패', err));
 }
 
 function finishExam() {
   clearInterval(timerInterval);
-  // 채점 결과를 결과 페이지로 넘기는 로직은 추후 연결 예정
-  location.href = '/exam/result';
+
+  const params = new URLSearchParams(location.search);
+  const isBoth = params.get('mode') === 'both';
+  const body = new URLSearchParams();
+  body.append('correctCount', camCorrectCount);
+  body.append('totalCount', total);
+
+  fetch(`/exam/api/\${sessionId}/finish`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  })
+    .then(() => {
+      const passParam = params.get('pass');
+      location.href = '/exam/result?sessionId=' + sessionId
+        + (passParam ? '&pass=' + passParam : '');
+    })
+    .catch(err => {
+      console.error('시험 종료 처리 실패', err);
+      const passParam = params.get('pass');
+      location.href = '/exam/result?sessionId=' + sessionId
+        + (passParam ? '&pass=' + passParam : '');
+    });
 }
 </script>
 </body>

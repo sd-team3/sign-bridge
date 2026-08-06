@@ -1,18 +1,28 @@
 package com.soldesk.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.soldesk.mapper.BoardMapper;
 import com.soldesk.mapper.CommentMapper;
+import com.soldesk.vo.BoardVO;
 import com.soldesk.vo.CommentVO;
 
 @Service
 public class CommentService {
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private BoardMapper boardMapper;
+
+    @Autowired
+    private NotificationService notificationService;
     
     @Transactional
     public void insertComment(CommentVO comment) {
@@ -23,7 +33,20 @@ public class CommentService {
             } 
         }
         commentMapper.insertComment(comment);
+
+        if (!"Y".equals(comment.getIsAdminAnswer())) {
+            BoardVO board = boardMapper.selectBoardByBoardId(comment.getBoardId());
+            int sendToUserId = board.getMemberId();
+            String linkUrl = "/board/info?boardId=" + board.getBoardId();
+
+            notificationService.notifyUser(
+                sendToUserId, "댓글 알림", 
+                comment.getCommentContent(), 
+                linkUrl, 
+                "COMMENT");
+        }   
     }
+
     @Transactional(readOnly = true)
     public CommentVO getComment(int commentId) {
         return commentMapper.selectById(commentId);
@@ -73,5 +96,22 @@ public class CommentService {
     public void deleteAllCommentsByBoardId(int boardId) {
         commentMapper.deleteAllRepliesByBoardId(boardId);
         commentMapper.deleteAllRootCommentsByBoardId(boardId);
+    }
+    @Transactional
+    public void anonymizeMemberComments(int memberId) {
+        commentMapper.nullifyMemberId(memberId);
+    }
+    @Transactional
+    public Map<String, Object> getCommentsByMember(int memberId, String category, int page) {
+        int pageSize = 10;
+        int start = (page - 1) * pageSize;
+        List<CommentVO> comments = commentMapper.findByMemberId(memberId, category, start, pageSize);
+        int totalCount = commentMapper.countByMemberId(memberId, category);
+        Map<String, Object> result = new HashMap<>();
+        result.put("comments", comments);
+        result.put("totalCount", totalCount);
+        result.put("totalPages", (int) Math.ceil((double) totalCount / pageSize));
+        result.put("currentPage", page);
+        return result;
     }
 }

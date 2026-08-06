@@ -77,14 +77,13 @@
 
 <jsp:include page="../includes/footer.jsp" />
 
-<script src="/resources/js/quizBank.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const examMode = params.get('mode');
+const sessionId = params.get('sessionId');
 const countParam = parseInt(params.get('count'), 10);
 const total = isNaN(countParam) ? 10 : countParam;
 const totalCount = examMode === 'both' ? Math.ceil(total / 2) : total;
-const objectiveCount = Math.ceil(totalCount / 2);
 const timeParam = parseInt(params.get('time'), 10);
 const examSeconds = isNaN(timeParam) ? 600 : timeParam * 60;
 
@@ -95,20 +94,28 @@ let quizCorrectCount = 0, quizWrongCount = 0;
 let wrongList = [];
 let wrongNo = 0;
 let dictWords = [];
+let quizBank = [];
 
-fetch('/learn/dict/search')
-  .then(res => res.json())
-  .then(list => { 
-    dictWords = list || []; 
-    loadQuizQuestion(0); // 사전 로드 끝나고 첫 문제 표시
+Promise.all([
+  fetch('/learn/dict/search').then(res => res.json()),
+  fetch(`/exam/api/questions?sessionId=\${sessionId}&phase=choice`).then(res => res.json())
+])
+  .then(([dictList, questions]) => {
+    dictWords = dictList || [];
+    quizBank = (questions || []).map(q => ({
+      signWordId: q.signWordId,
+      word: q.word,
+      type: q.type,
+      choices: q.choices || [],
+      correct: q.choices ? q.choices.indexOf(q.word) : -1
+    }));
+    loadQuizQuestion(0);
+    updateQuizProgress(1, totalCount);
+    startTimer('quiz-timer', examSeconds, endQuizPhase);
   })
   .catch(err => {
-    console.error('단어 사전 로드 실패', err);
-    loadQuizQuestion(0); // 실패해도 시험은 진행되게
+    console.error('문제 로드 실패', err);
   });
-
-updateQuizProgress(1, totalCount);
-startTimer('quiz-timer', examSeconds, endQuizPhase);
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
@@ -129,7 +136,7 @@ function loadQuizQuestion(idx) {
   fallbackEl.style.display = 'block';
 }
 
-  const isSubjective = idx >= objectiveCount;
+  const isSubjective = q.type === 'subjective';
 
   document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
   document.getElementById('subjective-area').style.display = isSubjective ? 'block' : 'none';
@@ -179,7 +186,9 @@ function selectChoice(btn, idx) {
   const q = quizBank[quizIndex % quizBank.length];
   document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
   const fb = document.getElementById('quiz-feedback');
-  if (idx === q.correct) {
+  const isCorrect = idx === q.correct;
+
+  if (isCorrect) {
     btn.classList.add('correct');
     fb.className = 'feedback-box show ok';
     fb.textContent = '✅ 정답입니다!';
@@ -193,6 +202,8 @@ function selectChoice(btn, idx) {
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
     wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', userAnswer: q.choices[idx], correctAnswer: q.word });
   }
+
+  saveAnswer(q, quizIndex, q.choices[idx], isCorrect);
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
 
@@ -203,6 +214,7 @@ function submitSubjective() {
   const q = quizBank[quizIndex % quizBank.length];
   const correct = val === q.word;
   const fb = document.getElementById('quiz-feedback');
+
   if (correct) {
     fb.className = 'feedback-box show ok';
     fb.textContent = '✅ 정답입니다!';
@@ -215,6 +227,8 @@ function submitSubjective() {
     document.getElementById('quiz-wrong').textContent = quizWrongCount;
     wrongList.push({ no: ++wrongNo, word: q.word, type: 'quiz', userAnswer: val, correctAnswer: q.word });
   }
+
+  saveAnswer(q, quizIndex, val, correct);
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
 
@@ -231,15 +245,53 @@ function nextQuizQuestion() {
 function endQuizPhase() {
   clearInterval(timerInterval);
   const params = new URLSearchParams(location.search);
-  if (params.get('mode') === 'both') {
+  const isBoth = params.get('mode') === 'both';
+
+  if (isBoth) {
     const passParam = params.get('pass');
     const timeParam2 = params.get('time');
-    location.href = '/exam/motion?mode=both&count=' + total
+    location.href = '/exam/motion?mode=both&sessionId=' + sessionId + '&count=' + total
+      + '&quizCorrect=' + quizCorrectCount
+      + '&quizWrong=' + quizWrongCount
       + (passParam ? '&pass=' + passParam : '')
       + (timeParam2 ? '&time=' + timeParam2 : '');
-  } else {
-    location.href = '/exam/result';
+    return;
   }
+
+  const body = new URLSearchParams();
+  body.append('correctCount', quizCorrectCount);
+  body.append('totalCount', totalCount);
+
+  fetch(`/exam/api/\${sessionId}/finish`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  })
+    .then(() => {
+      const passParam = params.get('pass');
+      location.href = '/exam/result?sessionId=' + sessionId
+        + (passParam ? '&pass=' + passParam : '');
+    })
+    .catch(err => {
+      console.error('시험 종료 처리 실패', err);
+      const passParam = params.get('pass');
+      location.href = '/exam/result?sessionId=' + sessionId
+        + (passParam ? '&pass=' + passParam : '');
+    });
+}
+
+function saveAnswer(q, questionNo, userAnswer, isCorrect) {
+  const body = new URLSearchParams();
+  body.append('signWordId', q.signWordId);
+  body.append('questionNo', questionNo + 1);
+  body.append('userAnswer', userAnswer);
+  body.append('isCorrect', isCorrect);
+
+  fetch(`/exam/api/\${sessionId}/answer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body
+  }).catch(err => console.error('답안 저장 실패', err));
 }
 </script>
 </body>

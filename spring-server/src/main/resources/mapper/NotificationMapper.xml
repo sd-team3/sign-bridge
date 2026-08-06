@@ -3,9 +3,37 @@
 
 <mapper namespace="com.soldesk.mapper.NotificationMapper">
 
-    <insert id="notifyUser">
-        insert into notification (member_id, notification_type, title, content)
-        values (#{userId}, 'inquiry', #{title}, #{content})
+    <resultMap id="notificationResultMap" type="com.soldesk.vo.NotificationVO">
+        <id     property="notificationId"   column="notification_id" />
+        <result property="memberId"         column="member_id" />
+        <result property="notificationType" column="notification_type" />
+        <result property="title"            column="title" />
+        <result property="content"          column="content" />
+        <result property="linkUrl"          column="link_url" />
+        <result property="isRead"           column="is_read" />
+        <result property="regDate"          column="reg_date" />
+        <result property="readDate"         column="read_date" />
+    </resultMap>
+
+    <insert id="notifyUser" parameterType="com.soldesk.vo.NotificationVO"
+        useGeneratedKeys="true" keyProperty="notificationId" keyColumn="notification_id">
+        INSERT INTO notification (member_id, notification_type, title, content, link_url, is_read, reg_date)
+        VALUES (#{memberId}, #{notificationType}, #{title}, #{content}, #{linkUrl}, 'N', NOW())
     </insert>
 
+    <select id="notiList" parameterType="int" resultMap="notificationResultMap">
+        SELECT notification_id, member_id, notification_type, title, content,
+            link_url, is_read, reg_date, read_date
+        FROM notification
+        WHERE member_id = #{memberId}
+        AND is_read = 'N'
+        ORDER BY reg_date DESC
+    </select>
+
+    <update id="isRead" parameterType="int">
+        UPDATE notification
+        SET is_read = 'Y',
+            read_date = NOW()
+        WHERE notification_id = #{notificationId}
+    </update>
 </mapper>

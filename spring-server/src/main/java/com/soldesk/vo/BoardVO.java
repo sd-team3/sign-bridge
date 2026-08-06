@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class BoardVO {
     private int boardId;
-    private int memberId;	
+    private Integer memberId;	
     private String boardTitle;
     private String boardContent;
     private String categoryIdx; // 게시판 유형 (enum: BoardType, NOTICE/FREE/INFO/QNA/REPORT) - 조회 시 이 값으로 필터링
@@ -20,6 +20,21 @@ public class BoardVO {
     private int commentCnt;
     private String memberName;
 
+    private String errorType;   // 오류 유형 (enum 관리: ACTION_RECOGNITION 등)
+    private String relatedWord; // 오류 관련 단어 / 기능
+
+    public String getErrorType() {
+        return errorType;
+    }
+    public void setErrorType(String errorType) {
+        this.errorType = errorType;
+    }
+    public String getRelatedWord() {
+        return relatedWord;
+    }
+    public void setRelatedWord(String relatedWord) {
+        this.relatedWord = relatedWord;
+    }
     public String getMemberName() {
         return memberName;
     }
@@ -32,10 +47,10 @@ public class BoardVO {
     public void setBoardId(int boardId) {
         this.boardId = boardId;
     }
-    public int getMemberId() {
+    public Integer getMemberId() {
         return memberId;
     }
-    public void setMemberId(int memberId) {
+    public void setMemberId(Integer memberId) {
         this.memberId = memberId;
     }
     public String getBoardTitle() {

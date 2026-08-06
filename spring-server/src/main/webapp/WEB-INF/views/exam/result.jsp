@@ -17,45 +17,48 @@
 <main>
   <div class="container page-body">
 
-    <div class="result-hero">
-      <div class="result-icon" id="r-icon">🎉</div>
-      <div class="result-verdict pass" id="r-verdict">합격</div>
-      <div class="result-sub" id="r-sub">기준 점수(70점)를 넘었어요. 잘 하셨습니다!</div>
-    </div>
+    <c:set var="passScore" value="${empty param.pass ? 70 : param.pass}" />
+    <c:set var="isPass" value="${session.score >= passScore}" />
+
+        <div class="result-hero">
+          <div class="result-icon" id="r-icon">${isPass ? '🎉' : '😢'}</div>
+          <div class="result-verdict ${isPass ? 'pass' : 'fail'}" id="r-verdict">${isPass ? '합격' : '불합격'}</div>
+          <div class="result-sub" id="r-sub">
+            <c:choose>
+              <c:when test="${isPass}">${passScore}점을 넘었어요. 합격입니다!</c:when>
+              <c:otherwise>${passScore}점에 도달하지 못했어요. 다시 도전해보세요!</c:otherwise>
+            </c:choose>
+          </div>
+        </div>
 
     <div class="result-stats">
-      <div class="result-stat"><div class="num" id="r-score">82점</div><div class="lbl">최종 점수</div></div>
-      <div class="result-stat"><div class="num" id="r-correct">8 / 10</div><div class="lbl">정답 수</div></div>
-      <div class="result-stat warn"><div class="num" id="r-acc">91%</div><div class="lbl">평균 인식 정확도</div></div>
-      <div class="result-stat danger"><div class="num" id="r-wrong">2</div><div class="lbl">틀린 문제</div></div>
+      <div class="result-stat"><div class="num" id="r-score">${session.score}점</div><div class="lbl">최종 점수</div></div>
+      <div class="result-stat"><div class="num" id="r-correct">${session.correctCount} / ${session.numOfQuestion}</div><div class="lbl">정답 수</div></div>
+      <div class="result-stat danger"><div class="num" id="r-wrong">${session.numOfQuestion - session.correctCount}</div><div class="lbl">틀린 문제</div></div>
     </div>
 
+    <c:if test="${not empty wrongList}">
     <div class="wrong-list-card">
       <h3>⚠️ 틀린 단어 목록</h3>
       <table class="wrong-table">
         <thead>
           <tr>
-            <th>#</th><th>단어</th><th>유형</th><th>내 답 → 정답</th><th></th>
+            <th>#</th><th>단어</th><th>내 답 → 정답</th><th></th>
           </tr>
         </thead>
         <tbody id="wrong-tbody">
+          <c:forEach items="${wrongList}" var="w">
           <tr>
-            <td style="color:var(--text-sub); font-size:14px;">3번</td>
-            <td style="font-size:17px; font-weight:900;">🌍 지진</td>
-            <td><span class="wrong-badge quiz">객관식</span></td>
-            <td style="font-size:14px;"><span style="color:var(--danger);">대피소</span> → <span style="color:var(--primary);">지진</span></td>
-            <td><a href="learn_word_detail.html" class="retry-tag">다시 학습</a></td>
+            <td style="color:var(--text-sub); font-size:14px;">${w.questionNo}번</td>
+            <td style="font-size:17px; font-weight:900;">${w.signWordName}</td>
+            <td style="font-size:14px;"><span style="color:var(--danger);">${w.userAnswer}</span> → <span style="color:var(--primary);">${w.signWordName}</span></td>
+            <td><a href="/learn/dict/detail?word=${w.signWordName}" class="retry-tag">다시 학습</a></td>
           </tr>
-          <tr>
-            <td style="color:var(--text-sub); font-size:14px;">7번</td>
-            <td style="font-size:17px; font-weight:900;">🚒 소방서</td>
-            <td><span class="wrong-badge cam">수어 인식</span></td>
-            <td style="font-size:14px;"><span style="color:var(--danger);">인식 실패</span> → <span style="color:var(--primary);">소방서</span></td>
-            <td><a href="learn_word_detail.html" class="retry-tag">다시 학습</a></td>
-          </tr>
+          </c:forEach>
         </tbody>
       </table>
     </div>
+    </c:if>
 
     <div class="result-actions">
       <a href="/" class="btn btn-ghost btn-lg">⚙️ 메인으로 돌아가기</a>

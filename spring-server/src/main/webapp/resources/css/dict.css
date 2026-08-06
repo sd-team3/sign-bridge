@@ -120,8 +120,51 @@
 }
   .cam-wrap video, .cam-wrap canvas { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
   .cam-result { font-size:26px; font-weight:800; text-align:center; margin:14px 0; min-height:36px; }
-  .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
-  
+ .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
+ /* 오류 신고 모달 - cam-modal/detail-modal과 톤 맞춤 */
+  .report-modal {
+    border:none; border-radius:20px; padding:0; max-width:420px; width:90vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+  .report-modal::backdrop { background:rgba(0,0,0,.55); }
+  .report-modal-inner { padding:24px; position:relative; }
+  .report-modal-close { position:absolute; top:14px; right:14px; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; color:var(--text-sub); }
+  .report-modal-title { font-weight:800; font-size:16px; color:#b23b3b; margin-bottom:6px; padding-right:24px; }
+  .report-modal-word { font-size:13px; color:var(--text-sub); margin-bottom:14px; }
+  .report-modal-word b { color:#333; font-weight:700; }
+  .report-reason-input {
+    width:100%; min-height:100px; resize:vertical; box-sizing:border-box;
+    border:1px solid #e2c4c4; border-radius:10px; padding:12px 14px;
+    font-size:14px; font-family:inherit; color:#333;
+    background:#fff5f5; outline:none;
+  }
+  .report-reason-input:focus { border-color:#d99; }
+  .report-modal-btns { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+  /* 신고 접수 결과 안내 모달 */
+  .report-status-modal {
+    border:none; border-radius:18px; padding:0; max-width:320px; width:86vw;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+  .report-status-modal::backdrop { background:rgba(0,0,0,.55); }
+  .report-status-inner { padding:28px 24px 22px; text-align:center; }
+  .report-status-icon {
+    width:48px; height:48px; margin:0 auto 14px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:900;
+    background:#e6f7ee; color:var(--brand,#1e8e5a);
+  }
+  .report-status-icon.error { background:#fde8e8; color:#b23b3b; }
+  .report-status-msg { font-size:14px; font-weight:600; color:#333; line-height:1.5; margin-bottom:18px; }
+  .report-status-inner .btn { width:100%; justify-content:center; }
+ 
   /* 단어 상세 모달 (강의식) */
   /* 드로어 열려도 모달 자체 크기 안변하게 max-height 말고 height로 고정 (여기가 이번 수정 핵심) */
   .detail-modal {
