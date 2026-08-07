@@ -85,4 +85,9 @@ public class BoardService {
         result.put("currentPage", page);
         return result;
     }
+
+    @Transactional
+    public int countTodayBoard() {
+        return boardMapper.countTodayBoard();
+    }
 }
