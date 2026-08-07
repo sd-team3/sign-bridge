@@ -71,8 +71,9 @@
     </select>
 
     <update id="updateInquiryContentByBoardId">
-        UPDATE inquiry SET content = #{content} WHERE board_id = #{boardId}
+        UPDATE inquiry SET category = #{category}, title = #{title}, content = #{content} WHERE board_id = #{boardId}
     </update>
+    
     <!-- 오류 신고 미처리 개수 -->
     <select id="getErrorCount" resultType="int">
         select count(*)
@@ -84,6 +85,10 @@
         select member_id
         from inquiry
         WHERE inquiry_id = #{inquiryId}
+    </select>
+
+    <select id="selectInquiryCategoryByBoardId" resultType="string">
+        select category from inquiry where board_id = #{boardId}
     </select>
 
 </mapper>

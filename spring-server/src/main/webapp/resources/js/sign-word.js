@@ -646,5 +646,18 @@ document.getElementById("searchInput").addEventListener("keydown", (e) => {
 ───────────────────────────────────────────── */
 loadAllWords().then(() => {
   renderChoSidebar();
-  showRandomSix();
+
+  // 마이페이지 오답노트 탭에서 다시 학습하기 버튼 클릭 시 즉시 모달 띄우기
+  const params = new URLSearchParams(location.search);
+  const targetWordName = params.get("word");
+
+  if (targetWordName) {
+    const target = ALL_WORDS.find(w => w.signWordName === targetWordName);
+    showRandomSix();
+    if (target) {
+      openDetailModal(target);
+    }
+  } else {
+    showRandomSix();
+  }
 });

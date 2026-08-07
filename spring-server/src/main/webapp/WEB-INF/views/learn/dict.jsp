@@ -183,6 +183,20 @@ const CTX = "${pageContext.request.contextPath}";
 </script>
 <script src="${pageContext.request.contextPath}/resources/js/sign-word.js"></script>
 
+<script>
+// 오답노트 등에서 word 파라미터로 진입 시 해당 단어 상세 모달 자동 오픈
+(function () {
+  const params = new URLSearchParams(location.search);
+  const targetWordName = params.get("word");
+  if (!targetWordName) return;
+
+  loadAllWords().then(() => {
+    const target = ALL_WORDS.find(w => w.signWordName === targetWordName);
+    if (target) openDetailModal(target);
+  });
+})();
+</script>
+
 <!-- 수어 인식 모듈 -->
 <script type="module">
   import { initDictCamera } from "${pageContext.request.contextPath}/resources/js/dict-camera.js";

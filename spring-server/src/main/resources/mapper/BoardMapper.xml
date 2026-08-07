@@ -13,8 +13,6 @@
         <result column="mod_date" property="modDate" />
         <result column="member_name" property="memberName" />
         <result column="comment_cnt" property="commentCnt" />
-        <result column="error_type" property="errorType" />
-        <result column="related_word" property="relatedWord" />
     </resultMap>
 
     <select id="findByCategory" resultMap="boardResultMap">
@@ -62,14 +60,11 @@
     </insert>
 
     <select id="selectBoardByBoardId" parameterType="int" resultMap="boardResultMap">
-        select b.board_id, b.member_id, b.board_title, b.board_content, 
-            b.category_idx, b.view_count, b.reg_date, b.mod_date, r.error_type, r.related_word, 
+        select b.board_id, b.member_id, b.board_title, b.board_content,
+            b.category_idx, b.view_count, b.reg_date, b.mod_date,
             COALESCE(m.member_name, '알 수 없음') as member_name
         from board b
-        left join member m 
-        on b.member_id = m.member_id
-        left join board_error_report r 
-        on b.board_id = r.board_id
+        left join member m on b.member_id = m.member_id
         where b.board_id = #{boardId}
     </select>
 

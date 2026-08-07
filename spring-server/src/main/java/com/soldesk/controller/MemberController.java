@@ -21,9 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.soldesk.service.BoardService;
 import com.soldesk.service.CommentService;
+import com.soldesk.service.LearningHistoryService;
 import com.soldesk.service.MemberService;
+import com.soldesk.service.OverviewStatsService;
+import com.soldesk.service.WrongAnswerService;
 import com.soldesk.util.SecurityUtil;
 import com.soldesk.vo.MemberVO;
+import com.soldesk.vo.OverviewStatsVO;
 
 @Controller
 @RequestMapping("/member")
@@ -38,6 +42,12 @@ public class MemberController {
     private BoardService boardService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private WrongAnswerService wrongAnswerService;
+    @Autowired
+    private LearningHistoryService learningHistoryService;
+    @Autowired
+    private OverviewStatsService overviewStatsService;
 
     @GetMapping("/join")
     public String join(@ModelAttribute("joinMember") MemberVO member) {
@@ -69,6 +79,8 @@ public class MemberController {
         }
         MemberVO member = memberService.getMemberById(currentMemberId);
         model.addAttribute("member", member);
+        OverviewStatsVO overviewStats = overviewStatsService.getOverviewStats(currentMemberId);
+        model.addAttribute("overviewStats", overviewStats);
         return "member/mypage";
     }
     @PostMapping("/update")
@@ -169,6 +181,42 @@ public class MemberController {
         Map<String, Object> result = new HashMap<>();
         if (memberId == null) { result.put("success", false); return result; }
         result = commentService.getCommentsByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/wronganswer")
+    @ResponseBody
+    public Map<String, Object> myWrongAnswers(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) {
+            result.put("success", false);
+            return result;
+        }
+        result = wrongAnswerService.getWrongAnswersByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/history/jamo")
+    @ResponseBody
+    public Map<String, Object> myJamoHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = learningHistoryService.getJamoHistoryByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/history/word")
+    @ResponseBody
+    public Map<String, Object> myWordHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = learningHistoryService.getWordHistoryByMember(memberId, category, page);
         result.put("success", true);
         return result;
     }
