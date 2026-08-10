@@ -9,7 +9,14 @@ public class OverviewStatsVO {
     private List<String> recentWords;
     private List<String> earnedBadges;
     private String earnedBadgesCsv;
+    private List<ChoseongProgressVO> choseongProgress;
 
+    public List<ChoseongProgressVO> getChoseongProgress() { 
+        return choseongProgress; 
+    }
+    public void setChoseongProgress(List<ChoseongProgressVO> choseongProgress) { 
+        this.choseongProgress = choseongProgress;
+    }
     public String getEarnedBadgesCsv() {
         return earnedBadgesCsv;
     }

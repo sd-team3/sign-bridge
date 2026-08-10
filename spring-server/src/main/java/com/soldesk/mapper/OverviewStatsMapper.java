@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.soldesk.vo.ChoseongProgressVO;
+
 public interface OverviewStatsMapper {
     Integer countLearnedWords(Integer memberId);
     Integer findAvgAccuracy(Integer memberId);
     List<String> findRecentWords(@Param("memberId") Integer memberId, @Param("limit") int limit);
     List<LocalDate> findActivityDates(Integer memberId);
+    List<ChoseongProgressVO> findChoseongProgress(Integer memberId);
 }

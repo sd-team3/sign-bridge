@@ -1,4 +1,5 @@
 let ALL_WORDS = [];
+let FAVORITE_IDS = new Set();
 let currentPage = 1;
 const PAGE_SIZE = 6;
 
@@ -211,11 +212,12 @@ function wordCard(w) {
   const card = document.createElement("div");
   card.className = "word-card";
   card.innerHTML =
-    '<div class="word-video-wrap">' +
-      '<video muted loop playsinline></video>' +
-      '<div class="video-unavailable" style="display:none;">영상 준비중</div>' +
-    '</div>' +
-    '<div class="word-card-name"></div>';
+      '<div class="word-video-wrap">' +
+        '<button type="button" class="fav-star" data-word-id="' + w.signWordId + '">☆</button>' +
+        '<video muted loop playsinline></video>' +
+        '<div class="video-unavailable" style="display:none;">영상 준비중</div>' +
+      '</div>' +
+      '<div class="word-card-name"></div>';
 
   // 페이지가 https로 서빙되기에 강제 치환(안전 장치)
   let videoUrl = w.signWordVideo || '';
@@ -295,6 +297,16 @@ function wordCard(w) {
     openDetailModal(w);
   });
 
+  const starEl = card.querySelector(".fav-star");
+  if (FAVORITE_IDS.has(w.signWordId)) {
+    starEl.textContent = "★";
+    starEl.classList.add("active");
+  }
+  starEl.addEventListener("click", (e) => {
+    e.stopPropagation(); // 카드 클릭(상세모달 열기)이랑 안 겹치게
+    toggleFavorite(w.signWordId, starEl);
+  });
+
   return card;
 }
 
@@ -304,7 +316,14 @@ function openDetailModal(word, fromHistory) {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
   const nameEl = document.getElementById("detailWordName");
+  const favBtn = document.getElementById("detailFavStar");
+  favBtn.dataset.wordId = word.signWordId;
+  favBtn.textContent = FAVORITE_IDS.has(word.signWordId) ? "★" : "☆";
+  favBtn.classList.toggle("active", FAVORITE_IDS.has(word.signWordId));
+  favBtn.onclick = () => toggleFavorite(word.signWordId, favBtn);
   const descEl = document.getElementById("detailDescription");
+
+
 
   if (!fromHistory) {
     // 히스토리 중간에서 새단어(관련단어 클릭 등) 열면 그 뒤 기록은 버리고 새로 이어붙임
@@ -639,12 +658,44 @@ document.getElementById("searchInput").addEventListener("keydown", (e) => {
   if (e.key === "Enter") runSearch();
 });
 
+function loadFavoriteIds() {
+  return fetch(CTX + "/member/favorite/ids")
+    .then(r => r.json())
+    .then(data => { if (data.success) FAVORITE_IDS = new Set(data.ids); })
+    .catch(() => {});
+}
+
+function toggleFavorite(signWordId, starEl) {
+  const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+  const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+  const headers = { "Content-Type": "application/x-www-form-urlencoded" };
+  if (csrfToken && csrfHeader) headers[csrfHeader] = csrfToken;
+
+  fetch(CTX + "/member/favorite/toggle", {
+    method: "POST",
+    headers: headers,
+    body: "signWordId=" + encodeURIComponent(signWordId)
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { alert(data.message || "로그인이 필요합니다."); return; }
+      if (data.favorited) FAVORITE_IDS.add(signWordId);
+      else FAVORITE_IDS.delete(signWordId);
+
+      document.querySelectorAll('.fav-star[data-word-id="' + signWordId + '"]').forEach(el => {
+        el.textContent = data.favorited ? "★" : "☆";
+        el.classList.toggle("active", data.favorited);
+      });
+    })
+    .catch(() => alert("즐겨찾기 처리 중 오류가 발생했습니다."));
+}
+
 
 
 /* ─────────────────────────────────────────────
    6) 초기 진입
 ───────────────────────────────────────────── */
-loadAllWords().then(() => {
+Promise.all([loadAllWords(), loadFavoriteIds()]).then(() => {
   renderChoSidebar();
 
   // 마이페이지 오답노트 탭에서 다시 학습하기 버튼 클릭 시 즉시 모달 띄우기
@@ -654,9 +705,7 @@ loadAllWords().then(() => {
   if (targetWordName) {
     const target = ALL_WORDS.find(w => w.signWordName === targetWordName);
     showRandomSix();
-    if (target) {
-      openDetailModal(target);
-    }
+    if (target) openDetailModal(target);
   } else {
     showRandomSix();
   }

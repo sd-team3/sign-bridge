@@ -60,26 +60,15 @@
     <!-- 학습 현황 -->
     <div class="mp-panel active" id="mp-panel-overview">
       <div class="mp-card">
-        <div class="mp-card-title">카테고리별 진행률</div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">기초 어휘</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill" style="width:68%"></div></div>
-          <div class="mp-progress-pct">68%</div>
-        </div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">상황별 회화</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill" style="width:22%"></div></div>
-          <div class="mp-progress-pct">22%</div>
-        </div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">비상 어휘</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill" style="width:35%"></div></div>
-          <div class="mp-progress-pct">35%</div>
-        </div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">다음 티어까지</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill mp-gold" style="width:72%"></div></div>
-          <div class="mp-progress-pct">72%</div>
+        <div class="mp-card-title">초성별 진행률</div>
+        <div class="mp-cho-progress-grid">
+          <c:forEach var="p" items="${overviewStats.choseongProgress}">
+            <div class="mp-progress-row">
+              <div class="mp-progress-cat">${p.choseong}</div>
+              <div class="mp-progress-track"><div class="mp-progress-fill" style="width:${p.percentage}%"></div></div>
+              <div class="mp-progress-pct">${p.percentage}%</div>
+            </div>
+          </c:forEach>
         </div>
       </div>
 
@@ -101,21 +90,9 @@
 
       <div class="mp-card">
         <div class="mp-card-title">즐겨찾기한 수어</div>
-        <div class="mp-fav-grid">
-          <div class="mp-fav-card">
-            <div class="mp-fav-thumb">👋</div>
-            <div class="mp-fav-body"><span class="mp-fav-star">★</span><div class="mp-fav-title">안녕하세요</div><div class="mp-fav-cat">인사 · 기초</div></div>
-          </div>
-          <div class="mp-fav-card">
-            <div class="mp-fav-thumb">🙏</div>
-            <div class="mp-fav-body"><span class="mp-fav-star">★</span><div class="mp-fav-title">감사합니다</div><div class="mp-fav-cat">인사 · 기초</div></div>
-          </div>
-          <div class="mp-fav-card">
-            <div class="mp-fav-thumb">🍎</div>
-            <div class="mp-fav-body"><span class="mp-fav-star">★</span><div class="mp-fav-title">사과</div><div class="mp-fav-cat">음식 · 생활</div></div>
-          </div>
-        </div>
+        <div class="mp-list-wrap" id="fav-wrap"></div>
       </div>
+      <div class="pagination" id="fav-pagination"></div>
     </div>
 
     <!-- 학습 기록 -->
@@ -338,6 +315,15 @@
           <div class="mp-choice" data-value="normal">Aa<span style="display:block; font-size:11px; font-weight:600; margin-top:4px;">보통</span></div>
           <div class="mp-choice" data-value="large">Aa<span style="display:block; font-size:11px; font-weight:600; margin-top:4px;">크게</span></div>
         </div>
+      </div>
+
+      <div class="mp-card">
+        <div class="mp-card-title">로그아웃</div>
+        <p class="mp-danger-text" style="color:var(--text-sub);">현재 계정에서 로그아웃합니다.</p>
+        <form action="/member/logout" method="post">
+          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+          <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>
+        </form>
       </div>
 
       <div class="mp-card mp-danger-card">

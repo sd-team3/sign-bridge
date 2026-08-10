@@ -128,6 +128,8 @@
       </div>
 
       <div class="detail-word-name" id="detailWordName"></div>
+      <span class="fav-star detail-fav-star" id="detailFavStar">☆</span>
+      
 
       <div class="detail-divider"></div>
       <div class="detail-section-label">설명</div>

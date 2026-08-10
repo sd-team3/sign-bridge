@@ -325,3 +325,47 @@ function loadWordHistory(page) {
             renderPagination('#mp-subpanel-word .pagination', data.currentPage, data.totalPages, loadWordHistory);
         });
 }
+
+function toggleFavorite(btn) {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    const wordId = btn.dataset.wordId;
+
+    const body = new URLSearchParams();
+    body.set('signWordId', wordId);
+
+    fetch('/member/favorite/toggle', {
+        method: 'POST',
+        headers: { [csrfHeader]: csrfToken },
+        body: body
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) { alert(data.message || '오류가 발생했습니다.'); return; }
+        if (btn.closest('#mp-panel-overview')) {
+            if (!data.favorited) loadFavorites(1); 
+        } else {
+            btn.textContent = data.favorited ? '★' : '☆';
+            btn.classList.toggle('active', data.favorited);
+        }
+    });
+}
+
+function loadFavorites(page) {
+    fetch(`/member/mypage/favorite?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            const wrap = document.getElementById('fav-wrap');
+            wrap.innerHTML = data.favorites.length ? data.favorites.map(f => `
+                <div class="mp-fav-row">
+                    <span class="mp-fav-row-name">${f.signWordName}${f.choseong ? `<span class="mp-fav-row-cho">${f.choseong}</span>` : ''}</span>
+                    <span class="mp-fav-row-star active" data-word-id="${f.signWordId}" onclick="toggleFavorite(this)">★</span>
+                </div>
+            `).join('') : '<div class="mp-list-empty">즐겨찾기한 단어가 없습니다.</div>';
+            renderPagination('#fav-pagination', data.currentPage, data.totalPages, loadFavorites);
+        });
+}
+loadFavorites(1);
+
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];

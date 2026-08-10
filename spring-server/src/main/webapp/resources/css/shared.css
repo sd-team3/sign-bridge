@@ -749,7 +749,8 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:26px 28px;margin-bottom:20px}
 .mp-card-title{font-size:15px;font-weight:800;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--border)}
 
-/* 카테고리별 진행률 */
+
+/* 초성별 진행률 */
 .mp-progress-row{display:flex;align-items:center;gap:16px;padding:12px 0}
 .mp-progress-cat{width:110px;font-size:14px;font-weight:700;color:var(--text);flex-shrink:0}
 .mp-progress-track{flex:1;height:8px;background:var(--surface2);border-radius:100px;overflow:hidden}
@@ -757,19 +758,20 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-progress-fill.mp-gold{background:linear-gradient(90deg,#f6d365,#fda085)}
 .mp-progress-pct{width:40px;text-align:right;font-size:14px;font-weight:800;color:var(--primary);flex-shrink:0}
 
+.mp-cho-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+@media (max-width:640px){.mp-cho-progress-grid{grid-template-columns:1fr}}
+
 /* 최근 학습 단어 칩 */
 .mp-chip-row{display:flex;flex-wrap:wrap;gap:8px}
 .mp-chip{padding:6px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:100px;font-size:14px;font-weight:700;color:var(--text)}
 
 /* 즐겨찾기한 수어 */
-.mp-fav-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.mp-fav-card{border:2px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;transition:all .15s;cursor:pointer}
-.mp-fav-card:hover{border-color:var(--primary);box-shadow:0 4px 16px rgba(45,155,111,.12)}
-.mp-fav-thumb{background:var(--surface2);height:100px;display:flex;align-items:center;justify-content:center;font-size:38px}
-.mp-fav-body{padding:12px 14px;position:relative}
-.mp-fav-star{position:absolute;top:12px;right:14px;color:#f5b700;font-size:15px}
-.mp-fav-title{font-size:14px;font-weight:800;margin-bottom:3px;padding-right:20px}
-.mp-fav-cat{font-size:11px;font-weight:600;color:var(--text-sub)}
+.mp-fav-row{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--border,#eee)}
+.mp-fav-row:last-child{border-bottom:none}
+.mp-fav-row-name{font-size:15px;font-weight:700;color:var(--text-main,#222)}
+.mp-fav-row-star{cursor:pointer;font-size:18px;color:#c9c9c9}
+.mp-fav-row-star.active{color:#FFC23E}
+.mp-fav-row-cho{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:20px;background:var(--primary-light,#e6f4ee);color:var(--primary,#1F8A5C);font-size:12px;font-weight:700}
 
 /* 학습 기록 탭: 필터 + 테이블 */
 .mp-filter-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}

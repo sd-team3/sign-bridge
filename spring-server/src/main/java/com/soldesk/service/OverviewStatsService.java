@@ -24,6 +24,7 @@ public class OverviewStatsService {
         vo.setAvgAccuracy(overviewStatsMapper.findAvgAccuracy(memberId));
         vo.setRecentWords(overviewStatsMapper.findRecentWords(memberId, 6));
         vo.setStreakDays(calcStreak(overviewStatsMapper.findActivityDates(memberId)));
+        vo.setChoseongProgress(overviewStatsMapper.findChoseongProgress(memberId));
         vo.setEarnedBadges(calcBadges(vo));
         vo.setEarnedBadgesCsv("," + String.join(",", vo.getEarnedBadges()) + ",");
         return vo;
