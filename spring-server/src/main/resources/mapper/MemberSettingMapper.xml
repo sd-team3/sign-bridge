@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.MemberSettingMapper">
+
+    <resultMap id="settingResultMap" type="com.soldesk.vo.MemberSettingVO">
+        <result property="memberId" column="member_id" />
+        <result property="settingKey" column="setting_key" />
+        <result property="settingValue" column="setting_value" />
+    </resultMap>
+
+    <select id="findValue" resultType="string">
+        select setting_value from member_setting
+        where member_id = #{memberId} and setting_key = #{settingKey}
+    </select>
+
+    <insert id="upsertValue">
+        insert into member_setting (member_id, setting_key, setting_value)
+        values (#{memberId}, #{settingKey}, #{settingValue})
+        on duplicate key update setting_value = #{settingValue}
+    </insert>
+
+    <delete id="deleteValue">
+        delete from member_setting
+        where member_id = #{memberId} and setting_key = #{settingKey}
+    </delete>
+
+    <select id="findByKeyPrefix" resultMap="settingResultMap">
+        select member_id, setting_key, setting_value from member_setting
+        where member_id = #{memberId} and setting_key like concat(#{prefix}, '%')
+    </select>
+
+</mapper>

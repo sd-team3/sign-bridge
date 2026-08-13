@@ -25,6 +25,7 @@ import com.soldesk.service.BoardService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.LearningHistoryService;
 import com.soldesk.service.MemberService;
+import com.soldesk.service.MemberSettingService;
 import com.soldesk.service.OverviewStatsService;
 import com.soldesk.service.WrongAnswerService;
 import com.soldesk.util.SecurityUtil;
@@ -55,6 +56,8 @@ public class MemberController {
     private OverviewStatsService overviewStatsService;
     @Autowired
     private FavoriteService favoriteService;
+    @Autowired
+    private MemberSettingService memberSettingService;
 
     @GetMapping("/join")
     public String join(@ModelAttribute("joinMember") MemberVO member) {
@@ -88,6 +91,8 @@ public class MemberController {
         model.addAttribute("member", member);
         OverviewStatsVO overviewStats = overviewStatsService.getOverviewStats(currentMemberId);
         model.addAttribute("overviewStats", overviewStats);
+        List<String> offList = memberSettingService.getOffTypes(currentMemberId);
+        model.addAttribute("offAlarmTypesCsv", "," + String.join(",", offList) + ",");
         return "member/mypage";
     }
     @PostMapping("/update")
@@ -272,6 +277,20 @@ public class MemberController {
         }
         result.put("success", true);
         result.put("ids", favoriteService.getFavoriteIds(memberId));
+        return result;
+    }
+    @PostMapping("/alarm/update")
+    @ResponseBody
+    public Map<String, Object> updateAlarm(@RequestParam String notificationType, @RequestParam boolean on) {
+        Map<String, Object> result = new HashMap<>();
+        Integer memberId = securityUtil.getCurrentMemberId();
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+        memberSettingService.setAlarm(memberId, notificationType, on);
+        result.put("success", true);
         return result;
     }
 

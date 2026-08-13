@@ -40,10 +40,10 @@
     </select>
 
     <select id="findJamoHistoryByMemberId" resultMap="jamoHistoryResultMap">
-        select rcl.recognition_confirm_log_id, rcl.jamo_id, j.jamo_char, j.jamo_name, j.jamo_type,
+        select rcl.recognition_confirm_log_id, j.jamo_id, j.jamo_char, j.jamo_name, j.jamo_type,
             rcl.confidence, rcl.reg_date
         from recognition_confirm_log rcl
-        join jamo j on rcl.jamo_id = j.jamo_id
+        join jamo j on rcl.confirmed_char = j.jamo_char
         where rcl.member_id = #{memberId}
         <if test="category != null and category != ''">and j.jamo_type = #{category}</if>
         order by rcl.reg_date desc
@@ -53,7 +53,7 @@
     <select id="countJamoHistoryByMemberId" resultType="int">
         select count(*)
         from recognition_confirm_log rcl
-        join jamo j on rcl.jamo_id = j.jamo_id
+        join jamo j on rcl.confirmed_char = j.jamo_char
         where rcl.member_id = #{memberId}
         <if test="category != null and category != ''">and j.jamo_type = #{category}</if>
     </select>

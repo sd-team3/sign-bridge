@@ -369,3 +369,28 @@ function loadFavorites(page) {
 loadFavorites(1);
 
 const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+document.querySelectorAll('.mp-toggle[data-type]').forEach(toggle => {
+  toggle.addEventListener('click', async () => {
+    const willTurnOn = !toggle.classList.contains('on');
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    const body = new URLSearchParams();
+    body.set('notificationType', toggle.dataset.type);
+    body.set('on', willTurnOn);
+
+    const res = await fetch('/member/alarm/update', {
+      method: 'POST',
+      headers: { [csrfHeader]: csrfToken },
+      body: body
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      toggle.classList.toggle('on', willTurnOn);
+    } else {
+      alert(data.message || '설정 변경에 실패했습니다.');
+    }
+  });
+});

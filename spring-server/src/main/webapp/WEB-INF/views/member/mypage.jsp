@@ -162,13 +162,13 @@
             <img class="mp-badge-icon" src="/resources/images/badges/streak7.png" alt="7일 연속">
             <div class="mp-badge-name">7일 연속</div><div class="mp-badge-desc">7일 연속 학습 달성</div>
           </div>
-          <div class="mp-badge-card locked">
-            <img class="mp-badge-icon" src="/resources/images/badges/greeting_master.png" alt="인사 마스터">
-            <div class="mp-badge-name">인사 마스터</div><div class="mp-badge-desc">인사 카테고리 완료</div>
+          <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',greeting_master,') ? '' : 'locked'}">
+            <img class="mp-badge-icon" src="/resources/images/badges/greeting_master.png" alt="초성 마스터 I">
+            <div class="mp-badge-name">초성 마스터 I</div><div class="mp-badge-desc">ㄱ~ㅃ 전체 100% 달성</div>
           </div>
-          <div class="mp-badge-card locked">
-            <img class="mp-badge-icon" src="/resources/images/badges/food_master.png" alt="음식 마스터">
-            <div class="mp-badge-name">음식 마스터</div><div class="mp-badge-desc">음식 카테고리 완료</div>
+          <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',food_master,') ? '' : 'locked'}">
+            <img class="mp-badge-icon" src="/resources/images/badges/food_master.png" alt="초성 마스터 II">
+            <div class="mp-badge-name">초성 마스터 II</div><div class="mp-badge-desc">ㅅ~ㅎ 전체 100% 달성</div>
           </div>
           <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',word_master,') ? '' : 'locked'}">
             <img class="mp-badge-icon" src="/resources/images/badges/word_master.png" alt="수어 고수">
@@ -291,11 +291,11 @@
         <div class="mp-card-title">알림</div>
         <div class="mp-toggle-row">
           <div class="mp-toggle-key">게시판 댓글 알림<span>내 글에 댓글이 달리면 알려드려요.</span></div>
-          <div class="mp-toggle on" id="toggle-notif-comment" onclick="this.classList.toggle('on')"></div>
+          <div class="mp-toggle ${fn:contains(offAlarmTypesCsv, ',COMMENT,') ? '' : 'on'}" data-type="COMMENT"></div>
         </div>
         <div class="mp-toggle-row">
           <div class="mp-toggle-key">Q&amp;A 처리 결과 알림<span>오류 신고나 단어 건의가 처리되면 알려드려요.</span></div>
-          <div class="mp-toggle on" id="toggle-notif-qna" onclick="this.classList.toggle('on')"></div>
+          <div class="mp-toggle ${fn:contains(offAlarmTypesCsv, ',INQUIRY,') ? '' : 'on'}" data-type="INQUIRY"></div>
         </div>
       </div>
 
