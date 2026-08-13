@@ -17,12 +17,12 @@ import com.soldesk.vo.CommentVO;
 public class CommentService {
     @Autowired
     private CommentMapper commentMapper;
-
     @Autowired
     private BoardMapper boardMapper;
-
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private MemberSettingService memberSettingService;
     
     @Transactional
     public void insertComment(CommentVO comment) {
@@ -39,12 +39,14 @@ public class CommentService {
             int sendToUserId = board.getMemberId();
             String linkUrl = "/board/info?boardId=" + board.getBoardId();
 
-            notificationService.notifyUser(
-                sendToUserId, "댓글 알림", 
-                comment.getCommentContent(), 
-                linkUrl, 
-                "COMMENT");
-        }   
+            if (memberSettingService.isEnabled(sendToUserId, "COMMENT")) {
+                notificationService.notifyUser(
+                    sendToUserId, "댓글 알림", 
+                    comment.getCommentContent(), 
+                    linkUrl, 
+                    "COMMENT");
+            }
+        }
     }
 
     @Transactional(readOnly = true)

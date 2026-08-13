@@ -21,6 +21,9 @@ public class AdminService {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private MemberSettingService memberSettingService;
+
     public List<InquiryVO> getInquiryList(String category, String status) {
         if ("ALL".equalsIgnoreCase(status)) {
             return adminMapper.selectByCategory(category);
@@ -48,12 +51,15 @@ public class AdminService {
 
         String linkUrl = (boardId != null) ? "/board/info?boardId=" + boardId : null;
 
-        notificationService.notifyUser(
-                sendToUserId,
-                "문의 처리 알림",
-                "처리 완료되었습니다",
-                linkUrl,
-                "INQUIRY");
+        // 멤버가 알림을 허용할 경우
+        if (memberSettingService.isEnabled(sendToUserId, "INQUIRY")) {
+            notificationService.notifyUser(
+                    sendToUserId,
+                    "문의 처리 알림",
+                    "처리 완료되었습니다",
+                    linkUrl,
+                    "INQUIRY");
+        }
 
         return result > 0;
     }
