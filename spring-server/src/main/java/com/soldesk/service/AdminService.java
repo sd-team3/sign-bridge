@@ -64,8 +64,12 @@ public class AdminService {
     }
 
     // board 수정할 때 연결된 inquiry 내용도 같이 맞춰줌
-    public void syncInquiryContentByBoard(int boardId, String content) {
-        adminMapper.updateInquiryContentByBoardId(boardId, content);
+    public void syncInquiryContentByBoard(int boardId, String category, String title, String content) {
+        adminMapper.updateInquiryContentByBoardId(boardId, category, title, content);
+    }
+
+    public String getInquiryCategoryByBoardId(int boardId) {
+        return adminMapper.selectInquiryCategoryByBoardId(boardId);
     }
 
     // 오류 신고 미처리 카운트

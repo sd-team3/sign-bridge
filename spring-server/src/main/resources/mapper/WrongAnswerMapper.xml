@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.WrongAnswerMapper">
+    <resultMap id="wrongAnswerResultMap" type="com.soldesk.vo.WrongAnswerVO">
+        <id property="testSessionDetailId" column="test_session_detail_id"/>
+        <result property="signWordId" column="sign_word_id"/>
+        <result property="signWordName" column="sign_word_name"/>
+        <result property="signWordThumbnail" column="sign_word_thumbnail"/>
+        <result property="userAnswer" column="user_answer"/>
+        <result property="answerDate" column="answer_date"/>
+        <result property="testSessionType" column="test_session_type"/>
+        <result property="questionNo" column="question_no"/>
+    </resultMap>
+
+    <select id="findWrongAnswersByMemberId" resultMap="wrongAnswerResultMap">
+        select tsd.test_session_detail_id, tsd.sign_word_id, sw.sign_word_name, sw.sign_word_thumbnail,
+            tsd.user_answer, tsd.answer_date, tsd.question_no, ts.test_session_type
+        from test_session_detail tsd
+        join test_session ts on tsd.test_session_id = ts.test_session_id
+        join sign_word sw on tsd.sign_word_id = sw.sign_word_id
+        where ts.member_id = #{memberId} and tsd.is_correct = 'N'
+        <if test="category != null and category != ''">and ts.test_session_type = #{category}</if>
+        order by tsd.answer_date desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="countWrongAnswersByMemberId" resultType="int">
+        select count(*)
+        from test_session_detail tsd
+        join test_session ts on tsd.test_session_id = ts.test_session_id
+        where ts.member_id = #{memberId} and tsd.is_correct = 'N'
+        <if test="category != null and category != ''">and ts.test_session_type = #{category}</if>
+    </select>
+
+</mapper>

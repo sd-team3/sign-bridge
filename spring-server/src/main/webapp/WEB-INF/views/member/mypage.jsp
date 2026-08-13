@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,6 +8,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="_csrf" content="${_csrf.token}">
 <meta name="_csrf_header" content="${_csrf.headerName}">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 마이페이지</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -38,152 +41,164 @@
 
     <!-- 요약 통계 -->
     <div class="mp-stats">
-      <div class="mp-stat"><div class="mp-stat-num">42</div><div class="mp-stat-lbl">학습한 단어</div></div>
-      <div class="mp-stat"><div class="mp-stat-num">87%</div><div class="mp-stat-lbl">평균 정확도</div></div>
-      <div class="mp-stat"><div class="mp-stat-num">7일</div><div class="mp-stat-lbl">연속 학습</div></div>
-      <div class="mp-stat"><div class="mp-stat-num">3 / 8</div><div class="mp-stat-lbl">획득 뱃지</div></div>
+      <div class="mp-stat"><div class="mp-stat-num">${overviewStats.learnedWordCount}</div><div class="mp-stat-lbl">학습한 단어</div></div>
+      <div class="mp-stat"><div class="mp-stat-num">${overviewStats.avgAccuracy}%</div><div class="mp-stat-lbl">평균 정확도</div></div>
+      <div class="mp-stat"><div class="mp-stat-num">${overviewStats.streakDays}일</div><div class="mp-stat-lbl">연속 학습</div></div>
+      <div class="mp-stat"><div class="mp-stat-num">${overviewStats.earnedBadges.size()} / 8</div><div class="mp-stat-lbl">획득 뱃지</div></div>
     </div>
 
     <!-- 탭 -->
     <div class="mp-tabs">
       <button class="mp-tab active" data-tab="overview" onclick="mpTab('overview')">학습 현황</button>
-      <button class="mp-tab" data-tab="history" onclick="mpTab('history')">학습 기록</button>
-      <button class="mp-tab" data-tab="wrongnote" onclick="mpTab('wrongnote')">오답노트</button>
+      <button class="mp-tab" data-tab="learninghistory" onclick="mpTab('learninghistory')">학습 기록</button>
+      <button class="mp-tab" data-tab="wronganswer" onclick="mpTab('wronganswer')">오답노트</button>
       <button class="mp-tab" data-tab="badges" onclick="mpTab('badges')">뱃지</button>
-      <button class="mp-tab" data-tab="myposts" onclick="mpTab('myposts')">게시글 관리</button>
-      <button class="mp-tab" data-tab="mycomments" onclick="mpTab('mycomments')">댓글 관리</button>
+      <button class="mp-tab" data-tab="mycontent" onclick="mpTab('mycontent')">작성물 관리</button>
       <button class="mp-tab" data-tab="settings" onclick="mpTab('settings')">계정 설정</button>
     </div>
 
     <!-- 학습 현황 -->
     <div class="mp-panel active" id="mp-panel-overview">
       <div class="mp-card">
-        <div class="mp-card-title">카테고리별 진행률</div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">기초 어휘</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill" style="width:68%"></div></div>
-          <div class="mp-progress-pct">68%</div>
-        </div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">상황별 회화</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill" style="width:22%"></div></div>
-          <div class="mp-progress-pct">22%</div>
-        </div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">비상 어휘</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill" style="width:35%"></div></div>
-          <div class="mp-progress-pct">35%</div>
-        </div>
-        <div class="mp-progress-row">
-          <div class="mp-progress-cat">다음 티어까지</div>
-          <div class="mp-progress-track"><div class="mp-progress-fill mp-gold" style="width:72%"></div></div>
-          <div class="mp-progress-pct">72%</div>
+        <div class="mp-card-title">초성별 진행률</div>
+        <div class="mp-cho-progress-grid">
+          <c:forEach var="p" items="${overviewStats.choseongProgress}">
+            <div class="mp-progress-row">
+              <div class="mp-progress-cat">${p.choseong}</div>
+              <div class="mp-progress-track"><div class="mp-progress-fill" style="width:${p.percentage}%"></div></div>
+              <div class="mp-progress-pct">${p.percentage}%</div>
+            </div>
+          </c:forEach>
         </div>
       </div>
 
       <div class="mp-card">
         <div class="mp-card-title">최근 학습 단어</div>
         <div class="mp-chip-row">
-          <span class="mp-chip">사과</span>
-          <span class="mp-chip">감사합니다</span>
-          <span class="mp-chip">병원</span>
-          <span class="mp-chip">도움</span>
-          <span class="mp-chip">화재</span>
-          <span class="mp-chip">경찰</span>
+          <c:choose>
+            <c:when test="${not empty overviewStats.recentWords}">
+              <c:forEach var="word" items="${overviewStats.recentWords}">
+                <span class="mp-chip">${word}</span>
+              </c:forEach>
+            </c:when>
+            <c:otherwise>
+              <span class="mp-list-empty">아직 학습한 단어가 없습니다.</span>
+            </c:otherwise>
+          </c:choose>
         </div>
       </div>
 
       <div class="mp-card">
         <div class="mp-card-title">즐겨찾기한 수어</div>
-        <div class="mp-fav-grid">
-          <div class="mp-fav-card">
-            <div class="mp-fav-thumb">👋</div>
-            <div class="mp-fav-body"><span class="mp-fav-star">★</span><div class="mp-fav-title">안녕하세요</div><div class="mp-fav-cat">인사 · 기초</div></div>
-          </div>
-          <div class="mp-fav-card">
-            <div class="mp-fav-thumb">🙏</div>
-            <div class="mp-fav-body"><span class="mp-fav-star">★</span><div class="mp-fav-title">감사합니다</div><div class="mp-fav-cat">인사 · 기초</div></div>
-          </div>
-          <div class="mp-fav-card">
-            <div class="mp-fav-thumb">🍎</div>
-            <div class="mp-fav-body"><span class="mp-fav-star">★</span><div class="mp-fav-title">사과</div><div class="mp-fav-cat">음식 · 생활</div></div>
-          </div>
-        </div>
+        <div class="mp-list-wrap" id="fav-wrap"></div>
       </div>
+      <div class="pagination" id="fav-pagination"></div>
     </div>
 
     <!-- 학습 기록 -->
-    <div class="mp-panel" id="mp-panel-history">
-      <div class="mp-card">
-        <div class="mp-filter-row">
-          <button class="mp-filter-chip active">전체</button>
-          <button class="mp-filter-chip">기초 어휘</button>
-          <button class="mp-filter-chip">비상 어휘</button>
-          <button class="mp-filter-chip">개별 어휘</button>
+    <div class="mp-panel" id="mp-panel-learninghistory">
+      <div class="mp-subtabs">
+        <button class="mp-subtab active" data-subtab="jamo" onclick="lhSubTab('jamo')">자모</button>
+        <button class="mp-subtab" data-subtab="word" onclick="lhSubTab('word')">단어</button>
+      </div>
+
+      <!-- 자모 서브탭 -->
+      <div class="mp-subpanel active" id="mp-subpanel-jamo">
+        <div class="mp-card">
+          <div class="mp-filter-row" data-scope="jamohistory">
+            <button class="mp-filter-chip active" data-category="">전체</button>
+            <button class="mp-filter-chip" data-category="CONSONANT">자음</button>
+            <button class="mp-filter-chip" data-category="VOWEL">모음</button>
+          </div>
+          <div class="history-table-header"><div>단어</div><div>날짜</div><div>정확도</div></div>
+          <div class="mp-list-wrap" id="jamo-history-wrap"></div>
         </div>
-        <div class="mp-history-head"><div>단어</div><div>날짜</div><div>정확도</div></div>
-        <div class="mp-history-row">
-          <div class="mp-hword">사과<div class="mp-hcat">기초 어휘</div></div>
-          <div class="mp-hdate">2025.06.25 14:32</div>
-          <div><span class="mp-acc high">94%</span></div>
+        <div class="pagination"></div>
+      </div>
+
+      <!-- 단어 서브탭 -->
+      <div class="mp-subpanel" id="mp-subpanel-word">
+        <div class="mp-card">
+          <div class="history-table-header"><div>단어</div><div>날짜</div><div>결과</div></div>
+          <div class="mp-list-wrap" id="word-history-wrap"></div>
         </div>
+        <div class="pagination"></div>
       </div>
     </div>
 
     <!-- 오답노트 -->
-    <div class="mp-panel" id="mp-panel-wrongnote">
+    <div class="mp-panel" id="mp-panel-wronganswer">
       <div class="mp-wrongnote-summary">
-        <span class="badge badge-danger">틀린 단어 6개</span>
-        <span class="badge badge-primary">객관식 · 주관식 3개</span>
-        <span class="badge" style="background:rgba(124,58,237,.1); color:#5b21b6;">카메라 인식 3개</span>
+        <span class="badge badge-danger" id="wa-total-badge">틀린 단어 0개</span>
       </div>
-      <div class="mp-filter-row">
-        <button class="mp-filter-chip active" data-wtype="all">전체</button>
-        <button class="mp-filter-chip" data-wtype="quiz">객관식 · 주관식</button>
-        <button class="mp-filter-chip" data-wtype="cam">카메라 인식</button>
+      <div class="mp-filter-row" data-scope="wronganswer">
+        <button class="mp-filter-chip active" data-category="">전체</button>
+        <button class="mp-filter-chip" data-category="CONSONANT">자음</button>
+        <button class="mp-filter-chip" data-category="VOWEL">모음</button>
+        <button class="mp-filter-chip" data-category="WORD">단어</button>
       </div>
       <div class="wrong-list-card">
         <h3>⚠️ 틀린 단어 모음</h3>
         <table class="wrong-table">
           <thead>
-            <tr>
-              <th>#</th><th>단어</th><th>유형</th><th>카테고리</th><th>내 답 → 정답</th><th>오답 날짜</th><th></th>
-            </tr>
+            <tr><th>#</th><th>단어</th><th>유형</th><th>내 답 → 정답</th><th>오답 날짜</th><th></th></tr>
           </thead>
-          <tbody id="wrongnote-tbody">
-            <tr data-wtype="quiz">
-              <td style="color:var(--text-sub); font-size:14px;">1</td>
-              <td style="font-size:17px; font-weight:900;">🌍 지진</td>
-              <td><span class="wrong-badge quiz">객관식</span></td>
-              <td style="font-size:13px; color:var(--text-sub);">비상 어휘</td>
-              <td style="font-size:14px;"><span style="color:var(--danger);">대피소</span> → <span style="color:var(--primary);">지진</span></td>
-              <td class="mp-hdate">2025.06.20</td>
-              <td><a href="learn_word_detail.html" class="retry-tag">다시 학습</a></td>
-            </tr>
-          </tbody>
+          <tbody id="wrongnote-tbody"></tbody>
         </table>
       </div>
+      <div class="pagination"></div>
     </div>
 
     <!-- 뱃지 -->
     <div class="mp-panel" id="mp-panel-badges">
       <div class="mp-card">
-        <div class="mp-card-title">획득한 뱃지 3 / 8</div>
+        <div class="mp-card-title">획득한 뱃지 ${overviewStats.earnedBadges.size()} / 8</div>
         <div class="mp-badge-grid">
-          <div class="mp-badge-card"><div class="mp-badge-icon">🏅</div><div class="mp-badge-name">첫 걸음</div><div class="mp-badge-desc">첫 수어 학습 완료</div></div>
-          <div class="mp-badge-card"><div class="mp-badge-icon">🔥</div><div class="mp-badge-name">7일 연속</div><div class="mp-badge-desc">7일 연속 학습 달성</div></div>
-          <div class="mp-badge-card"><div class="mp-badge-icon">👋</div><div class="mp-badge-name">인사 마스터</div><div class="mp-badge-desc">인사 카테고리 완료</div></div>
-          <div class="mp-badge-card locked"><div class="mp-badge-icon">🍎</div><div class="mp-badge-name">음식 마스터</div><div class="mp-badge-desc">음식 카테고리 완료</div></div>
-          <div class="mp-badge-card locked"><div class="mp-badge-icon">⚡</div><div class="mp-badge-name">수어 고수</div><div class="mp-badge-desc">50개 이상 완료</div></div>
-          <div class="mp-badge-card locked"><div class="mp-badge-icon">⭐</div><div class="mp-badge-name">완전 정복</div><div class="mp-badge-desc">모든 카테고리 완료</div></div>
-          <div class="mp-badge-card locked"><div class="mp-badge-icon">🕒</div><div class="mp-badge-name">30일 연속</div><div class="mp-badge-desc">30일 연속 학습</div></div>
-          <div class="mp-badge-card locked"><div class="mp-badge-icon">🏆</div><div class="mp-badge-name">올스타</div><div class="mp-badge-desc">모든 뱃지 획득</div></div>
+          <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',first_step,') ? '' : 'locked'}">
+            <img class="mp-badge-icon" src="/resources/images/badges/first_step.png" alt="첫 걸음">
+            <div class="mp-badge-name">첫 걸음</div><div class="mp-badge-desc">첫 수어 학습 완료</div>
+          </div>
+          <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',streak7,') ? '' : 'locked'}">
+            <img class="mp-badge-icon" src="/resources/images/badges/streak7.png" alt="7일 연속">
+            <div class="mp-badge-name">7일 연속</div><div class="mp-badge-desc">7일 연속 학습 달성</div>
+          </div>
+          <div class="mp-badge-card locked">
+            <img class="mp-badge-icon" src="/resources/images/badges/greeting_master.png" alt="인사 마스터">
+            <div class="mp-badge-name">인사 마스터</div><div class="mp-badge-desc">인사 카테고리 완료</div>
+          </div>
+          <div class="mp-badge-card locked">
+            <img class="mp-badge-icon" src="/resources/images/badges/food_master.png" alt="음식 마스터">
+            <div class="mp-badge-name">음식 마스터</div><div class="mp-badge-desc">음식 카테고리 완료</div>
+          </div>
+          <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',word_master,') ? '' : 'locked'}">
+            <img class="mp-badge-icon" src="/resources/images/badges/word_master.png" alt="수어 고수">
+            <div class="mp-badge-name">수어 고수</div><div class="mp-badge-desc">50개 이상 완료</div>
+          </div>
+          <div class="mp-badge-card locked">
+            <img class="mp-badge-icon" src="/resources/images/badges/complete_all.png" alt="완전 정복">
+            <div class="mp-badge-name">완전 정복</div><div class="mp-badge-desc">모든 카테고리 완료</div>
+          </div>
+          <div class="mp-badge-card ${fn:contains(overviewStats.earnedBadgesCsv, ',streak30,') ? '' : 'locked'}">
+            <img class="mp-badge-icon" src="/resources/images/badges/streak30.png" alt="30일 연속">
+            <div class="mp-badge-name">30일 연속</div><div class="mp-badge-desc">30일 연속 학습</div>
+          </div>
+          <div class="mp-badge-card locked">
+            <img class="mp-badge-icon" src="/resources/images/badges/allstar.png" alt="올스타">
+            <div class="mp-badge-name">올스타</div><div class="mp-badge-desc">모든 뱃지 획득</div>
+          </div>
         </div>
       </div>
     </div>
     
-    <!-- 게시글 관리 -->
-    <div class="mp-panel" id="mp-panel-myposts">
+<!-- 작성물 관리 -->
+<div class="mp-panel" id="mp-panel-mycontent">
+  <div class="mp-subtabs">
+    <button class="mp-subtab active" data-subtab="myposts" onclick="mcSubTab('myposts')">게시글 관리</button>
+    <button class="mp-subtab" data-subtab="mycomments" onclick="mcSubTab('mycomments')">댓글 관리</button>
+  </div>
+
+    <!-- 게시글 서브탭 -->
+    <div class="mp-subpanel active" id="mp-subpanel-myposts">
       <div class="mp-card">
         <div class="mp-filter-row" data-scope="myposts">
           <button class="mp-filter-chip active" data-category="">전체</button>
@@ -199,8 +214,8 @@
       <div class="pagination"></div>
     </div>
 
-    <!-- 댓글 관리 -->
-    <div class="mp-panel" id="mp-panel-mycomments">
+    <!-- 댓글 서브탭 -->
+    <div class="mp-subpanel" id="mp-subpanel-mycomments">
       <div class="mp-card">
         <div class="mp-filter-row" data-scope="mycomments">
           <button class="mp-filter-chip active" data-category="">전체</button>
@@ -215,6 +230,7 @@
       </div>
       <div class="pagination"></div>
     </div>
+  </div>
 
     <!-- 계정 설정 -->
     <div class="mp-panel" id="mp-panel-settings">
@@ -299,6 +315,15 @@
           <div class="mp-choice" data-value="normal">Aa<span style="display:block; font-size:11px; font-weight:600; margin-top:4px;">보통</span></div>
           <div class="mp-choice" data-value="large">Aa<span style="display:block; font-size:11px; font-weight:600; margin-top:4px;">크게</span></div>
         </div>
+      </div>
+
+      <div class="mp-card">
+        <div class="mp-card-title">로그아웃</div>
+        <p class="mp-danger-text" style="color:var(--text-sub);">현재 계정에서 로그아웃합니다.</p>
+        <form action="/member/logout" method="post">
+          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+          <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>
+        </form>
       </div>
 
       <div class="mp-card mp-danger-card">

@@ -28,10 +28,16 @@ public interface AdminMapper {
     Integer findBoardIdByInquiry(@Param("inquiryId") Long inquiryId);
 
     // 사용자가 게시글 내용 수정하면 inquiry 쪽도 맞춰서 갱신
-    int updateInquiryContentByBoardId(@Param("boardId") int boardId, @Param("content") String content);
-
+        void updateInquiryContentByBoardId(@Param("boardId") int boardId,
+                                        @Param("category") String category,
+                                        @Param("title") String title,
+                                        @Param("content") String content);
+                                        
     // 오류 신고 미처리 개수
     int getErrorCount();
+
+    // 오류 유형 카테고리 값 가져오기
+    String selectInquiryCategoryByBoardId(@Param("boardId") int boardId);
 
     int findUserIdByInquiry(Long inquiryId);
 

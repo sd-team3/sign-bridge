@@ -48,10 +48,7 @@
               <option value="UI_BUG">화면 · 디자인 오류</option>
               <option value="ETC">기타</option>
             </select>
-
-            <label class="form-label" for="relatedWord" style="margin-top:14px;">관련 단어 / 기능</label>
-            <input type="text" id="relatedWord" name="relatedWord" class="form-input" placeholder="예: 감사합니다, 자음 지문자 학습 등">
-            <div class="form-hint">문제가 발생한 학습 페이지나 단어를 적어주시면 확인이 빨라져요.</div>
+            <div class="form-hint">문제 유형을 선택해주시면 확인이 빨라져요.</div>
           </div>
 
           <div class="form-group">

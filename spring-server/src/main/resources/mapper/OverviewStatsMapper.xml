@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.OverviewStatsMapper">
+
+    <select id="countLearnedWords" resultType="int">
+        select count(distinct tsd.sign_word_id)
+        from test_session_detail tsd
+        join test_session ts on tsd.test_session_id = ts.test_session_id
+        where ts.member_id = #{memberId}
+          and ts.test_session_type = 'WORD'
+          and tsd.is_correct = 'Y'
+    </select>
+
+    <select id="findAvgAccuracy" resultType="int">
+        select coalesce(round(avg(ts.correct_count / ts.num_of_question) * 100), 0)
+        from test_session ts
+        where ts.member_id = #{memberId}
+          and ts.test_session_type = 'WORD'
+          and ts.ended_date is not null
+          and ts.num_of_question > 0
+    </select>
+
+    <select id="findRecentWords" resultType="string">
+        select sw.sign_word_name
+        from (
+            select tsd.sign_word_id, max(tsd.answer_date) as last_date
+            from test_session_detail tsd
+            join test_session ts on tsd.test_session_id = ts.test_session_id
+            where ts.member_id = #{memberId}
+              and ts.test_session_type = 'WORD'
+            group by tsd.sign_word_id
+            order by last_date desc
+            limit #{limit}
+        ) recent
+        join sign_word sw on sw.sign_word_id = recent.sign_word_id
+        order by recent.last_date desc
+    </select>
+
+    <select id="findActivityDates" resultType="java.time.LocalDate">
+        select activity_date from (
+            select date(tsd.answer_date) as activity_date
+            from test_session_detail tsd
+            join test_session ts on tsd.test_session_id = ts.test_session_id
+            where ts.member_id = #{memberId}
+            union
+            select date(rcl.reg_date) as activity_date
+            from recognition_confirm_log rcl
+            where rcl.member_id = #{memberId}
+        ) dates
+        order by activity_date desc
+    </select>
+
+    <select id="findChoseongProgress" resultType="com.soldesk.vo.ChoseongProgressVO">
+        select coalesce(nullif(sw.choseong, ''), '기타') as choseong,
+            count(distinct sw.sign_word_id) as totalCount,
+            count(distinct case when learned.sign_word_id is not null then sw.sign_word_id end) as learnedCount
+        from sign_word sw
+        left join (
+            select distinct tsd.sign_word_id
+            from test_session_detail tsd
+            join test_session ts on tsd.test_session_id = ts.test_session_id
+            where ts.member_id = #{memberId}
+            and ts.test_session_type = 'WORD'
+            and tsd.is_correct = 'Y'
+        ) learned on learned.sign_word_id = sw.sign_word_id
+        group by coalesce(nullif(sw.choseong, ''), '기타')
+        order by field(coalesce(nullif(sw.choseong, ''), '기타'),
+            'ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ','기타')
+    </select>
+
+</mapper>

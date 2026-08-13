@@ -19,19 +19,12 @@ public class BoardService {
     @Autowired
     private BoardSearchService boardSearchService;
 
-    @Autowired
-    private AdminService adminService;
 
     @Transactional
     public void updateBoard(BoardVO board) {
         boardMapper.updateBoard(board);
         BoardVO indexBoard = boardMapper.selectBoardByBoardId(board.getBoardId());
         boardSearchService.indexBoard(indexBoard);
-
-        // 오류신고 게시글이면 연결된 inquiry 내용도 같이 갱신
-        if ("REPORT".equals(board.getCategoryIdx())) {
-            adminService.syncInquiryContentByBoard(board.getBoardId(), board.getBoardContent());
-        }
     }
 
     @Transactional
