@@ -119,7 +119,9 @@ public class AdminController {
     public String userInfo(Model model,
             @RequestParam int memberId) {
         MemberVO member = memberService.getMemberInfo(memberId);
+        List<BoardVO> boards = boardService.boardByMemberId(memberId);
         model.addAttribute("member", member);
+        model.addAttribute("boards", boards);
         return "admin/userInfo";
     }
 
@@ -139,7 +141,7 @@ public class AdminController {
     }
 
     // 연쇄 삭제는 회의 후 결정
-    @PostMapping("/user/delete")
+    @PostMapping("/user/delete")    
     public String userDelete(@RequestParam int memberId) {
 
         memberService.deleteMember(memberId);

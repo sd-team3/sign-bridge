@@ -125,4 +125,12 @@
         </if>
     </select>
 
+    <select id="boardByMemberId" resultMap="boardResultMap">
+        select board_id, board_title, category_idx, reg_date
+        from board
+        where member_id = #{memberId}
+        order by reg_date desc
+        limit 5
+    </select>
+
 </mapper>

@@ -20,7 +20,6 @@
   <div>
     <div class="section-eyebrow">단어 관리</div>
     <div class="section-hd">단어 상세 / 수정</div>
-    <div class="section-sub">단어 정보를 확인하고 수정합니다</div>
   </div>
 </div>
 
