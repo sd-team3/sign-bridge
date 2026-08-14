@@ -298,7 +298,7 @@ body.page-register .auth-box{max-width:480px} /* auth_register.html: 폼이 더 
 .result-count{font-size:14px;font-weight:700;color:var(--text-sub);margin-bottom:16px}
 
 /* learn_main.html 전용 */
-.learn-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:40px 40px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;gap:24px;color:#fff;flex-wrap:wrap}
+.learn-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:40px 40px;margin-bottom:32px;display:flex;align-items:center;justify-content:flex-start;gap:24px;color:#fff;flex-wrap:wrap}
 .learn-hero-text h1{font-size:26px;font-weight:900;letter-spacing:-.5px}
 .learn-hero-text p{font-size:15px;font-weight:500;color:rgba(255,255,255,.85);margin-top:8px}
 .learn-hero-stats{display:flex;gap:0}

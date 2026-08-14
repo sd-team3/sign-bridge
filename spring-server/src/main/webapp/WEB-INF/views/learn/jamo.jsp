@@ -243,7 +243,7 @@ document.getElementById('jdClose').addEventListener('click', () => {
       console.error('카메라 시작 실패: ', error);
       started = false;
       window.jamoCamStarted = false;
-      resultEl.textContent = message;
+      resultEl.textContent = '카메라 연결 실패';
       resultEl.style.cursor = 'pointer';
     }
   });
