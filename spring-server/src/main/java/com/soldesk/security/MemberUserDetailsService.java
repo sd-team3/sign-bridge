@@ -35,6 +35,7 @@ public class MemberUserDetailsService implements UserDetailsService {
         boolean enabled = !"SUSPEND".equals(member.getStatus()); 
 
         return new CustomUserDetail(member.getMemberId(),
+                                    member.getMemberName(),
                                     member.getMemberEmail(), 
                                     member.getMemberPassword(), 
                                     enabled, 

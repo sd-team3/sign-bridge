@@ -19,8 +19,11 @@ import com.soldesk.service.BoardService;
 
 import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import com.soldesk.security.CustomUserDetail;
 import com.soldesk.service.AdminService;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.soldesk.service.MemberService;
 import com.soldesk.vo.MemberVO;
@@ -43,8 +46,11 @@ public class LearnController {
     private BoardService boardService;
 
     @GetMapping("")
-    public String main(Model model) {
+    public String main(Model model, @AuthenticationPrincipal CustomUserDetail userDetails) {
         model.addAttribute("jamoCount", learnService.countAll());
+        if (userDetails != null) {
+            model.addAttribute("memberName", userDetails.getMemberName());
+        }
         return "learn/main";
     }
 
