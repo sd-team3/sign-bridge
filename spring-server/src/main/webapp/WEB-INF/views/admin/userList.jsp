@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="유저 목록" scope="request" />
 <c:set var="pagePath" value="/admin/user/list" scope="request" />
 <c:set var="activeMenu" value="user-list" scope="request" />
@@ -21,7 +22,6 @@
   <div>
     <div class="section-eyebrow">사용자 관리</div>
     <div class="section-hd">유저 목록</div>
-    <div class="section-sub">role 파라미터로 필터링 가능 <span class="topbar-path" style="font-size:11px">/admin/user/list?role=</span></div>
   </div>
 </div>
 
@@ -64,7 +64,7 @@
           <td>${user.memberName}</td>
           <td>${user.memberEmail}</td>
           <td>${user.role}</td>
-          <td class="td-mono">${user.regDate}</td>
+          <td class="td-mono">${fn:substring(user.regDate, 0, 10)}</td>
           <td><span class="pill ${user.status}">${user.status}</span></td>
           <td>
             <c:if test="${user.status == 'SUSPENDED'}">

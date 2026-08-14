@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="게시글 목록" scope="request" />
 <c:set var="pagePath" value="/admin/board/list" scope="request" />
 <c:set var="activeMenu" value="board-list" scope="request" />
@@ -20,7 +21,6 @@
   <div>
     <div class="section-eyebrow">게시판 관리</div>
     <div class="section-hd">게시글 목록</div>
-    <div class="section-sub">카테고리 파라미터로 필터링 가능 <span class="topbar-path" style="font-size:11px">/admin/board/list?category=</span></div>
   </div>
 </div>
 
@@ -67,7 +67,7 @@
           </td>
           <td>${board.boardTitle}</td>
           <td>${board.memberName}</td>
-          <td class="td-mono">${board.regDate}</td>
+          <td class="td-mono">${fn:substring(board.regDate, 0, 10)}</td>
           <td class="td-mono">${board.viewCount}</td>
           <td>
             <button type="button" class="topbar-btn btn-danger" style="padding:4px 10px;font-size:12px"

@@ -21,7 +21,6 @@
   <div>
     <div class="section-eyebrow">사용자 관리</div>
     <div class="section-hd">유저 상세</div>
-    <div class="section-sub">유저 목록에서 선택하거나 UID를 직접 조회</div>
   </div>
   <div style="display:flex;gap:8px">
     <button class="topbar-btn btn-warning" onclick="openModal('modal-stop')">⏸ 정지</button>
@@ -73,12 +72,12 @@
         <table>
           <thead><tr><th>번호</th><th>제목</th><th>카테고리</th><th>작성일</th></tr></thead>
           <tbody>
-            <c:forEach var="post" items="${user.recentPosts}">
+            <c:forEach var="board" items="${boards}">
               <tr>
-                <td class="td-mono">#${post.id}</td>
-                <td>${post.title}</td>
-                <td><span class="pill ${post.categoryPillClass}">${post.categoryLabel}</span></td>
-                <td class="td-mono">${post.createdDate}</td>
+                <td class="td-mono">#${board.boardId}</td>
+                <td>${board.boardTitle}</td>
+                <td><span class="pill ${board.categoryIdx}">${board.categoryIdx}</span></td>
+                <td class="td-mono">${board.regDate}</td>
               </tr>
             </c:forEach>
           </tbody>

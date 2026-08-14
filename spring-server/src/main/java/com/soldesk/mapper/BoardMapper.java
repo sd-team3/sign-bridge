@@ -28,5 +28,7 @@ public interface BoardMapper {
     // 오늘 추가된 게시판 개수
     int countTodayBoard();
 
+    List<BoardVO> boardByMemberId(int memberId);
+
     
 }
