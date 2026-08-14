@@ -21,7 +21,6 @@
   <div>
     <div class="section-eyebrow">사용자 관리</div>
     <div class="section-hd">유저 상세</div>
-    <div class="section-sub">유저 목록에서 선택하거나 UID를 직접 조회</div>
   </div>
   <div style="display:flex;gap:8px">
     <button class="topbar-btn btn-warning" onclick="openModal('modal-stop')">⏸ 정지</button>
