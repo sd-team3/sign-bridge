@@ -51,6 +51,36 @@
           AND status = #{status}
     </select>
 
+    <!-- 오류신고 세부코드(ACTION_RECOGNITION 등) 여러개를 한번에 조회 (ERROR_REPORT 통합 필터용) -->
+    <select id="selectByCategoryListAndStatus" resultMap="inquiryResultMap">
+        <include refid="inquiryBaseSelect"/>
+        WHERE i.category IN
+        <foreach collection="categories" item="cat" open="(" separator="," close=")">
+            #{cat}
+        </foreach>
+        AND i.status = #{status}
+        ORDER BY i.reg_date DESC
+    </select>
+
+    <select id="selectByCategoryList" resultMap="inquiryResultMap">
+        <include refid="inquiryBaseSelect"/>
+        WHERE i.category IN
+        <foreach collection="categories" item="cat" open="(" separator="," close=")">
+            #{cat}
+        </foreach>
+        ORDER BY i.reg_date DESC
+    </select>
+
+    <select id="countByCategoryListAndStatus" resultType="int">
+        SELECT COUNT(*)
+        FROM inquiry
+        WHERE category IN
+        <foreach collection="categories" item="cat" open="(" separator="," close=")">
+            #{cat}
+        </foreach>
+        AND status = #{status}
+    </select>
+
     <update id="updateAnswer">
         UPDATE inquiry
         SET answer_content     = #{answerContent},
