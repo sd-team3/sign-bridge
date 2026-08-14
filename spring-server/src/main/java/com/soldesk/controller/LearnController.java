@@ -124,8 +124,8 @@ public class LearnController {
         }
         Long memberId = (long) member.getMemberId();
 
-        // report.jsp와 동일한 규칙: 오류유형은 [ ], 대상 단어는 ( ) 로 구분
-        String title = "[" + category + "] (" + word + ") 오류 신고";
+        // 수정 - 코드값은 DB에, 한글 라벨은 title에만 쓰도록 분리
+        String title = "(" + word + ") 오류 신고";
         String body = (content == null || content.isBlank())
                 ? "사용자가 해당 단어의 오류를 신고했습니다."
                 : content;
@@ -139,9 +139,27 @@ public class LearnController {
         board.setNoticeYn("Y");
         boardService.writeBoard(board); // board.getBoardId()에 생성된 id 채워짐
 
-        adminService.createInquiry(memberId, "ERROR_REPORT", title, body, board.getBoardId());
+        adminService.createInquiry(memberId, category, title, body, board.getBoardId());
 
         return Map.of("success", true);
+
+    }
+
+    private String toErrorTypeLabel(String code) {
+        switch (code) {
+            case "ACTION_RECOGNITION":
+                return "동작 인식 오류";
+            case "VIDEO_PLAYBACK":
+                return "영상 재생 오류";
+            case "TRANSLATION":
+                return "번역 · 뜻풀이 오류";
+            case "UI_BUG":
+                return "화면 · 디자인 오류";
+            case "ETC":
+                return "기타";
+            default:
+                return code;
+        }
     }
 
 }
