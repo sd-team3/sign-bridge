@@ -86,7 +86,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title"><span class="ct-icon">⚡</span> 최근 활동</div>
+    <div class="card-title"><span class="ct-icon">⚡</span> 카메라 모션 </div>
     <div class="feed">
       <c:forEach var="a" items="${dashboard.recentActivities}">
         <div class="feed-item">

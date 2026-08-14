@@ -73,12 +73,12 @@
         <table>
           <thead><tr><th>번호</th><th>제목</th><th>카테고리</th><th>작성일</th></tr></thead>
           <tbody>
-            <c:forEach var="post" items="${user.recentPosts}">
+            <c:forEach var="board" items="${boards}">
               <tr>
-                <td class="td-mono">#${post.id}</td>
-                <td>${post.title}</td>
-                <td><span class="pill ${post.categoryPillClass}">${post.categoryLabel}</span></td>
-                <td class="td-mono">${post.createdDate}</td>
+                <td class="td-mono">#${board.boardId}</td>
+                <td>${board.boardTitle}</td>
+                <td><span class="pill ${board.categoryIdx}">${board.categoryIdx}</span></td>
+                <td class="td-mono">${board.regDate}</td>
               </tr>
             </c:forEach>
           </tbody>

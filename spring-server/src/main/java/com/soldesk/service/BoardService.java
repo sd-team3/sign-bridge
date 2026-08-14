@@ -97,4 +97,9 @@ public class BoardService {
     public int countTodayBoard() {
         return boardMapper.countTodayBoard();
     }
+
+    @Transactional
+    public List<BoardVO> boardByMemberId(int memberId) {
+        return boardMapper.boardByMemberId(memberId);
+    }
 }
