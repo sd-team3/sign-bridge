@@ -21,6 +21,9 @@ public class AdminService {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private MemberSettingService memberSettingService;
+
     public List<InquiryVO> getInquiryList(String category, String status) {
         if ("ALL".equalsIgnoreCase(status)) {
             return adminMapper.selectByCategory(category);
@@ -48,12 +51,15 @@ public class AdminService {
 
         String linkUrl = (boardId != null) ? "/board/info?boardId=" + boardId : null;
 
-        notificationService.notifyUser(
-                sendToUserId,
-                "문의 처리 알림",
-                "처리 완료되었습니다",
-                linkUrl,
-                "INQUIRY");
+        // 멤버가 알림을 허용할 경우
+        if (memberSettingService.isEnabled(sendToUserId, "INQUIRY")) {
+            notificationService.notifyUser(
+                    sendToUserId,
+                    "문의 처리 알림",
+                    "처리 완료되었습니다",
+                    linkUrl,
+                    "INQUIRY");
+        }
 
         return result > 0;
     }
@@ -64,8 +70,12 @@ public class AdminService {
     }
 
     // board 수정할 때 연결된 inquiry 내용도 같이 맞춰줌
-    public void syncInquiryContentByBoard(int boardId, String content) {
-        adminMapper.updateInquiryContentByBoardId(boardId, content);
+    public void syncInquiryContentByBoard(int boardId, String category, String title, String content) {
+        adminMapper.updateInquiryContentByBoardId(boardId, category, title, content);
+    }
+
+    public String getInquiryCategoryByBoardId(int boardId) {
+        return adminMapper.selectInquiryCategoryByBoardId(boardId);
     }
 
     // 오류 신고 미처리 카운트

@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.soldesk.service.AdminService;
-import com.soldesk.service.BoardErrorReportService;
 import com.soldesk.service.BoardSearchService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.BoardService;
@@ -45,8 +44,6 @@ public class BoardController {
     private SecurityUtil securityUtil;
     @Autowired
     private AdminService adminService;
-    @Autowired
-    private BoardErrorReportService boardErrorReportService;
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
@@ -78,8 +75,7 @@ public class BoardController {
     // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
     @PostMapping("/write")
     public String writeSubmit(@ModelAttribute BoardVO board, 
-        @RequestParam(required = false) String errorType, 
-        @RequestParam(required = false) String relatedWord) {
+        @RequestParam(required = false) String errorType) {
 
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         MemberVO member = memberService.getMemberByEmail(memberEmail);
@@ -94,12 +90,9 @@ public class BoardController {
 
         // 오류신고 게시글이면 관리자 페이지에서도 확인할 수 있게 inquiry 같이 생성
         if ("REPORT".equals(board.getCategoryIdx())) {
-            // 오류 정보(오류 유형, 관련 단어/기능) 저장
-            boardErrorReportService.insertError(board.getBoardId(), errorType, relatedWord);
-
             adminService.createInquiry(
                     (long) member.getMemberId(),
-                    "ERROR_REPORT",
+                    errorType,
                     board.getBoardTitle(),
                     board.getBoardContent(),
                     board.getBoardId());
@@ -142,6 +135,10 @@ public class BoardController {
         model.addAttribute("board", board);
         model.addAttribute("currentMemberId", securityUtil.getCurrentMemberId());
 
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
+        }
+
         return "board/info";
     }
 
@@ -149,11 +146,18 @@ public class BoardController {
     public String updateBoard(@RequestParam int boardId, Model model) {
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
+
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
+        }
+
         return "board/update";
     }
 
     @PostMapping("/update")
-    public String updateSubmit(@ModelAttribute BoardVO board) {
+    public String updateSubmit(@ModelAttribute BoardVO board,
+        @RequestParam(required = false) String errorType) {
+
         Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(board.getBoardId());
 
@@ -163,6 +167,12 @@ public class BoardController {
 
         board.setMemberId(original.getMemberId());
         boardService.updateBoard(board);
+
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            adminService.syncInquiryContentByBoard(
+                board.getBoardId(), errorType, board.getBoardTitle(), board.getBoardContent());
+        }
+
         return "redirect:/board/info?boardId=" + board.getBoardId();
     }
 
