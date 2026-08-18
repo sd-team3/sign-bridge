@@ -25,5 +25,10 @@ public interface BoardMapper {
     List<BoardVO> findByMemberId(@Param("memberId") int memberId, @Param("category") String category, @Param("start") int offset, @Param("limit") int limit);
     int countByMemberId(@Param("memberId") int memberId, @Param("category") String category);
 
+    // 오늘 추가된 게시판 개수
+    int countTodayBoard();
+
+    List<BoardVO> boardByMemberId(int memberId);
+
     
 }

@@ -20,4 +20,10 @@
         select count(*)
         from jamo
     </select>
+
+    <select id="findByChar" parameterType="string" resultType="com.soldesk.vo.JamoVO">
+        select jamo_id as jamoId, jamo_type as jamoType
+        from jamo
+        where jamo_char = #{jamoChar}
+    </select>
 </mapper>

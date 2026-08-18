@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.soldesk.mapper.FavoriteMapper">
+
+    <select id="existsFavorite" resultType="int">
+        select count(*) from member_favorite_word
+        where member_id = #{memberId} and sign_word_id = #{signWordId}
+    </select>
+
+    <insert id="insertFavorite">
+        insert into member_favorite_word (member_id, sign_word_id)
+        values (#{memberId}, #{signWordId})
+    </insert>
+
+    <delete id="deleteFavorite">
+        delete from member_favorite_word
+        where member_id = #{memberId} and sign_word_id = #{signWordId}
+    </delete>
+
+    <select id="findFavoritesByMember" resultType="com.soldesk.vo.FavoriteWordVO">
+        select f.member_id as memberId, f.sign_word_id as signWordId, f.reg_date as regDate,
+               sw.sign_word_name as signWordName, sw.choseong as choseong
+        from member_favorite_word f
+        join sign_word sw on sw.sign_word_id = f.sign_word_id
+        where f.member_id = #{memberId}
+        order by f.reg_date desc
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="countFavoritesByMember" resultType="int">
+        select count(*) from member_favorite_word where member_id = #{memberId}
+    </select>
+
+    <select id="findFavoriteIdsByMember" resultType="int">
+        select sign_word_id from member_favorite_word where member_id = #{memberId}
+    </select>
+
+</mapper>

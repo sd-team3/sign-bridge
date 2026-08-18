@@ -22,7 +22,24 @@
     <div class="detail-layout">
       <!-- 메인 -->
       <div>
-
+      <!-- 오류 신고 부분 -->
+      <c:if test="${board.categoryIdx == 'REPORT'}">
+        <div class="report-detail-box">
+          <div class="report-detail-row">
+            <span>오류 유형</span>
+            <span>
+              <c:choose>
+                <c:when test="${errorType == 'ACTION_RECOGNITION'}">동작 인식 오류</c:when>
+                <c:when test="${errorType == 'VIDEO_PLAYBACK'}">영상 재생 오류</c:when>
+                <c:when test="${errorType == 'TRANSLATION'}">번역 · 뜻풀이 오류</c:when>
+                <c:when test="${errorType == 'UI_BUG'}">화면 · 디자인 오류</c:when>
+                <c:when test="${errorType == 'ETC'}">기타</c:when>
+                <c:otherwise>${errorType}</c:otherwise>
+              </c:choose>
+            </span>
+          </div>
+        </div>
+      </c:if>
         <!-- 게시글 헤더 -->
         <div class="detail-header">
           <div class="detail-badge-row">

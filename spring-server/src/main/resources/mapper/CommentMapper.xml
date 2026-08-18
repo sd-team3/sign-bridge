@@ -25,7 +25,6 @@
         from comment
         where comment_id = #{commentId}
     </select>
-    <!-- 변경 -->
     <select id="selectComments" parameterType="int" resultMap="commentResultMap">
         select 
             c.comment_id, c.comment_content, c.board_id, c.member_id, 
@@ -85,7 +84,7 @@
     </update>
     
     <select id="findByMemberId" resultMap="commentResultMap">
-        select cm.comment_id, cm.board_id, cm.comment_content, cm.reg_date, b.board_title,
+        select cm.comment_id, cm.member_id, cm.board_id, cm.comment_content, cm.reg_date, b.board_title,
             (select count(*) from comment r where r.parent_comment_id = cm.comment_id and r.del_yn = 'N') as reply_cnt
         from comment cm
         join board b on cm.board_id = b.board_id

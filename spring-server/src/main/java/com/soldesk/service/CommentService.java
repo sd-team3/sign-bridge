@@ -8,13 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.soldesk.mapper.BoardMapper;
 import com.soldesk.mapper.CommentMapper;
+import com.soldesk.vo.BoardVO;
 import com.soldesk.vo.CommentVO;
 
 @Service
 public class CommentService {
     @Autowired
     private CommentMapper commentMapper;
+    @Autowired
+    private BoardMapper boardMapper;
+    @Autowired
+    private NotificationService notificationService;
+    @Autowired
+    private MemberSettingService memberSettingService;
     
     @Transactional
     public void insertComment(CommentVO comment) {
@@ -25,7 +33,22 @@ public class CommentService {
             } 
         }
         commentMapper.insertComment(comment);
+
+        if (!"Y".equals(comment.getIsAdminAnswer())) {
+            BoardVO board = boardMapper.selectBoardByBoardId(comment.getBoardId());
+            int sendToUserId = board.getMemberId();
+            String linkUrl = "/board/info?boardId=" + board.getBoardId();
+
+            if (memberSettingService.isEnabled(sendToUserId, "COMMENT")) {
+                notificationService.notifyUser(
+                    sendToUserId, "댓글 알림", 
+                    comment.getCommentContent(), 
+                    linkUrl, 
+                    "COMMENT");
+            }
+        }
     }
+
     @Transactional(readOnly = true)
     public CommentVO getComment(int commentId) {
         return commentMapper.selectById(commentId);

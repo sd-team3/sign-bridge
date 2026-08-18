@@ -6,7 +6,7 @@
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
 <header>
-    <div class="logo">✋ SignBridge</div>
+<div class="logo"><img src="${ctx}/resources/images/logo-mark.png" alt="SignBridge"> SignBridge</div>
     <nav>
     <a href="${ctx}/">홈</a>
     <div class="nav-item has-sub">

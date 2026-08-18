@@ -44,6 +44,13 @@
         </where> 
     </select>
 
+    <!-- 오늘 추가된 게시판 개수 -->
+    <select id="countTodayBoard" resultType="int">
+        SELECT COUNT(*) 
+        FROM member 
+        WHERE DATE(reg_date) = CURDATE();
+    </select>
+
     <select id="getBoardStats" resultType="map">
         select count(*) as allBoardCnt,
             sum(case when category_idx = 'NOTICE' then 1 else 0 end) as noticeBoardCnt,
@@ -60,13 +67,12 @@
     </insert>
 
     <select id="selectBoardByBoardId" parameterType="int" resultMap="boardResultMap">
-        select b.board_id, b.member_id, b.board_title, b.board_content, 
-            b.category_idx, b.view_count, b.reg_date, b.mod_date, 
+        select b.board_id, b.member_id, b.board_title, b.board_content,
+            b.category_idx, b.view_count, b.reg_date, b.mod_date,
             COALESCE(m.member_name, '알 수 없음') as member_name
         from board b
-        left join member m 
-        on b.member_id = m.member_id
-        where board_id = #{boardId}
+        left join member m on b.member_id = m.member_id
+        where b.board_id = #{boardId}
     </select>
 
     <update id="increaseViewCount">
@@ -118,4 +124,13 @@
             and category_idx = #{category}
         </if>
     </select>
+
+    <select id="boardByMemberId" resultMap="boardResultMap">
+        select board_id, board_title, category_idx, reg_date
+        from board
+        where member_id = #{memberId}
+        order by reg_date desc
+        limit 5
+    </select>
+
 </mapper>

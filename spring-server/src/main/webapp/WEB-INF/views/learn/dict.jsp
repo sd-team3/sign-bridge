@@ -128,6 +128,8 @@
       </div>
 
       <div class="detail-word-name" id="detailWordName"></div>
+      <span class="fav-star detail-fav-star" id="detailFavStar">☆</span>
+      
 
       <div class="detail-divider"></div>
       <div class="detail-section-label">설명</div>
@@ -155,12 +157,12 @@
     <div class="report-modal-title">⚠ 오류 신고</div>
     <div class="report-modal-word" id="reportTargetWord"></div>
     <select id="reportCategorySelect" class="form-input">
-    <option>동작 인식 오류</option>
-    <option>영상 재생 오류</option>
-    <option>번역 · 뜻풀이 오류</option>
-    <option>화면 · 디자인 오류</option>
-    <option>기타</option>
-  </select>
+    <option value="ACTION_RECOGNITION">동작 인식 오류</option>
+    <option value="VIDEO_PLAYBACK">영상 재생 오류</option>
+    <option value="TRANSLATION">번역 · 뜻풀이 오류</option>
+    <option value="UI_BUG">화면 · 디자인 오류</option>
+    <option value="ETC">기타</option>
+    </select>
     <textarea id="reportReasonInput" class="report-reason-input" placeholder="어떤 부분이 잘못됐는지 알려주세요 (선택사항)"></textarea>
     <div class="report-modal-btns">
       <button class="btn btn-ghost btn-sm" id="reportCancelBtn">취소</button>
@@ -182,6 +184,20 @@
 const CTX = "${pageContext.request.contextPath}";
 </script>
 <script src="${pageContext.request.contextPath}/resources/js/sign-word.js"></script>
+
+<script>
+// 오답노트 등에서 word 파라미터로 진입 시 해당 단어 상세 모달 자동 오픈
+(function () {
+  const params = new URLSearchParams(location.search);
+  const targetWordName = params.get("word");
+  if (!targetWordName) return;
+
+  loadAllWords().then(() => {
+    const target = ALL_WORDS.find(w => w.signWordName === targetWordName);
+    if (target) openDetailModal(target);
+  });
+})();
+</script>
 
 <!-- 수어 인식 모듈 -->
 <script type="module">

@@ -6,8 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -20,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.soldesk.service.AdminService;
+import com.soldesk.service.BoardService;
+import com.soldesk.service.CommentService;
 import com.soldesk.service.LearnService;
 import com.soldesk.service.MemberService;
 import com.soldesk.service.SuspendService;
 import com.soldesk.vo.AnswerRequest;
+import com.soldesk.vo.BoardVO;
 import com.soldesk.vo.InquiryVO;
 import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
@@ -36,8 +37,8 @@ public class AdminController {
     @Autowired
     private MemberService memberService;
 
-    // @Autowired
-    // private BoardService boardService;
+    @Autowired
+    private BoardService boardService;
 
     @Autowired
     private SuspendService suspendService;
@@ -48,6 +49,9 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private CommentService commentService;
+
     @GetMapping("/main")
     public String dashboard(Model model, Authentication authentication) {
 
@@ -57,9 +61,8 @@ public class AdminController {
         int totalUsers = memberService.getMemberCount();
         int newUsersToday = memberService.newUserToday();
 
-        // board 만들어지면 쿼리문 매핑해서 하기
-        // int totalPosts = boardService.getBoardCount();
-        // int newBoardToday = boardService.newBoardToday();
+        int totalPosts = boardService.getCategoryBoardCount(null);
+        int newBoardToday = boardService.countTodayBoard();
 
         // 주간 일별 추가 회원 수
         List<Integer> weeklySignups = memberService.getWeeklySignupCounts();
@@ -70,12 +73,14 @@ public class AdminController {
         int errorCount = adminService.getErrorCount();
         model.addAttribute("todayLabel", today);
         model.addAttribute("totalUsers", totalUsers);
-        // model.addAttribute("totalPosts", totalPosts);
-        // model.addAttribute("newBoardToday", newBoardToday);
+        model.addAttribute("totalPosts", totalPosts);
+        model.addAttribute("newBoardToday", newBoardToday);
         model.addAttribute("newUsersToday", newUsersToday);
         model.addAttribute("weeklySignups", weeklySignups);
         model.addAttribute("weeklyMax", weeklyMax);
         model.addAttribute("errorCount", errorCount);
+        model.addAttribute("totalPosts", totalPosts);
+        model.addAttribute("newBoardToday", newBoardToday);
         return "admin/dashboard";
     }
 
@@ -114,7 +119,9 @@ public class AdminController {
     public String userInfo(Model model,
             @RequestParam int memberId) {
         MemberVO member = memberService.getMemberInfo(memberId);
+        List<BoardVO> boards = boardService.boardByMemberId(memberId);
         model.addAttribute("member", member);
+        model.addAttribute("boards", boards);
         return "admin/userInfo";
     }
 
@@ -134,7 +141,7 @@ public class AdminController {
     }
 
     // 연쇄 삭제는 회의 후 결정
-    @PostMapping("/user/delete")
+    @PostMapping("/user/delete")    
     public String userDelete(@RequestParam int memberId) {
 
         memberService.deleteMember(memberId);
@@ -204,6 +211,31 @@ public class AdminController {
         boolean result = adminService.answerInquiry(
                 request.getInquiryId(), request.getAnswerContent(), adminMemberId, sendToUserId);
         return Map.of("success", result);
+    }
+
+    @GetMapping("/board/list")
+    public String boardList(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
+            Model model) {
+        
+        int boardCnt = boardService.getCategoryBoardCount(category);
+        int count = 10;
+        PageBean pageBean = new PageBean(page, boardCnt, count);
+        List<BoardVO> boards = boardService.getBoardByCategory(category, page, count);
+        
+        if (category != null) {
+            model.addAttribute("category", category);
+        }
+        model.addAttribute("pageBean", pageBean);
+        model.addAttribute("boardList", boards);
+        return "admin/boardList";
+    }
+
+    @PostMapping("/board/delete")
+    public String boardDelete(@RequestParam int boardId) {
+        commentService.deleteAllCommentsByBoardId(boardId);
+        boardService.deleteBoard(boardId);
+        
+        return "redirect:/admin/board/list";
     }
 
 }
