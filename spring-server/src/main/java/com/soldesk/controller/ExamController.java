@@ -70,7 +70,6 @@ public class ExamController {
         return "exam/result";
     }
 
-    /** 시험 시작: test_session 생성 + 문제 목록 HttpSession에 저장 */
     @PostMapping("/api/start")
     @ResponseBody
     public Map<String, Object> start(@RequestParam String mode, @RequestParam int count, HttpSession session) {
