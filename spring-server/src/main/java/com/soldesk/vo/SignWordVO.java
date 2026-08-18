@@ -8,6 +8,7 @@ public class SignWordVO {
     private String signWordVideo;
     private String signWordThumbnail;
     private String description;
+    private String meaning;
     private String signWordApiId;
     private Integer viewCount;
 
@@ -60,6 +61,14 @@ public class SignWordVO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getMeaning() {
+        return meaning;
+    }
+
+    public void setMeaning(String meaning) {
+        this.meaning = meaning;
     }
 
     public String getSignWordApiId() {
