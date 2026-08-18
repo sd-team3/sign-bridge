@@ -38,6 +38,7 @@ public class ExamService {
             q.setSignWordId(w.getSignWordId());
             q.setWord(w.getSignWordName());
             q.setType(isSubjective ? "subjective" : "choice");
+            q.setDescription(w.getMeaning());
 
             if (!isSubjective) {
                 List<SignWordVO> distractors = signWordMapper.findRandomChoices(w.getSignWordId(), 3);
