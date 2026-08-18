@@ -61,6 +61,7 @@ public class ExamService {
             q.setSignWordId(w.getSignWordId());
             q.setWord(w.getSignWordName());
             q.setType("motion");
+            q.setDescription(w.getDescription());
             result.add(q);
         }
         return result;
