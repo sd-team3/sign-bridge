@@ -28,8 +28,8 @@ public class LearnService {
 
     // 사전 전체 목록(필터 없는 경우) 캐시.
     // 페이지 이동할 때마다 3696건을 매번 새로 긁어오면 너무 느려서
-    // 서버 메모리에 한 번만 담아두고 재사용. 조원이 DB 직접 안 건드리는 이상
-    // 데이터가 자주 안 바뀌니 캐싱해도 안전함. 어드민이 단어 수정하면 clearWordCache()로 비움.
+    // 서버 메모리에 한 번만 담아두고 재사용.
+    // 어드민이 단어 수정하면 clearWordCache()로 비움.
     private volatile List<SignWordVO> allWordsCache = null;
 
     public List<JamoVO> getConsonants() {
