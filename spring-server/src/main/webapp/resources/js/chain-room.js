@@ -157,10 +157,25 @@ function connectWs() {
           (payload.valid ? `(+${payload.scoreDelta}점)` : `(실패: ${payload.reasonCode})`),
           payload.valid
         );
-        fetchState();
+        if (state) {
+          const m = (state.members || []).find(x => x.memberId === payload.memberId);
+          if (m) {
+            m.lives = payload.lives;
+            m.score = (m.score || 0) + (payload.scoreDelta || 0);
+            m.eliminated = payload.eliminated;
+          }
+        }
+        render();
         break;
       case "GAME_END":
-        fetchState();
+        if (state) {
+          state.status = "ENDED";
+          (state.members || []).forEach(m => {
+            if (payload.finalScores && payload.finalScores[m.memberId] != null) m.score = payload.finalScores[m.memberId];
+            if (payload.finalRanks && payload.finalRanks[m.memberId] != null) m.finalRank = payload.finalRanks[m.memberId];
+          });
+        }
+        render();
         clearInterval(timerInterval);
         break;
     }

@@ -2,6 +2,7 @@ package com.soldesk.game;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -31,7 +32,10 @@ public class ChainRoomState {
     private volatile String requiredFirstChar = null; // null = 이번 판 첫 턴(아무 단어나 가능)
 
     private final Set<Integer> eliminated = ConcurrentHashMap.newKeySet();
+    private final List<Integer> eliminationOrder = new CopyOnWriteArrayList<>();
     private final Set<String> usedWords = ConcurrentHashMap.newKeySet();
+    private final Map<Integer, Integer> lives = new ConcurrentHashMap<>();
+    private final Map<Integer, Integer> scores = new ConcurrentHashMap<>();
 
     /** 현재 턴 플레이어의 자모 조합 상태. 턴이 바뀔 때마다 새로 만든다. */
     private volatile RecognitionState currentComposerState = new RecognitionState();
@@ -77,7 +81,31 @@ public class ChainRoomState {
     public Set<Integer> getEliminated() { return eliminated; }
     public boolean isEliminated(int memberId) { return eliminated.contains(memberId); }
 
+    /** eliminated 표시 + 탈락 순서 기록을 한 번에 (DB 없이 순위 계산에 사용) */
+    public void markEliminated(int memberId) {
+        if (eliminated.add(memberId)) {
+            eliminationOrder.add(memberId);
+        }
+    }
+
+    public List<Integer> getEliminationOrder() { return eliminationOrder; }
+
     public Set<String> getUsedWords() { return usedWords; }
+
+    public void initLivesAndScore(List<Integer> memberIds) {
+        for (Integer id : memberIds) {
+            lives.put(id, 3);
+            scores.put(id, 0);
+        }
+    }
+
+    public int getLives(int memberId) { return lives.getOrDefault(memberId, 0); }
+    public void setLives(int memberId, int value) { lives.put(memberId, value); }
+
+    public int getScore(int memberId) { return scores.getOrDefault(memberId, 0); }
+    public int addScore(int memberId, int delta) {
+        return scores.merge(memberId, delta, Integer::sum);
+    }
 
     public RecognitionState getCurrentComposerState() { return currentComposerState; }
     public void resetComposerState() { this.currentComposerState = new RecognitionState(); }

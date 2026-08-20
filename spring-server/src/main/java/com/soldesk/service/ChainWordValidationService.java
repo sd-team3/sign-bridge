@@ -1,9 +1,12 @@
 package com.soldesk.service;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,7 +29,7 @@ import com.soldesk.vo.ChainWordVO;
  *  3. API로 새로 검증된 단어는 chain_word 에 캐시 적재해서 다음부터는 DB만으로 판정
  */
 @Service
-public class ChainWordValidationService {
+public class ChainWordValidationService implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(ChainWordValidationService.class);
 
@@ -41,6 +44,21 @@ public class ChainWordValidationService {
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // wordName -> chainWordId. DB를 매번 안 타도록 검증된 단어를 메모리에 올려둔다.
+    private final Map<String, Long> wordCache = new ConcurrentHashMap<>();
+
+    @Override
+    public void afterPropertiesSet() {
+        try {
+            for (ChainWordVO w : chainWordMapper.findAll()) {
+                wordCache.put(w.getWordName(), w.getChainWordId());
+            }
+            log.info("chain_word 캐시 프리로드 완료: {}건", wordCache.size());
+        } catch (Exception e) {
+            log.warn("chain_word 캐시 프리로드 실패 (DB 조회 시점에 채워짐): {}", e.getMessage());
+        }
+    }
 
     // 순우리말 음절 2~10자, 완성형 한글만 허용
     private static final Pattern HANGUL_WORD = Pattern.compile("^[가-힣]{2,10}$");
@@ -64,18 +82,25 @@ public class ChainWordValidationService {
             return ChainWordValidationResult.invalid(ChainWordLogVO.REASON_WRONG_START_CHAR);
         }
 
-        // 1) DB 캐시(chain_word) 우선 확인
+        // 1) 메모리 캐시 우선 확인 (같은 서버 인스턴스에서 이미 검증된 단어는 DB조차 안 탐)
+        Long cachedId = wordCache.get(word);
+        if (cachedId != null) {
+            return ChainWordValidationResult.valid(cachedId);
+        }
+
+        // 2) DB 캐시(chain_word) 확인 - 다른 방/이전 세션에서 검증된 단어일 수 있음
         ChainWordVO cached = chainWordMapper.findByName(word);
         if (cached != null) {
+            wordCache.put(word, cached.getChainWordId());
             return ChainWordValidationResult.valid(cached.getChainWordId());
         }
 
-        // 2) 국립국어원 Open API 로 실제 단어인지 확인
+        // 3) 국립국어원 Open API 로 실제 단어인지 확인
         if (!checkExternalDictionary(word)) {
             return ChainWordValidationResult.invalid(ChainWordLogVO.REASON_NOT_FOUND);
         }
 
-        // 3) 신규 검증 단어 캐시 적재
+        // 4) 신규 검증 단어 DB+메모리 캐시 적재
         ChainWordVO newWord = new ChainWordVO();
         newWord.setWordName(word);
         newWord.setFirstChar(word.substring(0, 1));
@@ -87,6 +112,7 @@ public class ChainWordValidationService {
         }
         ChainWordVO saved = chainWordMapper.findByName(word);
         Long chainWordId = saved != null ? saved.getChainWordId() : null;
+        if (chainWordId != null) wordCache.put(word, chainWordId);
         return ChainWordValidationResult.valid(chainWordId);
     }
 

@@ -5,11 +5,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +32,6 @@ import com.soldesk.mapper.ChainRoomMapper;
 import com.soldesk.mapper.ChainWordLogMapper;
 import com.soldesk.mapper.MemberMapper;
 import com.soldesk.service.ChainWordValidationService;
-import com.soldesk.vo.ChainRoomMemberVO;
 import com.soldesk.vo.ChainWordLogVO;
 import com.soldesk.vo.LandmarkDto;
 import com.soldesk.vo.PredictResponse;
@@ -42,9 +41,10 @@ import com.soldesk.vo.RecognitionState;
  * 진행 중인 끝말잇기 게임(들)의 실시간 상태를 관리하는 싱글턴 엔진.
  *
  * - 방 하나당 {@link ChainRoomState} 인스턴스 하나
- * - 프레임(자모 인식) 처리는 여기서 바로 처리해서 지연 없이 진행률/확정 글자를 방에 브로드캐스트
- * - "턴 완료" / "턴 타임아웃"은 같은 resolveTurn() 로직을 타며, 여기서만 DB에 반영한다
- *   (프레임 하나하나마다 DB를 건드리지 않음 - 0.15초 간격 폴링이라 부하가 크기 때문)
+ * - lives/score/탈락순서는 {@link ChainRoomState}에 메모리로만 들고 판정/브로드캐스트를 처리한다
+ *   (판정 경로에 동기 DB 조회가 전혀 없음 - RDS 등 원격 DB 왕복 지연이 체감 지연으로 직결되는 걸 막기 위함)
+ * - DB 반영(로그/점수/턴/탈락/종료)은 판정·브로드캐스트 이후 persistenceExecutor로 비동기 처리한다.
+ *   같은 방의 쓰기 순서를 보장하기 위해 단일 스레드 executor를 사용한다.
  */
 @Service
 public class ChainGameManager implements DisposableBean {
@@ -67,8 +67,17 @@ public class ChainGameManager implements DisposableBean {
     private final Map<Long, ChainRoomState> rooms = new ConcurrentHashMap<>();
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // 턴 타임아웃 스케줄링 전용 (여러 방이 동시에 대기하므로 멀티스레드)
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4, r -> {
         Thread t = new Thread(r, "chain-game-scheduler");
+        t.setDaemon(true);
+        return t;
+    });
+
+    // DB 반영 전용 (같은 방의 쓰기 순서 보장을 위해 단일 스레드)
+    private final ExecutorService persistenceExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "chain-persistence");
         t.setDaemon(true);
         return t;
     });
@@ -76,6 +85,7 @@ public class ChainGameManager implements DisposableBean {
     @Override
     public void destroy() {
         scheduler.shutdownNow();
+        persistenceExecutor.shutdown();
     }
 
     public ChainRoomState getState(long roomId) {
@@ -116,7 +126,6 @@ public class ChainGameManager implements DisposableBean {
     public void broadcast(long roomId, String type, Object payload) {
         ChainRoomState state = rooms.get(roomId);
         String json = toJson(type, payload);
-        // 게임 화면 세션 + 아직 남아있는 대기실 세션(방금 막 시작된 경우 등) 모두에게 전달
         if (state != null) {
             for (WebSocketSession s : state.getSessions()) sendSafe(s, json);
         }
@@ -154,11 +163,11 @@ public class ChainGameManager implements DisposableBean {
         state.setTurnOrder(orderedMemberIds);
         state.setCurrentTurnIndex(0);
         state.setRequiredFirstChar(null);
+        state.initLivesAndScore(orderedMemberIds);
         long deadline = System.currentTimeMillis() + baseSec * 1000L;
         state.setTurnDeadlineEpochMillis(deadline);
         rooms.put(roomId, state);
 
-        // 대기실에 붙어있던 세션들을 게임 세션으로 승계
         java.util.Set<WebSocketSession> lobby = lobbySessions.remove(roomId);
         if (lobby != null) state.getSessions().addAll(lobby);
 
@@ -182,7 +191,6 @@ public class ChainGameManager implements DisposableBean {
         if (state == null || state.isEnded()) return;
         Integer memberId = state.getCurrentTurnMemberId();
         if (memberId == null) return;
-        // 시간이 아직 안 지났으면(연장된 직후 등) 무시 - 새 스케줄이 곧 다시 잡혀있음
         if (System.currentTimeMillis() < state.getTurnDeadlineEpochMillis()) return;
         resolveTurn(state, memberId, null, true);
     }
@@ -196,7 +204,6 @@ public class ChainGameManager implements DisposableBean {
 
         Integer currentTurnMemberId = state.getCurrentTurnMemberId();
         if (currentTurnMemberId == null || currentTurnMemberId != memberId) {
-            // 내 턴이 아니면 조용히 무시 (서버 권위 - 클라이언트가 잘못 보내도 무시됨)
             res.setComposedText("");
             return res;
         }
@@ -229,7 +236,6 @@ public class ChainGameManager implements DisposableBean {
                 composerState.markConfirmed();
                 res.setConfirmedChar(rawLabel);
 
-                // 요구사항 7: 자모 하나 확정 성공 시마다 턴 시간 +2초, 실시간으로 다른 플레이어에게도 진행 상황 표시
                 state.extendDeadline(EXTEND_PER_JAMO_MS);
                 scheduleTimeout(state);
 
@@ -283,7 +289,8 @@ public class ChainGameManager implements DisposableBean {
 
     /**
      * 단어 성공/실패/타임아웃 모두 이 메서드 하나로 처리한다.
-     * (요구사항 5,6,7 핵심 로직: 검증 -> 점수/목숨 반영 -> 탈락/우승 판정 -> 다음 턴 진행)
+     * 판정과 다음 턴 결정은 전부 메모리 상태만으로 동기 처리하고 즉시 브로드캐스트하며,
+     * DB 반영은 그 뒤에 persistenceExecutor로 넘긴다 (판정 경로에 DB 왕복이 없음).
      */
     private void resolveTurn(ChainRoomState state, int memberId, String attemptedWord, boolean isTimeout) {
         ReentrantLock lock = state.getTurnLock();
@@ -291,7 +298,7 @@ public class ChainGameManager implements DisposableBean {
         try {
             if (state.isEnded()) return;
             Integer currentTurnMemberId = state.getCurrentTurnMemberId();
-            if (currentTurnMemberId == null || currentTurnMemberId != memberId) return; // 이미 처리된 턴
+            if (currentTurnMemberId == null || currentTurnMemberId != memberId) return;
 
             long roomId = state.getRoomId();
             String word = attemptedWord == null ? "" : attemptedWord.trim();
@@ -316,37 +323,32 @@ public class ChainGameManager implements DisposableBean {
                 else reasonCode = result.getReasonCode();
             }
 
-            // ---- 로그 기록 (게임 종료 후 "전적"의 단어 진행 로그로 그대로 사용됨) ----
-            ChainWordLogVO logVO = new ChainWordLogVO();
-            logVO.setChainRoomId(roomId);
-            logVO.setMemberId(memberId);
-            logVO.setChainWordId(chainWordId);
-            logVO.setAttemptedWord(word.isEmpty() ? "(미입력)" : word);
-            logVO.setTurnNo(nextTurnNo(state));
-            logVO.setIsValid(valid ? "Y" : "N");
-            logVO.setInvalidReasonCode(reasonCode);
-            chainWordLogMapper.insertLog(logVO);
-
             int scoreDelta = 0;
-            int newLives;
-            ChainRoomMemberVO memberRow = chainRoomMapper.findRoomMember(roomId, memberId);
-            int currentLives = memberRow != null ? memberRow.getLives() : 3;
+            int newLives = state.getLives(memberId);
+            boolean justEliminated = false;
 
             if (valid) {
                 state.getUsedWords().add(word);
                 state.setRequiredFirstChar(word.substring(word.length() - 1));
                 scoreDelta = word.length() * 10;
-                newLives = currentLives;
-                chainRoomMapper.updateLivesAndScore(roomId, memberId, newLives, scoreDelta);
-                memberMapper.addPoint(memberId, scoreDelta);
+                state.addScore(memberId, scoreDelta);
             } else {
-                newLives = Math.max(0, currentLives - 1);
-                chainRoomMapper.updateLivesAndScore(roomId, memberId, newLives, 0);
-                if (newLives <= 0) {
-                    state.getEliminated().add(memberId);
-                    chainRoomMapper.eliminateMember(roomId, memberId, LocalDateTime.now());
+                newLives = Math.max(0, newLives - 1);
+                state.setLives(memberId, newLives);
+                if (newLives <= 0 && !state.isEliminated(memberId)) {
+                    state.markEliminated(memberId);
+                    justEliminated = true;
                 }
             }
+
+            final Long finalChainWordId = chainWordId;
+            final int finalTurnNo = nextTurnNo(state);
+            final String finalReasonCode = reasonCode;
+            final boolean finalValid = valid;
+            final String finalWord = word;
+            final int finalScoreDelta = scoreDelta;
+            final int finalNewLives = newLives;
+            final boolean finalJustEliminated = justEliminated;
 
             Map<String, Object> resultPayload = new HashMap<>();
             resultPayload.put("memberId", memberId);
@@ -359,22 +361,42 @@ public class ChainGameManager implements DisposableBean {
             resultPayload.put("requiredFirstChar", state.getRequiredFirstChar());
             broadcast(roomId, "WORD_RESULT", resultPayload);
 
+            // ---- DB 반영은 비동기로 (판정/브로드캐스트를 막지 않음) ----
+            persistenceExecutor.execute(() -> {
+                ChainWordLogVO logVO = new ChainWordLogVO();
+                logVO.setChainRoomId(roomId);
+                logVO.setMemberId(memberId);
+                logVO.setChainWordId(finalChainWordId);
+                logVO.setAttemptedWord(finalWord.isEmpty() ? "(미입력)" : finalWord);
+                logVO.setTurnNo(finalTurnNo);
+                logVO.setIsValid(finalValid ? "Y" : "N");
+                logVO.setInvalidReasonCode(finalReasonCode);
+                chainWordLogMapper.insertLog(logVO);
+
+                chainRoomMapper.updateLivesAndScore(roomId, memberId, finalNewLives, finalScoreDelta);
+                if (finalScoreDelta > 0) memberMapper.addPoint(memberId, finalScoreDelta);
+                if (finalJustEliminated) chainRoomMapper.eliminateMember(roomId, memberId, LocalDateTime.now());
+            });
+
             if (state.aliveCount() <= 1) {
                 endGame(state);
                 return;
             }
 
-            // ---- 다음 턴으로 진행 ----
             int nextIdx = state.nextAliveIndex(state.getCurrentTurnIndex());
             state.setCurrentTurnIndex(nextIdx);
             state.resetComposerState();
             long deadline = System.currentTimeMillis() + state.getTurnTimeLimitBaseSec() * 1000L;
             state.setTurnDeadlineEpochMillis(deadline);
-            chainRoomMapper.advanceTurn(roomId, state.getCurrentTurnMemberId(), toLocalDateTime(deadline), chainWordId);
             scheduleTimeout(state);
 
+            Integer nextTurnMemberId = state.getCurrentTurnMemberId();
+            persistenceExecutor.execute(() ->
+                chainRoomMapper.advanceTurn(roomId, nextTurnMemberId, toLocalDateTime(deadline), finalChainWordId)
+            );
+
             Map<String, Object> turnPayload = new HashMap<>();
-            turnPayload.put("currentTurnMemberId", state.getCurrentTurnMemberId());
+            turnPayload.put("currentTurnMemberId", nextTurnMemberId);
             turnPayload.put("deadlineEpochMillis", deadline);
             turnPayload.put("requiredFirstChar", state.getRequiredFirstChar());
             turnPayload.put("alternativeFirstChar", validationService.alternativeFirstChar(state.getRequiredFirstChar()));
@@ -392,6 +414,7 @@ public class ChainGameManager implements DisposableBean {
                 .incrementAndGet();
     }
 
+    /** 순위는 메모리에 쌓아둔 탈락 순서(eliminationOrder)만으로 계산 - DB 조회 불필요 */
     private void endGame(ChainRoomState state) {
         long roomId = state.getRoomId();
         state.setEnded(true);
@@ -401,40 +424,42 @@ public class ChainGameManager implements DisposableBean {
         Integer winnerId = alive.isEmpty() ? null : alive.get(0);
 
         if (winnerId != null) {
-            chainRoomMapper.updateLivesAndScore(roomId, winnerId, findLives(roomId, winnerId), WINNER_BONUS_SCORE);
-            memberMapper.addPoint(winnerId, WINNER_BONUS_SCORE);
+            state.addScore(winnerId, WINNER_BONUS_SCORE);
         }
-        chainRoomMapper.endRoom(roomId, winnerId);
 
-        // 최종 순위: 우승자 1등, 이후 탈락이 늦은 순서대로 낮은 등수
-        List<ChainRoomMemberVO> members = chainRoomMapper.findMembersByRoom(roomId);
-        if (winnerId != null) chainRoomMapper.setFinalRank(roomId, winnerId, 1);
+        // 탈락이 늦은 사람일수록 높은 순위 (마지막 탈락자가 2등)
+        List<Integer> eliminationOrder = new ArrayList<>(state.getEliminationOrder());
+        java.util.Collections.reverse(eliminationOrder);
 
-        final Integer finalWinnerId = winnerId;
-        List<ChainRoomMemberVO> losers = new ArrayList<>();
-        for (ChainRoomMemberVO m : members) {
-            if (!m.getMemberId().equals(finalWinnerId)) losers.add(m);
-        }
-        losers.sort(Comparator.comparing(
-            (ChainRoomMemberVO m) -> m.getEliminatedDate() == null ? LocalDateTime.MIN : m.getEliminatedDate()
-        ).reversed());
+        Map<Integer, Integer> finalRanks = new HashMap<>();
+        if (winnerId != null) finalRanks.put(winnerId, 1);
         int rank = 2;
-        for (ChainRoomMemberVO loser : losers) {
-            chainRoomMapper.setFinalRank(roomId, loser.getMemberId(), rank++);
+        for (Integer loserId : eliminationOrder) {
+            finalRanks.put(loserId, rank++);
         }
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("winnerMemberId", winnerId);
+        payload.put("finalRanks", finalRanks);
+        Map<Integer, Integer> finalScores = new HashMap<>();
+        for (Integer id : state.getTurnOrder()) finalScores.put(id, state.getScore(id));
+        payload.put("finalScores", finalScores);
         broadcast(roomId, "GAME_END", payload);
+
+        persistenceExecutor.execute(() -> {
+            if (winnerId != null) {
+                chainRoomMapper.updateLivesAndScore(roomId, winnerId, state.getLives(winnerId), WINNER_BONUS_SCORE);
+                memberMapper.addPoint(winnerId, WINNER_BONUS_SCORE);
+            }
+            chainRoomMapper.endRoom(roomId, winnerId);
+            for (Map.Entry<Integer, Integer> e : finalRanks.entrySet()) {
+                chainRoomMapper.setFinalRank(roomId, e.getKey(), e.getValue());
+            }
+        });
 
         rooms.remove(roomId);
         turnCounters.remove(roomId);
         lobbySessions.remove(roomId);
-    }
-
-    private int findLives(long roomId, int memberId) {
-        ChainRoomMemberVO m = chainRoomMapper.findRoomMember(roomId, memberId);
-        return m != null ? m.getLives() : 0;
     }
 
     private LocalDateTime toLocalDateTime(long epochMillis) {
