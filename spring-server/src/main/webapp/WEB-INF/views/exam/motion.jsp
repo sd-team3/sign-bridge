@@ -33,7 +33,7 @@
       </div>
       <div style="display:flex; gap:12px; align-items:center;">
         <span style="font-size:14px; font-weight:700; color:var(--text-sub);">정답 <span id="cam-correct" style="color:var(--primary);">0</span> / 오답 <span id="cam-wrong" style="color:var(--danger);">0</span></span>
-        <a href="/exam/result" class="btn btn-ghost btn-sm">종료</a>
+        <button class="btn btn-ghost btn-sm" onclick="finishExam()">종료</button>
       </div>
     </div>
 
