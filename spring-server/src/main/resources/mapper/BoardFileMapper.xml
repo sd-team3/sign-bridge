@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.BoardFileMapper">
+
+    <insert id="insertBoardFile" parameterType="com.soldesk.vo.BoardFileVO">
+        INSERT INTO board_file (board_id, orig_name, saved_name, file_path, file_type, file_size)
+        VALUES (#{boardId}, #{origName}, #{savedName}, #{filePath}, #{fileType}, #{fileSize})
+    </insert>
+
+    <select id="selectFilesByBoardId" resultType="com.soldesk.vo.BoardFileVO">
+        SELECT board_file_id AS boardFileId, board_id AS boardId, orig_name AS origName,
+               saved_name AS savedName, file_path AS filePath, file_type AS fileType,
+               file_size AS fileSize, reg_date AS regDate
+        FROM board_file
+        WHERE board_id = #{boardId}
+        ORDER BY board_file_id ASC
+    </select>
+
+    <select id="selectFileById" resultType="com.soldesk.vo.BoardFileVO">
+        SELECT board_file_id AS boardFileId, board_id AS boardId, orig_name AS origName,
+            saved_name AS savedName, file_path AS filePath, file_type AS fileType,
+            file_size AS fileSize, reg_date AS regDate
+        FROM board_file
+        WHERE board_file_id = #{boardFileId}
+    </select>
+
+    <delete id="deleteBoardFileById">
+        DELETE FROM board_file WHERE board_file_id = #{boardFileId}
+    </delete>
+</mapper>

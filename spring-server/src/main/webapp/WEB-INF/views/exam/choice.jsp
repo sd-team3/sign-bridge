@@ -7,6 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 수어 시험 진행 (퀴즈)</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>

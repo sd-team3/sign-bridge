@@ -7,6 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 수어 학습 플랫폼</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${ctx}/resources/css/shared.css">
@@ -16,7 +18,8 @@
 <!-- NAV -->
 <nav>
   <a href="${ctx}/" class="nav-logo">
-    <div class="nav-logo-icon">✋</div>
+    <div class="nav-logo-icon"><img src="${ctx}/resources/images/icon-180.png" alt="SignBridge"></div>
+    
     <span class="nav-logo-text">SignBridge</span>
   </a>
   <div class="nav-links">
@@ -66,7 +69,7 @@
       </div>
     </div>
 
-    <a href="#" class="nav-link">게시판</a>
+    <a href="${ctx}/board/list" class="nav-link">게시판</a>
   </div>
 
   <div class="nav-cta">
