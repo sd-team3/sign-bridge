@@ -153,20 +153,48 @@ public class ChainWordValidationService implements InitializingBean {
             JsonNode root = objectMapper.readTree(body);
             JsonNode channel = root.path("channel");
             int total = channel.path("total").asInt(0);
-            if (total <= 0) return false;
+            if (total <= 0) {
+                log.debug("krdict 검색 결과 0건 (단어: {}) 응답: {}", word, body);
+                return false;
+            }
 
-            JsonNode items = channel.path("item");
+            // "item"이 결과 1건일 때 배열이 아니라 단일 객체로 오는 API가 많음 - 둘 다 처리
+            JsonNode itemsNode = channel.path("item");
+            java.util.List<JsonNode> items = new java.util.ArrayList<>();
+            if (itemsNode.isArray()) {
+                itemsNode.forEach(items::add);
+            } else if (itemsNode.isObject()) {
+                items.add(itemsNode);
+            }
+
             for (JsonNode item : items) {
-                String pos = item.path("sense").path("pos").asText("");
+                String pos = extractPos(item);
                 String itemWord = item.path("word").asText("").replaceAll("[^가-힣]", "");
                 if (itemWord.equals(word) && pos.contains("명사")) {
                     return true;
                 }
             }
+            log.info("krdict 응답에 단어는 있으나 조건(명사) 불일치로 거부됨 (단어: {}) 응답: {}", word, body);
             return false;
         } catch (Exception e) {
             log.error("국립국어원 API 조회 실패 (단어: {}): {}", word, e.getMessage());
             return false;
         }
+    }
+
+    /** pos가 item 레벨에 바로 있을 수도, sense(단일 객체 또는 배열) 안에 있을 수도 있어 둘 다 확인 */
+    private String extractPos(JsonNode item) {
+        String direct = item.path("pos").asText("");
+        if (!direct.isBlank()) return direct;
+
+        JsonNode sense = item.path("sense");
+        if (sense.isArray()) {
+            for (JsonNode s : sense) {
+                String p = s.path("pos").asText("");
+                if (!p.isBlank()) return p;
+            }
+            return "";
+        }
+        return sense.path("pos").asText("");
     }
 }
