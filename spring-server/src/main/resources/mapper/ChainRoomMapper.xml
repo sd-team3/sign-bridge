@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.ChainRoomMapper">
+
+    <!-- ================= chain_room ================= -->
+
+    <insert id="insertRoom" parameterType="com.soldesk.vo.ChainRoomVO" useGeneratedKeys="true" keyProperty="chainRoomId">
+        insert into chain_room
+            (chain_room_name, status, chain_room_capacity, turn_time_limit_base_sec, host_member_id)
+        values
+            (#{chainRoomName}, 'WAITING', #{chainRoomCapacity}, #{turnTimeLimitBaseSec}, #{hostMemberId})
+    </insert>
+
+    <select id="findRoomById" resultType="com.soldesk.vo.ChainRoomVO">
+        select
+            chain_room_id as chainRoomId,
+            chain_room_name as chainRoomName,
+            status as status,
+            chain_room_capacity as chainRoomCapacity,
+            turn_time_limit_base_sec as turnTimeLimitBaseSec,
+            host_member_id as hostMemberId,
+            current_turn_member_id as currentTurnMemberId,
+            current_turn_deadline as currentTurnDeadline,
+            last_chain_word_id as lastChainWordId,
+            winner_member_id as winnerMemberId,
+            reg_date as regDate,
+            started_date as startedDate,
+            ended_date as endedDate
+        from chain_room
+        where chain_room_id = #{chainRoomId}
+    </select>
+
+    <select id="findWaitingRooms" resultType="com.soldesk.vo.ChainRoomVO">
+        select
+            chain_room_id as chainRoomId,
+            chain_room_name as chainRoomName,
+            status as status,
+            chain_room_capacity as chainRoomCapacity,
+            turn_time_limit_base_sec as turnTimeLimitBaseSec,
+            host_member_id as hostMemberId,
+            reg_date as regDate
+        from chain_room
+        where status = 'WAITING'
+        order by reg_date desc
+    </select>
+
+    <update id="updateRoomStatus">
+        update chain_room set status = #{status} where chain_room_id = #{chainRoomId}
+    </update>
+
+    <update id="updateHost">
+        update chain_room set host_member_id = #{hostMemberId} where chain_room_id = #{chainRoomId}
+    </update>
+
+    <update id="startRoom">
+        update chain_room
+        set status = 'PLAYING',
+            started_date = now(),
+            current_turn_member_id = #{currentTurnMemberId},
+            current_turn_deadline = #{currentTurnDeadline}
+        where chain_room_id = #{chainRoomId}
+    </update>
+
+    <update id="advanceTurn">
+        update chain_room
+        set current_turn_member_id = #{currentTurnMemberId},
+            current_turn_deadline = #{currentTurnDeadline}
+            <if test="lastChainWordId != null">
+                , last_chain_word_id = #{lastChainWordId}
+            </if>
+        where chain_room_id = #{chainRoomId}
+    </update>
+
+    <update id="endRoom">
+        update chain_room
+        set status = 'ENDED',
+            ended_date = now(),
+            current_turn_member_id = null,
+            current_turn_deadline = null,
+            winner_member_id = #{winnerMemberId}
+        where chain_room_id = #{chainRoomId}
+    </update>
+
+    <delete id="deleteRoom">
+        delete from chain_room where chain_room_id = #{chainRoomId}
+    </delete>
+
+    <!-- ================= chain_room_member ================= -->
+
+    <insert id="insertRoomMember" parameterType="com.soldesk.vo.ChainRoomMemberVO">
+        insert into chain_room_member
+            (chain_room_id, member_id, turn_no, lives, score, eliminated_yn)
+        values
+            (#{chainRoomId}, #{memberId}, #{turnNo}, 3, 0, 'N')
+    </insert>
+
+    <delete id="deleteRoomMember">
+        delete from chain_room_member where chain_room_id = #{chainRoomId} and member_id = #{memberId}
+    </delete>
+
+    <select id="countRoomMembers" resultType="int">
+        select count(*) from chain_room_member where chain_room_id = #{chainRoomId}
+    </select>
+
+    <select id="findMembersByRoom" resultType="com.soldesk.vo.ChainRoomMemberVO">
+        select
+            crm.chain_room_id as chainRoomId,
+            crm.member_id as memberId,
+            crm.turn_no as turnNo,
+            crm.joined_date as joinedDate,
+            crm.left_date as leftDate,
+            crm.lives as lives,
+            crm.eliminated_yn as eliminatedYn,
+            crm.score as score,
+            crm.final_rank as finalRank,
+            crm.eliminated_date as eliminatedDate,
+            m.member_name as memberName,
+            m.member_profile_image as memberProfileImage
+        from chain_room_member crm
+        join member m on m.member_id = crm.member_id
+        where crm.chain_room_id = #{chainRoomId}
+        order by crm.turn_no asc
+    </select>
+
+    <select id="findRoomMember" resultType="com.soldesk.vo.ChainRoomMemberVO">
+        select
+            chain_room_id as chainRoomId,
+            member_id as memberId,
+            turn_no as turnNo,
+            joined_date as joinedDate,
+            left_date as leftDate,
+            lives as lives,
+            eliminated_yn as eliminatedYn,
+            score as score,
+            final_rank as finalRank,
+            eliminated_date as eliminatedDate
+        from chain_room_member
+        where chain_room_id = #{chainRoomId} and member_id = #{memberId}
+    </select>
+
+    <select id="findMaxTurnNo" resultType="java.lang.Integer">
+        select max(turn_no) from chain_room_member where chain_room_id = #{chainRoomId}
+    </select>
+
+    <update id="updateLivesAndScore">
+        update chain_room_member
+        set lives = #{lives},
+            score = score + #{scoreDelta}
+        where chain_room_id = #{chainRoomId} and member_id = #{memberId}
+    </update>
+
+    <update id="eliminateMember">
+        update chain_room_member
+        set eliminated_yn = 'Y', eliminated_date = #{eliminatedDate}
+        where chain_room_id = #{chainRoomId} and member_id = #{memberId}
+    </update>
+
+    <update id="setFinalRank">
+        update chain_room_member
+        set final_rank = #{finalRank}
+        where chain_room_id = #{chainRoomId} and member_id = #{memberId}
+    </update>
+
+    <!-- ================= 마이페이지 전적 ================= -->
+
+    <select id="findEndedRoomsByMember" resultType="com.soldesk.vo.ChainRoomVO">
+        select
+            r.chain_room_id as chainRoomId,
+            r.chain_room_name as chainRoomName,
+            r.status as status,
+            r.chain_room_capacity as chainRoomCapacity,
+            r.winner_member_id as winnerMemberId,
+            r.started_date as startedDate,
+            r.ended_date as endedDate
+        from chain_room r
+        join chain_room_member crm on crm.chain_room_id = r.chain_room_id
+        where crm.member_id = #{memberId} and r.status = 'ENDED'
+        order by r.ended_date desc
+        limit #{offset}, #{pageSize}
+    </select>
+
+    <select id="countEndedRoomsByMember" resultType="int">
+        select count(*)
+        from chain_room r
+        join chain_room_member crm on crm.chain_room_id = r.chain_room_id
+        where crm.member_id = #{memberId} and r.status = 'ENDED'
+    </select>
+
+    <select id="isRoomParticipant" resultType="boolean">
+        select count(*) > 0
+        from chain_room_member
+        where chain_room_id = #{chainRoomId} and member_id = #{memberId}
+    </select>
+
+    <!-- ================= 서버 재시작 시 진행 중이던 방 정리 ================= -->
+
+    <select id="findRoomIdsByStatus" resultType="java.lang.Long">
+        select chain_room_id from chain_room where status = #{status}
+    </select>
+
+    <delete id="deleteMembersByRoomIds">
+        delete from chain_room_member
+        where chain_room_id in
+        <foreach collection="roomIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+
+    <delete id="deleteRoomsByStatus">
+        delete from chain_room where status = #{status}
+    </delete>
+
+</mapper>

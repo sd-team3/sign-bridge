@@ -26,7 +26,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf
             .ignoringRequestMatchers(
                 new AntPathRequestMatcher("/api/sign/**"),
-                new AntPathRequestMatcher("/exam/api/**")
+                new AntPathRequestMatcher("/exam/api/**"),
+                new AntPathRequestMatcher("/api/playzone/chain/**")
             )
         ).authorizeHttpRequests(auth -> auth
             .requestMatchers(
@@ -46,7 +47,9 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/board/write"),
                 new AntPathRequestMatcher("/comment/update"),
                 new AntPathRequestMatcher("/comment/write"),
-                new AntPathRequestMatcher("/comment/delete")
+                new AntPathRequestMatcher("/comment/delete"),
+                new AntPathRequestMatcher("/playzone/chain/**"),
+                new AntPathRequestMatcher("/api/playzone/chain/**")
             ).authenticated().anyRequest().permitAll()
         ).formLogin(form -> form
             .loginPage("/member/login")

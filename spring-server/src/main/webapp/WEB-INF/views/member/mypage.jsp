@@ -54,6 +54,7 @@
       <button class="mp-tab" data-tab="wronganswer" onclick="mpTab('wronganswer')">오답노트</button>
       <button class="mp-tab" data-tab="badges" onclick="mpTab('badges')">뱃지</button>
       <button class="mp-tab" data-tab="mycontent" onclick="mpTab('mycontent')">작성물 관리</button>
+      <button class="mp-tab" data-tab="chainhistory" onclick="mpTab('chainhistory')">게임 전적</button>
       <button class="mp-tab" data-tab="settings" onclick="mpTab('settings')">계정 설정</button>
     </div>
 
@@ -231,6 +232,15 @@
       <div class="pagination"></div>
     </div>
   </div>
+
+    <!-- 게임 전적 -->
+    <div class="mp-panel" id="mp-panel-chainhistory">
+      <div class="mp-card">
+        <div class="history-table-header"><div>방 이름</div><div>순위</div><div>날짜</div></div>
+        <div class="mp-list-wrap" id="chain-history-wrap"></div>
+      </div>
+      <div class="pagination" id="chain-history-pagination"></div>
+    </div>
 
     <!-- 계정 설정 -->
     <div class="mp-panel" id="mp-panel-settings">

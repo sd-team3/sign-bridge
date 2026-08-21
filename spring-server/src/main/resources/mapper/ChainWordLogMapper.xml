@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.ChainWordLogMapper">
+
+    <insert id="insertLog" parameterType="com.soldesk.vo.ChainWordLogVO">
+        insert into chain_word_log
+            (chain_room_id, member_id, chain_word_id, attempted_word, turn_no, is_valid, invalid_reason_code)
+        values
+            (#{chainRoomId}, #{memberId}, #{chainWordId}, #{attemptedWord}, #{turnNo}, #{isValid}, #{invalidReasonCode})
+    </insert>
+
+    <select id="findLogsByRoom" resultType="com.soldesk.vo.ChainWordLogVO">
+        select
+            l.chain_word_log_id as chainWordLogId,
+            l.chain_room_id as chainRoomId,
+            l.member_id as memberId,
+            l.chain_word_id as chainWordId,
+            l.attempted_word as attemptedWord,
+            l.turn_no as turnNo,
+            l.is_valid as isValid,
+            l.invalid_reason_code as invalidReasonCode,
+            l.reg_date as regDate,
+            m.member_name as memberName
+        from chain_word_log l
+        join member m on m.member_id = l.member_id
+        where l.chain_room_id = #{chainRoomId}
+        order by l.chain_word_log_id asc
+    </select>
+
+    <delete id="deleteLogsByRoomIds">
+        delete from chain_word_log
+        where chain_room_id in
+        <foreach collection="roomIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+
+</mapper>
