@@ -13,18 +13,11 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.soldesk.vo.RecognitionState;
 
-/**
- * DB 에는 없는, 진행 중인 끝말잇기 한 판의 "실시간" 상태.
- * ChainGameManager 가 방(room) 하나당 인스턴스 하나씩 들고 있는다.
- * (프레임 단위로 매우 자주 갱신되므로 매번 DB를 치지 않고 메모리에서 처리하고,
- *  턴이 끝나거나 게임이 끝나는 "의미있는 이벤트" 시점에만 DB에 반영한다.)
- */
 public class ChainRoomState {
 
     private final long roomId;
     private final int turnTimeLimitBaseSec;
 
-    /** 턴 순서대로의 memberId 목록 (탈락해도 목록에서 제거하지 않고 eliminated 로만 표시 - 순서 계산이 쉬워짐) */
     private final List<Integer> turnOrder = new CopyOnWriteArrayList<>();
     private volatile int currentTurnIndex = 0;
 
@@ -37,7 +30,6 @@ public class ChainRoomState {
     private final Map<Integer, Integer> lives = new ConcurrentHashMap<>();
     private final Map<Integer, Integer> scores = new ConcurrentHashMap<>();
 
-    /** 현재 턴 플레이어의 자모 조합 상태. 턴이 바뀔 때마다 새로 만든다. */
     private volatile RecognitionState currentComposerState = new RecognitionState();
 
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
@@ -45,7 +37,6 @@ public class ChainRoomState {
     private volatile ScheduledFuture<?> timeoutTask;
     private volatile boolean ended = false;
 
-    /** 턴 전환(완료/타임아웃/시작)이 동시에 두 번 처리되지 않도록 보호 */
     private final ReentrantLock turnLock = new ReentrantLock();
 
     public ChainRoomState(long roomId, int turnTimeLimitBaseSec) {
@@ -81,7 +72,6 @@ public class ChainRoomState {
     public Set<Integer> getEliminated() { return eliminated; }
     public boolean isEliminated(int memberId) { return eliminated.contains(memberId); }
 
-    /** eliminated 표시 + 탈락 순서 기록을 한 번에 (DB 없이 순위 계산에 사용) */
     public void markEliminated(int memberId) {
         if (eliminated.add(memberId)) {
             eliminationOrder.add(memberId);
@@ -130,7 +120,6 @@ public class ChainRoomState {
         return turnOrder.stream().distinct().filter(id -> !eliminated.contains(id)).count();
     }
 
-    /** 다음 살아있는 플레이어의 turnOrder 인덱스를 계산 (현재 인덱스 다음부터 한 바퀴 탐색) */
     public int nextAliveIndex(int fromIndexExclusive) {
         int size = turnOrder.size();
         for (int step = 1; step <= size; step++) {
@@ -139,7 +128,7 @@ public class ChainRoomState {
                 return idx;
             }
         }
-        return fromIndexExclusive; // 전멸 등 예외 상황 방어
+        return fromIndexExclusive;
     }
 
     public LinkedHashSet<Integer> aliveMembersInOrder() {

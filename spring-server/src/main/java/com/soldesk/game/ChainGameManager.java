@@ -37,15 +37,6 @@ import com.soldesk.vo.LandmarkDto;
 import com.soldesk.vo.PredictResponse;
 import com.soldesk.vo.RecognitionState;
 
-/**
- * 진행 중인 끝말잇기 게임(들)의 실시간 상태를 관리하는 싱글턴 엔진.
- *
- * - 방 하나당 {@link ChainRoomState} 인스턴스 하나
- * - lives/score/탈락순서는 {@link ChainRoomState}에 메모리로만 들고 판정/브로드캐스트를 처리한다
- *   (판정 경로에 동기 DB 조회가 전혀 없음 - RDS 등 원격 DB 왕복 지연이 체감 지연으로 직결되는 걸 막기 위함)
- * - DB 반영(로그/점수/턴/탈락/종료)은 판정·브로드캐스트 이후 persistenceExecutor로 비동기 처리한다.
- *   같은 방의 쓰기 순서를 보장하기 위해 단일 스레드 executor를 사용한다.
- */
 @Service
 public class ChainGameManager implements DisposableBean {
 
@@ -68,14 +59,12 @@ public class ChainGameManager implements DisposableBean {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // 턴 타임아웃 스케줄링 전용 (여러 방이 동시에 대기하므로 멀티스레드)
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4, r -> {
         Thread t = new Thread(r, "chain-game-scheduler");
         t.setDaemon(true);
         return t;
     });
 
-    // DB 반영 전용 (같은 방의 쓰기 순서 보장을 위해 단일 스레드)
     private final ExecutorService persistenceExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "chain-persistence");
         t.setDaemon(true);
@@ -92,8 +81,6 @@ public class ChainGameManager implements DisposableBean {
         return rooms.get(roomId);
     }
 
-    // ===================== 세션 관리 =====================
-
     public void registerSession(long roomId, WebSocketSession session) {
         ChainRoomState state = rooms.get(roomId);
         if (state != null) state.getSessions().add(session);
@@ -104,7 +91,6 @@ public class ChainGameManager implements DisposableBean {
         if (state != null) state.getSessions().remove(session);
     }
 
-    /** 방이 아직 WAITING 상태라 in-memory state 가 없을 때도 대기실 인원 변동을 알리기 위한 임시 등록용 맵 */
     private final Map<Long, java.util.Set<WebSocketSession>> lobbySessions = new ConcurrentHashMap<>();
 
     public void registerLobbySession(long roomId, WebSocketSession session) {
@@ -155,9 +141,6 @@ public class ChainGameManager implements DisposableBean {
         }
     }
 
-    // ===================== 게임 시작 =====================
-
-    /** ChainRoomService.startRoom() 에서 DB 반영 후 호출. orderedMemberIds 는 turn_no 순서. */
     public void startGame(long roomId, List<Integer> orderedMemberIds, int baseSec) {
         ChainRoomState state = new ChainRoomState(roomId, baseSec);
         state.setTurnOrder(orderedMemberIds);
@@ -194,8 +177,6 @@ public class ChainGameManager implements DisposableBean {
         if (System.currentTimeMillis() < state.getTurnDeadlineEpochMillis()) return;
         resolveTurn(state, memberId, null, true);
     }
-
-    // ===================== 프레임(자모 인식) =====================
 
     public ChainFrameResponse processFrame(long roomId, int memberId, List<LandmarkDto> landmarks, boolean mirror) {
         ChainRoomState state = rooms.get(roomId);
@@ -273,8 +254,6 @@ public class ChainGameManager implements DisposableBean {
         }
     }
 
-    // ===================== 턴 완료(단어 제출) =====================
-
     public void submitComplete(long roomId, int memberId) {
         ChainRoomState state = rooms.get(roomId);
         if (state == null || state.isEnded()) return;
@@ -287,11 +266,6 @@ public class ChainGameManager implements DisposableBean {
         resolveTurn(state, memberId, word, false);
     }
 
-    /**
-     * 단어 성공/실패/타임아웃 모두 이 메서드 하나로 처리한다.
-     * 판정과 다음 턴 결정은 전부 메모리 상태만으로 동기 처리하고 즉시 브로드캐스트하며,
-     * DB 반영은 그 뒤에 persistenceExecutor로 넘긴다 (판정 경로에 DB 왕복이 없음).
-     */
     private void resolveTurn(ChainRoomState state, int memberId, String attemptedWord, boolean isTimeout) {
         ReentrantLock lock = state.getTurnLock();
         lock.lock();
@@ -361,7 +335,6 @@ public class ChainGameManager implements DisposableBean {
             resultPayload.put("requiredFirstChar", state.getRequiredFirstChar());
             broadcast(roomId, "WORD_RESULT", resultPayload);
 
-            // ---- DB 반영은 비동기로 (판정/브로드캐스트를 막지 않음) ----
             persistenceExecutor.execute(() -> {
                 ChainWordLogVO logVO = new ChainWordLogVO();
                 logVO.setChainRoomId(roomId);
@@ -414,7 +387,6 @@ public class ChainGameManager implements DisposableBean {
                 .incrementAndGet();
     }
 
-    /** 순위는 메모리에 쌓아둔 탈락 순서(eliminationOrder)만으로 계산 - DB 조회 불필요 */
     private void endGame(ChainRoomState state) {
         long roomId = state.getRoomId();
         state.setEnded(true);
@@ -427,7 +399,6 @@ public class ChainGameManager implements DisposableBean {
             state.addScore(winnerId, WINNER_BONUS_SCORE);
         }
 
-        // 탈락이 늦은 사람일수록 높은 순위 (마지막 탈락자가 2등)
         List<Integer> eliminationOrder = new ArrayList<>(state.getEliminationOrder());
         java.util.Collections.reverse(eliminationOrder);
 

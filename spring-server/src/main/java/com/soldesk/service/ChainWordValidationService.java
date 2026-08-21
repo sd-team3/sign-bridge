@@ -21,13 +21,6 @@ import com.soldesk.util.DueumRuleUtil;
 import com.soldesk.vo.ChainWordLogVO;
 import com.soldesk.vo.ChainWordVO;
 
-/**
- * 끝말잇기 단어 검증.
- *  1. chain_word 테이블(이미 검증된 단어집)에 있는지 우선 확인
- *  2. 없으면 국립국어원 표준국어대사전 Open API 로 실제 존재하는 "명사"인지 조회
- *     - ~하다/~되다/~이다 등 범용 어미로 끝나는(용언화된) 항목은 제외
- *  3. API로 새로 검증된 단어는 chain_word 에 캐시 적재해서 다음부터는 DB만으로 판정
- */
 @Service
 public class ChainWordValidationService implements InitializingBean {
 
@@ -45,7 +38,6 @@ public class ChainWordValidationService implements InitializingBean {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    // wordName -> chainWordId. DB를 매번 안 타도록 검증된 단어를 메모리에 올려둔다.
     private final Map<String, Long> wordCache = new ConcurrentHashMap<>();
 
     @Override
@@ -60,11 +52,8 @@ public class ChainWordValidationService implements InitializingBean {
         }
     }
 
-    // 순우리말 음절 2~10자, 완성형 한글만 허용
     private static final Pattern HANGUL_WORD = Pattern.compile("^[가-힣]{2,10}$");
 
-    // ~하다/~되다/~이다 류의 범용 어미로 끝나 "단어 자체"라기보다 서술어로 판단되는 경우 제외
-    // (리모컨/사과처럼 그 자체로 명사인 단어만 유효)
     private static final Pattern GENERIC_SUFFIX = Pattern.compile(
         "(하다|되다|이다|스럽다|답다|같다|거리다|대다|당하다|시키다|화하다|적이다|하기|하며|해서|임|함)$"
     );
@@ -82,25 +71,21 @@ public class ChainWordValidationService implements InitializingBean {
             return ChainWordValidationResult.invalid(ChainWordLogVO.REASON_WRONG_START_CHAR);
         }
 
-        // 1) 메모리 캐시 우선 확인 (같은 서버 인스턴스에서 이미 검증된 단어는 DB조차 안 탐)
         Long cachedId = wordCache.get(word);
         if (cachedId != null) {
             return ChainWordValidationResult.valid(cachedId);
         }
 
-        // 2) DB 캐시(chain_word) 확인 - 다른 방/이전 세션에서 검증된 단어일 수 있음
         ChainWordVO cached = chainWordMapper.findByName(word);
         if (cached != null) {
             wordCache.put(word, cached.getChainWordId());
             return ChainWordValidationResult.valid(cached.getChainWordId());
         }
 
-        // 3) 국립국어원 Open API 로 실제 단어인지 확인
         if (!checkExternalDictionary(word)) {
             return ChainWordValidationResult.invalid(ChainWordLogVO.REASON_NOT_FOUND);
         }
 
-        // 4) 신규 검증 단어 DB+메모리 캐시 적재
         ChainWordVO newWord = new ChainWordVO();
         newWord.setWordName(word);
         newWord.setFirstChar(word.substring(0, 1));
@@ -116,7 +101,6 @@ public class ChainWordValidationService implements InitializingBean {
         return ChainWordValidationResult.valid(chainWordId);
     }
 
-    /** 앞말의 끝 글자(requiredFirstChar) 또는 그 두음법칙 변환형으로 시작하면 인정 */
     private boolean matchesRequiredChar(String word, String requiredFirstChar) {
         char first = word.charAt(0);
         char required = requiredFirstChar.charAt(0);
@@ -125,14 +109,12 @@ public class ChainWordValidationService implements InitializingBean {
         return alt != null && first == alt;
     }
 
-    /** 화면에 "다음 글자는 O(또는 O)" 형태로 안내하기 위한 대체 시작글자. 없으면 null. */
     public String alternativeFirstChar(String requiredFirstChar) {
         if (requiredFirstChar == null || requiredFirstChar.isEmpty()) return null;
         Character alt = DueumRuleUtil.alternativeInitial(requiredFirstChar.charAt(0));
         return alt == null ? null : String.valueOf(alt);
     }
 
-    /** 국립국어원 표준국어대사전 Open API로 명사 여부까지 확인. 키 미설정/오류 시 false(=미확인 단어는 거부). */
     private boolean checkExternalDictionary(String word) {
         if (krdictApiKey == null || krdictApiKey.isBlank() || krdictApiKey.startsWith("REPLACE_WITH")) {
             log.warn("krdict.api.key 가 설정되지 않아 외부 사전 검증을 건너뜁니다. (단어: {})", word);
@@ -158,7 +140,6 @@ public class ChainWordValidationService implements InitializingBean {
                 return false;
             }
 
-            // "item"이 결과 1건일 때 배열이 아니라 단일 객체로 오는 API가 많음 - 둘 다 처리
             JsonNode itemsNode = channel.path("item");
             java.util.List<JsonNode> items = new java.util.ArrayList<>();
             if (itemsNode.isArray()) {
@@ -182,7 +163,6 @@ public class ChainWordValidationService implements InitializingBean {
         }
     }
 
-    /** pos가 item 레벨에 바로 있을 수도, sense(단일 객체 또는 배열) 안에 있을 수도 있어 둘 다 확인 */
     private String extractPos(JsonNode item) {
         String direct = item.path("pos").asText("");
         if (!direct.isBlank()) return direct;
