@@ -17,13 +17,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.soldesk.mapper.BoardFileMapper;
 import com.soldesk.service.AdminService;
 import com.soldesk.service.BoardSearchService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.BoardService;
 import com.soldesk.service.MemberService;
+import com.soldesk.util.FileUploadUtil;
 import com.soldesk.util.SecurityUtil;
+import com.soldesk.vo.BoardFileVO;
 import com.soldesk.vo.BoardVO;
 import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.PageBean;
@@ -44,6 +48,10 @@ public class BoardController {
     private SecurityUtil securityUtil;
     @Autowired
     private AdminService adminService;
+    @Autowired
+    private BoardFileMapper boardFileMapper;
+    @Autowired
+    private FileUploadUtil fileUploadUtil;
 
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
@@ -75,7 +83,8 @@ public class BoardController {
     // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
     @PostMapping("/write")
     public String writeSubmit(@ModelAttribute BoardVO board, 
-        @RequestParam(required = false) String errorType) {
+        @RequestParam(required = false) String errorType,
+        @RequestParam(value = "files", required = false) List<MultipartFile> files) {
 
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         MemberVO member = memberService.getMemberByEmail(memberEmail);
@@ -87,6 +96,27 @@ public class BoardController {
         board.setMemberId(member.getMemberId());
         board.setNoticeYn(isNotice ? "N" : "Y");
         boardService.writeBoard(board); // 여기서 board.getBoardId()에 새 id 채워짐
+
+            // 첨부파일 저장
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (file.isEmpty()) continue;
+                try {
+                    FileUploadUtil.SavedFileInfo saved = fileUploadUtil.save(file);
+                    BoardFileVO fileVO = new BoardFileVO();
+                    fileVO.setBoardId(board.getBoardId());
+                    fileVO.setOrigName(saved.origName);
+                    fileVO.setSavedName(saved.savedName);
+                    fileVO.setFilePath(saved.filePath);
+                    fileVO.setFileType(saved.fileType);
+                    fileVO.setFileSize(saved.fileSize);
+                    boardFileMapper.insertBoardFile(fileVO);
+                } catch (Exception e) {
+                    System.out.println("### files is NULL");
+                    e.printStackTrace();
+                }
+            }
+        }
 
         // 오류신고 게시글이면 관리자 페이지에서도 확인할 수 있게 inquiry 같이 생성
         if ("REPORT".equals(board.getCategoryIdx())) {
@@ -133,6 +163,7 @@ public class BoardController {
 
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
+        model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId));
         model.addAttribute("currentMemberId", securityUtil.getCurrentMemberId());
 
         if ("REPORT".equals(board.getCategoryIdx())) {
@@ -146,6 +177,7 @@ public class BoardController {
     public String updateBoard(@RequestParam int boardId, Model model) {
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
+        model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId)); // 추가
 
         if ("REPORT".equals(board.getCategoryIdx())) {
             model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
@@ -156,7 +188,9 @@ public class BoardController {
 
     @PostMapping("/update")
     public String updateSubmit(@ModelAttribute BoardVO board,
-        @RequestParam(required = false) String errorType) {
+        @RequestParam(required = false) String errorType,    
+        @RequestParam(value = "files", required = false) List<MultipartFile> files,
+        @RequestParam(value = "deleteFileIds", required = false) List<Long> deleteFileIds) {
 
         Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(board.getBoardId());
@@ -167,6 +201,36 @@ public class BoardController {
 
         board.setMemberId(original.getMemberId());
         boardService.updateBoard(board);
+
+        // 삭제 체크된 기존 첨부파일 처리
+        if (deleteFileIds != null) {
+            for (Long fileId : deleteFileIds) {
+                BoardFileVO target = boardFileMapper.selectFileById(fileId);
+                if (target != null && target.getBoardId() == board.getBoardId()) {
+                    fileUploadUtil.delete(target.getFilePath());
+                    boardFileMapper.deleteBoardFileById(fileId);
+                }
+            }
+        }
+        // 새로 첨부된 파일 저장
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (file.isEmpty()) continue;
+                try {
+                    FileUploadUtil.SavedFileInfo saved = fileUploadUtil.save(file);
+                    BoardFileVO fileVO = new BoardFileVO();
+                    fileVO.setBoardId(board.getBoardId());
+                    fileVO.setOrigName(saved.origName);
+                    fileVO.setSavedName(saved.savedName);
+                    fileVO.setFilePath(saved.filePath);
+                    fileVO.setFileType(saved.fileType);
+                    fileVO.setFileSize(saved.fileSize);
+                    boardFileMapper.insertBoardFile(fileVO);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         if ("REPORT".equals(board.getCategoryIdx())) {
             adminService.syncInquiryContentByBoard(
@@ -186,6 +250,12 @@ public class BoardController {
 
         if (original == null || !(isOwner || securityUtil.isAdmin())) {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
+        }
+
+        // board 삭제 전에 첨부파일 목록 미리 조회
+        List<BoardFileVO> boardFiles = boardFileMapper.selectFilesByBoardId(boardId);
+        for (BoardFileVO f : boardFiles) {
+            fileUploadUtil.delete(f.getFilePath());
         }
 
         commentService.deleteAllCommentsByBoardId(boardId);

@@ -6,7 +6,7 @@
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
 
 <header>
-<div class="logo"><img src="${ctx}/resources/images/logo-mark.png" alt="SignBridge"> SignBridge</div>
+<div class="logo"><img src="${ctx}/resources/images/icon-180.png" alt="SignBridge"> SignBridge</div>
     <nav>
     <a href="${ctx}/">홈</a>
     <div class="nav-item has-sub">
@@ -52,7 +52,7 @@
         </div>
         </div>
     </div>
-    <a href="#">게시판</a>
+    <a href="${ctx}/board/list">게시판</a>
     <sec:authorize access="isAuthenticated()">
         <jsp:include page="../notification/notification.jsp" />
         <a href="${ctx}/member/mypage" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
