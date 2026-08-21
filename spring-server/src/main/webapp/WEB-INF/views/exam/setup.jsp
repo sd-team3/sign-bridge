@@ -100,7 +100,7 @@
     </div>
 
     <div style="display:flex; gap:12px; justify-content:flex-end;">
-      <a href="/learn.jsp" class="btn btn-ghost">학습하고 오기</a>
+      <a href="/learn" class="btn btn-ghost">학습하고 오기</a>
       <button class="btn btn-primary btn-lg" onclick="startExam()">🚀 시험 시작</button>
     </div>
 
