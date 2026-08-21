@@ -722,12 +722,24 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-hero-ring svg{width:96px;height:96px;transform:rotate(-90deg)}
 .mp-hero-ring .track{fill:none;stroke:var(--border);stroke-width:6}
 .mp-hero-ring .fill{fill:none;stroke:var(--primary);stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+.mp-hero-ring circle.fill{stroke:var(--brand-green,#1F8A5C)}
+.mp-hero-ring .fill.tier-none{stroke:#8a8a8a}
+.mp-hero-ring .fill.tier-bronze{stroke:#cd7f32}
+.mp-hero-ring .fill.tier-silver{stroke:#a0a0a0}
+.mp-hero-ring .fill.tier-gold{stroke:#fda085}
+.mp-hero-ring .fill.tier-platinum{stroke:#66a6ff}
 .mp-hero-avatar{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:38px}
 .mp-hero-info{flex:1;min-width:200px}
+.mp-hero-point{font-size:13px;font-weight:600;color:var(--brand-green,#1F8A5C);margin-top:4px;display:flex;align-items:center;gap:4px}
+.mp-hero-point::before{content:"⚡"}
 .mp-hero-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .mp-hero-name{font-size:22px;font-weight:900;letter-spacing:-.3px}
-.mp-hero-tier{display:inline-flex;align-items:center;background:linear-gradient(90deg,#f6d365,#fda085);color:#7a4a12;font-size:12px;font-weight:800;letter-spacing:.3px;padding:4px 14px;border-radius:100px}
-.mp-hero-meta{font-size:13px;font-weight:600;color:var(--text-sub);margin-top:6px}
+.mp-hero-tier{display:inline-flex;align-items:center;color:#fff;font-size:12px;font-weight:800;letter-spacing:.3px;padding:4px 14px;border-radius:100px}
+.mp-hero-tier.tier-none{background:linear-gradient(90deg,#b0b0b0,#8a8a8a);color:#fff}
+.mp-hero-tier.tier-bronze{background:linear-gradient(90deg,#cd7f32,#a85c28);color:#fff}
+.mp-hero-tier.tier-silver{background:linear-gradient(90deg,#c0c0c0,#9a9a9a);color:#3a3a3a}
+.mp-hero-tier.tier-gold{background:linear-gradient(90deg,#f6d365,#fda085);color:#7a4a12}
+.mp-hero-tier.tier-platinum{background:linear-gradient(90deg,#89f7fe,#66a6ff);color:#1a3a5c}.mp-hero-meta{font-size:13px;font-weight:600;color:var(--text-sub);margin-top:6px}
 .mp-hero-pct{font-size:13px;font-weight:700;color:var(--primary);margin-top:8px}
 .mp-hero-edit{flex-shrink:0;padding:10px 22px;border-radius:var(--radius-sm);border:2px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;color:var(--text-sub);cursor:pointer;transition:all .2s;font-family:inherit}
 .mp-hero-edit:hover{border-color:var(--primary);color:var(--primary)}

@@ -34,7 +34,6 @@ import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.OverviewStatsVO;
 import com.soldesk.service.FavoriteService;
 import com.soldesk.vo.FavoriteWordVO;
-import java.util.HashMap;
 
 @Controller
 @RequestMapping("/member")
