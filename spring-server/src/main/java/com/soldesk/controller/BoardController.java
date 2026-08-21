@@ -71,16 +71,12 @@ public class BoardController {
         model.addAttribute("isAdmin", securityUtil.isAdmin());
         return "board/write";
     }
-
-    // /board/report -> 오류신고 전용 작성 화면
-    @GetMapping("/report")
-    public String reportBoard() {
-        return "board/report";
-    }
-
+    
     // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
     @PostMapping("/write")
-    public String writeSubmit(@ModelAttribute BoardVO board) {
+    public String writeSubmit(@ModelAttribute BoardVO board, 
+        @RequestParam(required = false) String errorType) {
+
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         MemberVO member = memberService.getMemberByEmail(memberEmail);
 
@@ -96,7 +92,7 @@ public class BoardController {
         if ("REPORT".equals(board.getCategoryIdx())) {
             adminService.createInquiry(
                     (long) member.getMemberId(),
-                    "ERROR_REPORT",
+                    errorType,
                     board.getBoardTitle(),
                     board.getBoardContent(),
                     board.getBoardId());
@@ -139,6 +135,10 @@ public class BoardController {
         model.addAttribute("board", board);
         model.addAttribute("currentMemberId", securityUtil.getCurrentMemberId());
 
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
+        }
+
         return "board/info";
     }
 
@@ -146,11 +146,18 @@ public class BoardController {
     public String updateBoard(@RequestParam int boardId, Model model) {
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
+
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
+        }
+
         return "board/update";
     }
 
     @PostMapping("/update")
-    public String updateSubmit(@ModelAttribute BoardVO board) {
+    public String updateSubmit(@ModelAttribute BoardVO board,
+        @RequestParam(required = false) String errorType) {
+
         Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(board.getBoardId());
 
@@ -160,6 +167,12 @@ public class BoardController {
 
         board.setMemberId(original.getMemberId());
         boardService.updateBoard(board);
+
+        if ("REPORT".equals(board.getCategoryIdx())) {
+            adminService.syncInquiryContentByBoard(
+                board.getBoardId(), errorType, board.getBoardTitle(), board.getBoardContent());
+        }
+
         return "redirect:/board/info?boardId=" + board.getBoardId();
     }
 

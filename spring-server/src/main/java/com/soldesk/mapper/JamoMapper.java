@@ -9,6 +9,7 @@ import com.soldesk.vo.JamoVO;
 public interface JamoMapper {
     
     List<JamoVO> findByType(@Param("jamoType") String jamoType); 
+    JamoVO findByChar(@Param("jamoChar") String jamoChar);
     
     int countAll();
 }

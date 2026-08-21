@@ -43,7 +43,7 @@
       <table class="wrong-table">
         <thead>
           <tr>
-            <th>#</th><th>단어</th><th>내 답 → 정답</th><th></th>
+            <th>#</th><th>단어</th><th>내 답 → 정답</th>
           </tr>
         </thead>
         <tbody id="wrong-tbody">
@@ -52,7 +52,6 @@
             <td style="color:var(--text-sub); font-size:14px;">${w.questionNo}번</td>
             <td style="font-size:17px; font-weight:900;">${w.signWordName}</td>
             <td style="font-size:14px;"><span style="color:var(--danger);">${w.userAnswer}</span> → <span style="color:var(--primary);">${w.signWordName}</span></td>
-            <td><a href="/learn/dict/detail?word=${w.signWordName}" class="retry-tag">다시 학습</a></td>
           </tr>
           </c:forEach>
         </tbody>
@@ -62,7 +61,7 @@
 
     <div class="result-actions">
       <a href="/" class="btn btn-ghost btn-lg">⚙️ 메인으로 돌아가기</a>
-      <a href="/mypage/note" class="btn btn-ghost btn-lg">📋 오답 노트 바로가기</a>
+      <a href="/member/mypage" class="btn btn-ghost btn-lg">📋 오답 노트 바로가기</a>
       <a href="/exam/setup" class="btn btn-primary btn-lg">🔄 시험 페이지 돌아가기</a>
     </div>
 

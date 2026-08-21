@@ -38,6 +38,19 @@
             </select>
           </div>
 
+          <!-- 신고 카테고리 한정 -->
+          <div class="form-group report-extra-fields" id="reportExtraFields" style="display:none;">
+            <label class="form-label" for="errorType">오류 유형</label>
+            <select id="errorType" name="errorType" class="form-input">
+              <option value="ACTION_RECOGNITION" ${errorType == 'ACTION_RECOGNITION' ? 'selected' : ''}>동작 인식 오류</option>
+              <option value="VIDEO_PLAYBACK" ${errorType == 'VIDEO_PLAYBACK' ? 'selected' : ''}>영상 재생 오류</option>
+              <option value="TRANSLATION" ${errorType == 'TRANSLATION' ? 'selected' : ''}>번역 · 뜻풀이 오류</option>
+              <option value="UI_BUG" ${errorType == 'UI_BUG' ? 'selected' : ''}>화면 · 디자인 오류</option>
+              <option value="ETC" ${errorType == 'ETC' ? 'selected' : ''}>기타</option>
+            </select>
+            <div class="form-hint">문제 유형을 선택해주시면 확인이 빨라져요.</div>
+          </div>
+
           <div class="form-group">
             <label class="form-label" for="title">제목</label>
             <input type="text" class="form-input" id="title" name="boardTitle" maxlength="80" value="${board.boardTitle}">
@@ -70,6 +83,18 @@ function updateCount(){ charCountEl.textContent = contentEl.value.length; }
 contentEl.addEventListener('input', updateCount);
 updateCount();
 
+const categorySelect = document.getElementById('category');
+const reportExtraFields = document.getElementById('reportExtraFields');
+const errorTypeSelect = document.getElementById('errorType');
+
+function toggleReportFields() {
+  const isReport = categorySelect.value === 'REPORT';
+  reportExtraFields.style.display = isReport ? 'block' : 'none';
+  errorTypeSelect.required = isReport;
+}
+
+categorySelect.addEventListener('change', toggleReportFields);
+toggleReportFields();
 </script>
 
 </body>

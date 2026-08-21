@@ -16,13 +16,30 @@
      </context:component-scan>
 
     <!-- DB 설정 -->
-     <!-- DataSource : DB 연결 -->
-     <bean id="dataSource" 
-        class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+     <!-- HikariConfig : 커넥션 풀 세부 설정 -->
+     <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="SignBridgeHikariCP"/>
         <property name="driverClassName" value="${db.driver}"/>
-        <property name="url" value="${db.url}" />
+        <property name="jdbcUrl" value="${db.url}"/>
         <property name="username" value="${db.username}"/>
         <property name="password" value="${db.password}"/>
+        <!-- 풀 사이즈: RDS max_connections, WAS 인스턴스 수 고려해서 산정 -->
+        <property name="maximumPoolSize" value="${db.maxPoolSize}"/>
+        <property name="minimumIdle" value="${db.minIdle}"/>
+        <!-- 풀에서 커넥션을 못 받을 때 대기 최대 시간(ms) -->
+        <property name="connectionTimeout" value="${db.connectionTimeout}"/>
+        <!-- minimumIdle 초과분 유휴 커넥션 회수 시간(ms) -->
+        <property name="idleTimeout" value="${db.idleTimeout}"/>
+        <!-- 커넥션 최대 수명(ms). RDS 등 관리형 DB의 유휴 커넥션 강제 종료보다 짧게 -->
+        <property name="maxLifetime" value="${db.maxLifetime}"/>
+        <property name="validationTimeout" value="${db.validationTimeout}"/>
+        <property name="connectionTestQuery" value="SELECT 1"/>
+     </bean>
+
+     <!-- DataSource : DB 연결 (HikariCP 커넥션 풀 적용) -->
+     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource"
+        destroy-method="close">
+        <constructor-arg ref="hikariConfig"/>
      </bean>
      <!-- SqlSessionFactory : DB 설정, 메퍼 xml 파싱, 커넥션 풀 초기화 등 -->
       <bean id="sqlSessionFactory" 

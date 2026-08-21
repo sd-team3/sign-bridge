@@ -141,6 +141,13 @@ tabs.forEach(tab => {
   });
 });
 
+// 자모 카드 전환 시 서버 hold 세션도 함께 리셋 (다음 타겟에 이전 판정이 이어지지 않도록)
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.jamo-card')) {
+    window.resetJamoSession?.();
+  }
+});
+
 /// 카드 클릭 -> 상세 표시
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.jamo-card');
@@ -181,6 +188,7 @@ document.addEventListener('click', (e) => {
 document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('jamoDetail').classList.remove('show');
   window.stopJamoCam?.();
+  window.resetJamoSession?.();
   window.currentJamoChar = null;
 
   const resultEl = document.getElementById('result');
@@ -189,75 +197,7 @@ document.getElementById('jdClose').addEventListener('click', () => {
   resultEl.style.color = '';
 });
 </script>
-<script type="module">
-  import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-  import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
-
-  const api = new JamoApiClient("http://localhost:8000");
-
-  const cam = new HandCameraWidget({
-    videoEl: document.getElementById("video"),
-    canvasEl: document.getElementById("canvas"),
-    onFrame: async (landmarks) => {
-      const resultEl = document.getElementById("result");
-      if (!landmarks) {
-        resultEl.textContent = '';
-        resultEl.style.color = '';
-        return;
-      }
-      const result = await api.predict(landmarks, false);
-
-      if (!result || !result.label) {
-        resultEl.textContent = '';
-        resultEl.style.color = '';
-        return;
-      }
-
-      if (!window.currentJamoChar) {
-        resultEl.textContent = result.label;
-        resultEl.style.color = '';
-        return;
-      }
-
-      const isCorrect = result.label === window.currentJamoChar;
-      resultEl.textContent = isCorrect
-        ? '✅ 정답! (' + result.label + ')'
-        : '인식: ' + result.label;
-      resultEl.style.color = isCorrect ? '#2D9B6F' : '#D85A30';
-    },
-  });
-
-  let started = false;
-  document.getElementById("jdCam").addEventListener("click", async () => {
-    if (started) return;
-    started = true;
-    window.jamoCamStarted = true;
-
-    const resultEl = document.getElementById("result");
-    resultEl.style.cursor = 'default';
-    resultEl.textContent = '-';
-
-    try {
-      await cam.start();
-    } catch (error) {
-      console.error('카메라 시작 실패: ', error);
-      started = false;
-      window.jamoCamStarted = false;
-      resultEl.textContent = message;
-      resultEl.style.cursor = 'pointer';
-    }
-  });
-
-  // 카메라 끄기
-  window.stopJamoCam = () => {
-    cam.stopCamera();
-    started = false; // 다시 클릭하면 재시작 가능하게
-    window.jamoCamStarted = false;
-  };
-  window.addEventListener('beforeunload', () =>{
-    window.stopJamoCam?.();
-  }); // 카메라 자원 정리 - 페이지 이탈 시
-</script>
+<script type="module" src="/resources/js/jamo-camera.js"></script>
 
 </body>
 </html>

@@ -3,10 +3,25 @@ const filterState = { myposts: '', mycomments: '' };
 const categoryLabel = { FREE: '자유', QNA: '질문', INFO: '정보', REPORT: '신고', NOTICE: '공지' };
 
 function mpTab(name) {
-  if (name === 'myposts' && !loadedTabs.myposts) loadMyPosts(1);
-  if (name === 'mycomments' && !loadedTabs.mycomments) loadMyComments(1);
+  if (name === 'mycontent' && !loadedTabs.myposts) loadMyPosts(1);
+  if (name === 'wronganswer' && !loadedTabs.wronganswer) loadWrongAnswers(1);
+  if (name === 'learninghistory' && !loadedTabs.jamohistory) loadJamoHistory(1);
   document.querySelectorAll('.mp-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.mp-panel').forEach(p => p.classList.toggle('active', p.id === 'mp-panel-' + name));
+}
+
+function lhSubTab(name) {
+  document.querySelectorAll('#mp-panel-learninghistory .mp-subtab').forEach(t => t.classList.toggle('active', t.dataset.subtab === name));
+  document.querySelectorAll('#mp-panel-learninghistory .mp-subpanel').forEach(p => p.classList.toggle('active', p.id === 'mp-subpanel-' + name));
+  if (name === 'jamo' && !loadedTabs.jamohistory) loadJamoHistory(1);
+  if (name === 'word' && !loadedTabs.wordhistory) loadWordHistory(1);
+}
+
+function mcSubTab(name) {
+  document.querySelectorAll('#mp-panel-mycontent .mp-subtab').forEach(t => t.classList.toggle('active', t.dataset.subtab === name));
+  document.querySelectorAll('#mp-panel-mycontent .mp-subpanel').forEach(p => p.classList.toggle('active', p.id === 'mp-subpanel-' + name));
+  if (name === 'myposts' && !loadedTabs.myposts) loadMyPosts(1);
+  if (name === 'mycomments' && !loadedTabs.mycomments) loadMyComments(1);
 }
 
 function loadMyPosts(page) {
@@ -15,7 +30,7 @@ function loadMyPosts(page) {
         .then(data => {
             if (!data.success) return;
             loadedTabs.myposts = true;
-            const wrap = document.querySelector('#mp-panel-myposts .mp-list-wrap');
+            const wrap = document.querySelector('#mp-subpanel-myposts .mp-list-wrap');
             wrap.innerHTML = data.boards.length ? data.boards.map(b => `
                 <div class="mp-post-row">
                     <a class="mp-post-row-title" href="/board/info?boardId=${b.boardId}">${b.boardTitle}</a>
@@ -24,7 +39,7 @@ function loadMyPosts(page) {
                     <span class="mp-post-row-date">${formatDate(b.regDate)}</span>
                 </div>
             `).join('') : '<div class="mp-list-empty">작성한 게시글이 없습니다.</div>';
-            renderPagination('#mp-panel-myposts .pagination', data.currentPage, data.totalPages, loadMyPosts);
+            renderPagination('#mp-subpanel-myposts .pagination', data.currentPage, data.totalPages, loadMyPosts);
         });
 }
 
@@ -34,7 +49,7 @@ function loadMyComments(page) {
         .then(data => {
             if (!data.success) return;
             loadedTabs.mycomments = true;
-            const wrap = document.querySelector('#mp-panel-mycomments .mp-list-wrap');
+            const wrap = document.querySelector('#mp-subpanel-mycomments .mp-list-wrap');
             wrap.innerHTML = data.comments.length ? data.comments.map(c => `
                 <div class="mp-comment-row">
                     <span class="mp-comment-row-content">${c.commentContent}</span>
@@ -42,7 +57,7 @@ function loadMyComments(page) {
                     <a class="mp-comment-row-board" href="/board/info?boardId=${c.boardId}">${c.boardTitle}</a>
                 </div>
             `).join('') : '<div class="mp-list-empty">작성한 댓글이 없습니다.</div>';
-            renderPagination('#mp-panel-mycomments .pagination', data.currentPage, data.totalPages, loadMyComments);
+            renderPagination('#mp-subpanel-mycomments .pagination', data.currentPage, data.totalPages, loadMyComments);
         });
 }
 
@@ -74,6 +89,8 @@ document.querySelectorAll('.mp-filter-row[data-scope]').forEach(row => {
       filterState[scope] = chip.dataset.category;
       if (scope === 'myposts') loadMyPosts(1);
       if (scope === 'mycomments') loadMyComments(1);
+      if (scope === 'wronganswer') loadWrongAnswers(1);
+      if (scope === 'jamohistory') loadJamoHistory(1);
     });
   });
 });
@@ -88,15 +105,37 @@ document.querySelectorAll('.mp-filter-row').forEach(row => {
   });
 });
 
-// 오답노트 탭: 유형(객관식·주관식 / 카메라 인식)별로 실제 행 필터링
-document.querySelectorAll('#mp-panel-wrongnote .mp-filter-chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    const type = chip.dataset.wtype;
-    document.querySelectorAll('#wrongnote-tbody tr').forEach(row => {
-      row.style.display = (type === 'all' || row.dataset.wtype === type) ? '' : 'none';
-    });
-  });
-});
+loadedTabs.wronganswer = false;
+filterState.wronganswer = '';
+
+const waTypeLabel = { CONSONANT: '자음', VOWEL: '모음', WORD: '단어' };
+
+function loadWrongAnswers(page) {
+    fetch(`/member/mypage/wronganswer?page=${page}&category=${filterState.wronganswer}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            loadedTabs.wronganswer = true;
+
+            document.getElementById('wa-total-badge').textContent = `틀린 단어 ${data.totalCount}개`;
+
+            const tbody = document.getElementById('wrongnote-tbody');
+            const startNo = (data.currentPage - 1) * 10;
+
+            tbody.innerHTML = data.wrongAnswers.length ? data.wrongAnswers.map((w, i) => `
+                <tr>
+                    <td style="color:var(--text-sub); font-size:14px;">${startNo + i + 1}</td>
+                    <td style="font-size:17px; font-weight:900;">${w.signWordName}</td>
+                    <td><span class="wrong-badge quiz">${waTypeLabel[w.testSessionType] || w.testSessionType}</span></td>
+                    <td style="font-size:14px;"><span style="color:var(--danger);">${w.userAnswer || '-'}</span> → <span style="color:var(--primary);">${w.signWordName}</span></td>
+                    <td class="mp-hdate">${formatDate(w.answerDate)}</td>
+                    <td><a href="/learn/dict?word=${encodeURIComponent(w.signWordName)}" class="retry-tag">다시 학습</a></td>
+                </tr>
+            `).join('') : '<tr><td colspan="6" class="mp-empty">오답 기록이 없습니다.</td></tr>';
+
+            renderPagination('#mp-panel-wronganswer .pagination', data.currentPage, data.totalPages, loadWrongAnswers);
+        });
+}
 
 // 화면 설정: 테마 (라이트/다크/시스템)
 function applyTheme(value) {
@@ -237,3 +276,121 @@ if (deleteBtn) {
   });
 }
 
+loadedTabs.jamohistory = false;
+loadedTabs.wordhistory = false;
+filterState.jamohistory = '';
+filterState.wordhistory = '';
+
+const jamoTypeLabel = { CONSONANT: '자음', VOWEL: '모음' };
+const wordTypeLabel = { CONSONANT: '자음', VOWEL: '모음', WORD: '단어' };
+
+function accClass(acc) {
+    if (acc >= 0.9) return 'acc-high';
+    if (acc >= 0.6) return 'acc-mid';
+    return 'acc-low';
+}
+
+function loadJamoHistory(page) {
+    fetch(`/member/mypage/history/jamo?page=${page}&category=${filterState.jamohistory}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            loadedTabs.jamohistory = true;
+            const wrap = document.getElementById('jamo-history-wrap');
+            wrap.innerHTML = data.jamoHistory.length ? data.jamoHistory.map(h => `
+                <div class="history-row">
+                    <div class="hcell hcell-word">${h.jamoChar}<div class="meta">${jamoTypeLabel[h.jamoType] || h.jamoType}</div></div>
+                    <div class="hcell hcell-date">${formatDate(h.regDate)}</div>
+                    <div class="hcell"><span class="acc-chip ${accClass(h.confidence)}">${Math.round(h.confidence * 100)}%</span></div>
+                </div>
+            `).join('') : '<div class="mp-list-empty">학습 기록이 없습니다.</div>';
+            renderPagination('#mp-subpanel-jamo .pagination', data.currentPage, data.totalPages, loadJamoHistory);
+        });
+}
+
+function loadWordHistory(page) {
+    fetch(`/member/mypage/history/word?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            loadedTabs.wordhistory = true;
+            const wrap = document.getElementById('word-history-wrap');
+            wrap.innerHTML = data.wordHistory.length ? data.wordHistory.map(h => `
+                <div class="history-row">
+                    <div class="hcell hcell-word">${h.signWordName}</div>
+                    <div class="hcell hcell-date">${formatDate(h.answerDate)}</div>
+                    <div class="hcell"><span class="acc-chip ${h.isCorrect === 'Y' ? 'acc-high' : 'acc-low'}">${h.isCorrect === 'Y' ? '정답' : '오답'}</span></div>
+                </div>
+            `).join('') : '<div class="mp-list-empty">학습 기록이 없습니다.</div>';
+            renderPagination('#mp-subpanel-word .pagination', data.currentPage, data.totalPages, loadWordHistory);
+        });
+}
+
+function toggleFavorite(btn) {
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+    const wordId = btn.dataset.wordId;
+
+    const body = new URLSearchParams();
+    body.set('signWordId', wordId);
+
+    fetch('/member/favorite/toggle', {
+        method: 'POST',
+        headers: { [csrfHeader]: csrfToken },
+        body: body
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) { alert(data.message || '오류가 발생했습니다.'); return; }
+        if (btn.closest('#mp-panel-overview')) {
+            if (!data.favorited) loadFavorites(1); 
+        } else {
+            btn.textContent = data.favorited ? '★' : '☆';
+            btn.classList.toggle('active', data.favorited);
+        }
+    });
+}
+
+function loadFavorites(page) {
+    fetch(`/member/mypage/favorite?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+            const wrap = document.getElementById('fav-wrap');
+            wrap.innerHTML = data.favorites.length ? data.favorites.map(f => `
+                <div class="mp-fav-row">
+                    <span class="mp-fav-row-name">${f.signWordName}${f.choseong ? `<span class="mp-fav-row-cho">${f.choseong}</span>` : ''}</span>
+                    <span class="mp-fav-row-star active" data-word-id="${f.signWordId}" onclick="toggleFavorite(this)">★</span>
+                </div>
+            `).join('') : '<div class="mp-list-empty">즐겨찾기한 단어가 없습니다.</div>';
+            renderPagination('#fav-pagination', data.currentPage, data.totalPages, loadFavorites);
+        });
+}
+loadFavorites(1);
+
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+
+document.querySelectorAll('.mp-toggle[data-type]').forEach(toggle => {
+  toggle.addEventListener('click', async () => {
+    const willTurnOn = !toggle.classList.contains('on');
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    const body = new URLSearchParams();
+    body.set('notificationType', toggle.dataset.type);
+    body.set('on', willTurnOn);
+
+    const res = await fetch('/member/alarm/update', {
+      method: 'POST',
+      headers: { [csrfHeader]: csrfToken },
+      body: body
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      toggle.classList.toggle('on', willTurnOn);
+    } else {
+      alert(data.message || '설정 변경에 실패했습니다.');
+    }
+  });
+});

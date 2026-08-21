@@ -8,7 +8,7 @@
         <div class="sidebar-box-header">글쓰기</div>
         <div class="sidebar-write-btns">
         <a href="/board/write" class="btn btn-primary btn-sm">✏️ 일반 글쓰기</a>
-        <a href="/board/report" class="btn btn-ghost btn-sm">⚠️ 오류 신고</a>
+        <a href="/board/write?category=REPORT" class="btn btn-ghost btn-sm">⚠️ 오류 신고</a>
     </div>
 </div>
     <div class="sidebar-box">

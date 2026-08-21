@@ -1,6 +1,8 @@
 package com.soldesk.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,9 +23,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.soldesk.service.BoardService;
 import com.soldesk.service.CommentService;
+import com.soldesk.service.LearningHistoryService;
 import com.soldesk.service.MemberService;
+import com.soldesk.service.MemberSettingService;
+import com.soldesk.service.OverviewStatsService;
+import com.soldesk.service.WrongAnswerService;
 import com.soldesk.util.SecurityUtil;
 import com.soldesk.vo.MemberVO;
+import com.soldesk.vo.OverviewStatsVO;
+import com.soldesk.service.FavoriteService;
+import com.soldesk.vo.FavoriteWordVO;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/member")
@@ -38,6 +48,16 @@ public class MemberController {
     private BoardService boardService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private WrongAnswerService wrongAnswerService;
+    @Autowired
+    private LearningHistoryService learningHistoryService;
+    @Autowired
+    private OverviewStatsService overviewStatsService;
+    @Autowired
+    private FavoriteService favoriteService;
+    @Autowired
+    private MemberSettingService memberSettingService;
 
     @GetMapping("/join")
     public String join(@ModelAttribute("joinMember") MemberVO member) {
@@ -69,6 +89,10 @@ public class MemberController {
         }
         MemberVO member = memberService.getMemberById(currentMemberId);
         model.addAttribute("member", member);
+        OverviewStatsVO overviewStats = overviewStatsService.getOverviewStats(currentMemberId);
+        model.addAttribute("overviewStats", overviewStats);
+        List<String> offList = memberSettingService.getOffTypes(currentMemberId);
+        model.addAttribute("offAlarmTypesCsv", "," + String.join(",", offList) + ",");
         return "member/mypage";
     }
     @PostMapping("/update")
@@ -169,6 +193,103 @@ public class MemberController {
         Map<String, Object> result = new HashMap<>();
         if (memberId == null) { result.put("success", false); return result; }
         result = commentService.getCommentsByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/wronganswer")
+    @ResponseBody
+    public Map<String, Object> myWrongAnswers(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) {
+            result.put("success", false);
+            return result;
+        }
+        result = wrongAnswerService.getWrongAnswersByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/history/jamo")
+    @ResponseBody
+    public Map<String, Object> myJamoHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = learningHistoryService.getJamoHistoryByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/history/word")
+    @ResponseBody
+    public Map<String, Object> myWordHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = learningHistoryService.getWordHistoryByMember(memberId, category, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @PostMapping("/favorite/toggle")
+    @ResponseBody
+    public Map<String, Object> toggleFavorite(@RequestParam Integer signWordId) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+        boolean favorited = favoriteService.toggleFavorite(memberId, signWordId);
+        result.put("success", true);
+        result.put("favorited", favorited);
+        return result;
+    }
+
+    @GetMapping("/mypage/favorite")
+    @ResponseBody
+    public Map<String, Object> getMyFavorites(@RequestParam(defaultValue = "1") int page) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        int pageSize = 9;
+        List<FavoriteWordVO> favorites = favoriteService.getFavorites(memberId, page, pageSize);
+        int total = favoriteService.countFavorites(memberId);
+        int totalPages = (int) Math.ceil((double) total / pageSize);
+
+        result.put("success", true);
+        result.put("favorites", favorites);
+        result.put("currentPage", page);
+        result.put("totalPages", Math.max(totalPages, 1));
+        return result;
+    }
+    @GetMapping("/favorite/ids")
+    @ResponseBody
+    public Map<String, Object> getFavoriteIds() {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) {
+            result.put("success", true);
+            result.put("ids", new ArrayList<Integer>());
+            return result;
+        }
+        result.put("success", true);
+        result.put("ids", favoriteService.getFavoriteIds(memberId));
+        return result;
+    }
+    @PostMapping("/alarm/update")
+    @ResponseBody
+    public Map<String, Object> updateAlarm(@RequestParam String notificationType, @RequestParam boolean on) {
+        Map<String, Object> result = new HashMap<>();
+        Integer memberId = securityUtil.getCurrentMemberId();
+        if (memberId == null) {
+            result.put("success", false);
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+        memberSettingService.setAlarm(memberId, notificationType, on);
         result.put("success", true);
         return result;
     }

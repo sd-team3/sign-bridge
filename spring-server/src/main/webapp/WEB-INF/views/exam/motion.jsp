@@ -49,6 +49,7 @@
             <div class="cam-target-label">아래 단어를 수어로 표현하세요</div>
             <div class="cam-target-word" id="cam-target-word">🚑 구급차</div>
           </div>
+
           <div class="cam-wrap-exam">
             <video id="video-word" autoplay playsinline muted></video>
             <canvas id="canvas-word"></canvas>
@@ -67,6 +68,11 @@
           <div class="cam-right-controls">
             <button class="btn btn-primary cam-submit-btn" onclick="submitCam()">✅ 정답 제출</button>
             <button class="btn btn-ghost btn-sm" onclick="resetCamResult()">초기화</button>
+          </div>
+
+          <div class="hint-area" style="margin: 12px 0;">
+            <button class="btn btn-ghost btn-sm" id="hint-toggle-btn" onclick="toggleHint()">💡 힌트 보기</button>
+            <div class="hint-box" id="hint-box" style="display:none; margin-top:8px; padding:12px 16px; background:var(--surface2); border-radius:var(--radius-sm); font-size:14px; color:var(--text-sub);"></div>
           </div>
         </div>
       </div>
@@ -104,6 +110,7 @@ fetch(`/exam/api/questions?sessionId=\${sessionId}&phase=motion`)
     camBank = (list || []).map(w => ({
       signWordId: w.signWordId,
       word: w.word,
+      description: w.description,
       emoji: '🖐️'
     }));
     document.getElementById('cam-correct').textContent = camCorrectCount;
@@ -119,6 +126,17 @@ fetch(`/exam/api/questions?sessionId=\${sessionId}&phase=motion`)
 function loadCamQuestion(idx) {
   const c = camBank[idx % camBank.length];
   document.getElementById('cam-target-word').textContent = `\${c.emoji} \${c.word}`;
+
+  const hintBtn = document.getElementById('hint-toggle-btn');
+  const hintBox = document.getElementById('hint-box');
+  hintBox.style.display = 'none';
+  if (c.description) {
+    hintBtn.style.display = 'inline-flex';
+    hintBox.textContent = c.description;
+  } else {
+    hintBtn.style.display = 'none';
+  }
+
   resetCamResult();
 }
 
@@ -217,6 +235,11 @@ function finishExam() {
       location.href = '/exam/result?sessionId=' + sessionId
         + (passParam ? '&pass=' + passParam : '');
     });
+}
+
+function toggleHint() {
+  const box = document.getElementById('hint-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
 </script>
 </body>

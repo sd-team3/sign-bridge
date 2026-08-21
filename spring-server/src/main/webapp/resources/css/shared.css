@@ -32,9 +32,11 @@ a{color:inherit;text-decoration:none}
 /* 헤더 */
 header{position:sticky;top:0;z-index:100;background:rgba(240,247,244,.95);backdrop-filter:blur(12px);border-bottom:2px solid var(--border);padding:0 32px;height:66px;display:flex;align-items:center;justify-content:space-between}
 header .logo{font-size:22px;font-weight:900;color:var(--primary);letter-spacing:-.5px}
+.logo img{width:28px;height:28px;vertical-align:middle;margin-right:4px}
 header nav{display:flex;gap:6px;align-items:center}
 header nav a{padding:7px 15px;border-radius:8px;font-size:15px;font-weight:600;color:var(--text-sub);transition:all .2s}
 header nav a:hover,header nav a.active{color:var(--primary);background:var(--primary-light)}
+
 /* 헤더 학습/플레이존 서브메뉴 드롭다운 */
 header nav .nav-item{position:relative}
 header nav .nav-item>a{display:inline-flex;align-items:center;gap:4px}
@@ -258,6 +260,11 @@ body.page-register .auth-box{max-width:480px} /* auth_register.html: 폼이 더 
 .comment-empty{padding:30px 18px;text-align:center;font-size:13px;font-weight:600;color:var(--text-muted);background:var(--surface);border-radius:var(--radius)}
 .comment-deleted{color: var(--text-muted, #888);font-style: italic;}
 .back-row{margin-top:24px;display:flex;justify-content:center}
+.report-detail-box{margin:0 0 24px;padding:18px 22px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius)}
+.report-detail-row{display:flex;gap:14px;padding:8px 0;font-size:14px}
+.report-detail-row:not(:last-child){border-bottom:1.5px solid var(--border)}
+.report-detail-row span:first-child{flex-shrink:0;width:110px;font-weight:800;color:var(--text-sub)}
+.report-detail-row span:last-child{color:var(--text);font-weight:600}
 
 /* ========================================================================
    board_write.html / board_edit.html 공통
@@ -291,7 +298,7 @@ body.page-register .auth-box{max-width:480px} /* auth_register.html: 폼이 더 
 .result-count{font-size:14px;font-weight:700;color:var(--text-sub);margin-bottom:16px}
 
 /* learn_main.html 전용 */
-.learn-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:40px 40px;margin-bottom:32px;display:flex;align-items:center;justify-content:space-between;gap:24px;color:#fff;flex-wrap:wrap}
+.learn-hero{background:linear-gradient(135deg,var(--primary),var(--primary-dark));border-radius:var(--radius);padding:40px 40px;margin-bottom:32px;display:flex;align-items:center;justify-content:flex-start;gap:24px;color:#fff;flex-wrap:wrap}
 .learn-hero-text h1{font-size:26px;font-weight:900;letter-spacing:-.5px}
 .learn-hero-text p{font-size:15px;font-weight:500;color:rgba(255,255,255,.85);margin-top:8px}
 .learn-hero-stats{display:flex;gap:0}
@@ -661,7 +668,7 @@ body.page-mypage-edit .content-body{padding:28px}
 .acc-mid{background:rgba(212,132,10,.12);color:var(--warn)}
 .acc-low{background:rgba(192,57,43,.1);color:var(--danger)}
 
-.mp-list-wrap{border:2px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.mp-list-wrap{border-radius:var(--radius);overflow:hidden;background:var(--surface)}
 .mp-post-item{display:flex;flex-direction:column;gap:8px;padding:18px 22px;border-bottom:1.5px solid var(--border);transition:background .15s}
 .mp-post-item:last-child{border-bottom:none}
 .mp-post-item:hover{background:var(--primary-light)}
@@ -697,6 +704,12 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-comment-row-board{font-size:12px;font-weight:700;color:var(--text-sub);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mp-comment-row-board:hover{color:var(--primary)}
 .mp-list-empty{text-align:center;padding:56px 0;color:var(--text-sub);font-size:14px;font-weight:600}
+.mp-subpanel{display:none}
+.mp-subpanel.active{display:block}
+.mp-subtabs{display:flex;gap:8px;margin-bottom:16px}
+.mp-subtab{padding:8px 16px;cursor:pointer;font-size:13px;font-weight:800;color:var(--text-sub);border:2px solid var(--border);border-radius:100px;background:var(--surface);transition:all .15s}
+.mp-subtab.active{color:#fff;background:var(--primary);border-color:var(--primary)}
+.mp-subtab:hover:not(.active){border-color:var(--primary);color:var(--primary)}
 /* ========================================================================
    mypage.html
    ======================================================================== */
@@ -736,7 +749,8 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:26px 28px;margin-bottom:20px}
 .mp-card-title{font-size:15px;font-weight:800;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid var(--border)}
 
-/* 카테고리별 진행률 */
+
+/* 초성별 진행률 */
 .mp-progress-row{display:flex;align-items:center;gap:16px;padding:12px 0}
 .mp-progress-cat{width:110px;font-size:14px;font-weight:700;color:var(--text);flex-shrink:0}
 .mp-progress-track{flex:1;height:8px;background:var(--surface2);border-radius:100px;overflow:hidden}
@@ -744,19 +758,20 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-progress-fill.mp-gold{background:linear-gradient(90deg,#f6d365,#fda085)}
 .mp-progress-pct{width:40px;text-align:right;font-size:14px;font-weight:800;color:var(--primary);flex-shrink:0}
 
+.mp-cho-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+@media (max-width:640px){.mp-cho-progress-grid{grid-template-columns:1fr}}
+
 /* 최근 학습 단어 칩 */
 .mp-chip-row{display:flex;flex-wrap:wrap;gap:8px}
 .mp-chip{padding:6px 16px;background:var(--surface2);border:1.5px solid var(--border);border-radius:100px;font-size:14px;font-weight:700;color:var(--text)}
 
 /* 즐겨찾기한 수어 */
-.mp-fav-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.mp-fav-card{border:2px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;transition:all .15s;cursor:pointer}
-.mp-fav-card:hover{border-color:var(--primary);box-shadow:0 4px 16px rgba(45,155,111,.12)}
-.mp-fav-thumb{background:var(--surface2);height:100px;display:flex;align-items:center;justify-content:center;font-size:38px}
-.mp-fav-body{padding:12px 14px;position:relative}
-.mp-fav-star{position:absolute;top:12px;right:14px;color:#f5b700;font-size:15px}
-.mp-fav-title{font-size:14px;font-weight:800;margin-bottom:3px;padding-right:20px}
-.mp-fav-cat{font-size:11px;font-weight:600;color:var(--text-sub)}
+.mp-fav-row{display:flex;align-items:center;justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--border,#eee)}
+.mp-fav-row:last-child{border-bottom:none}
+.mp-fav-row-name{font-size:15px;font-weight:700;color:var(--text-main,#222)}
+.mp-fav-row-star{cursor:pointer;font-size:18px;color:#c9c9c9}
+.mp-fav-row-star.active{color:#FFC23E}
+.mp-fav-row-cho{display:inline-block;margin-left:8px;padding:2px 8px;border-radius:20px;background:var(--primary-light,#e6f4ee);color:var(--primary,#1F8A5C);font-size:12px;font-weight:700}
 
 /* 학습 기록 탭: 필터 + 테이블 */
 .mp-filter-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
@@ -784,7 +799,7 @@ body.page-mypage-edit .content-body{padding:28px}
 .mp-badge-card{text-align:center;padding:22px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);transition:all .15s}
 .mp-badge-card:not(.locked):hover{border-color:var(--primary);background:var(--primary-light)}
 .mp-badge-card.locked{opacity:.35;filter:grayscale(1)}
-.mp-badge-icon{font-size:32px;margin-bottom:10px}
+.mp-badge-icon{width:40px;height:40px;margin-bottom:10px;display:block;margin-left:auto;margin-right:auto}
 .mp-badge-name{font-size:13px;font-weight:800;margin-bottom:3px}
 .mp-badge-desc{font-size:11px;font-weight:500;color:var(--text-sub);line-height:1.4}
 
