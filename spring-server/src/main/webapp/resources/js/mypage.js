@@ -1,4 +1,4 @@
-const loadedTabs = { myposts: false, mycomments: false };
+const loadedTabs = { myposts: false, mycomments: false, chainhistory: false };
 const filterState = { myposts: '', mycomments: '' };
 const categoryLabel = { FREE: '자유', QNA: '질문', INFO: '정보', REPORT: '신고', NOTICE: '공지' };
 
@@ -6,8 +6,28 @@ function mpTab(name) {
   if (name === 'mycontent' && !loadedTabs.myposts) loadMyPosts(1);
   if (name === 'wronganswer' && !loadedTabs.wronganswer) loadWrongAnswers(1);
   if (name === 'learninghistory' && !loadedTabs.jamohistory) loadJamoHistory(1);
+  if (name === 'chainhistory' && !loadedTabs.chainhistory) loadChainHistory(1);
   document.querySelectorAll('.mp-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.mp-panel').forEach(p => p.classList.toggle('active', p.id === 'mp-panel-' + name));
+}
+
+function loadChainHistory(page) {
+  fetch(`/member/mypage/history/chain?page=${page}`)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) return;
+      loadedTabs.chainhistory = true;
+      const wrap = document.getElementById('chain-history-wrap');
+      wrap.innerHTML = data.rooms.length ? data.rooms.map(r => `
+        <div class="mp-post-row" style="cursor:pointer;" onclick="location.href='/playzone/chain/${r.chainRoomId}'">
+          <span class="mp-post-row-title">${r.chainRoomName}</span>
+          <span class="mp-post-row-cat">${r.winnerMemberId ? '종료' : '-'}</span>
+          <span class="mp-post-row-date">${formatDate(r.endedDate)}</span>
+        </div>
+      `).join('') : '<div class="mp-list-empty">참여한 끝말잇기 전적이 없습니다.</div>';
+      const totalPages = Math.max(1, Math.ceil(data.total / data.pageSize));
+      renderPagination('#chain-history-pagination', page, totalPages, loadChainHistory);
+    });
 }
 
 function lhSubTab(name) {

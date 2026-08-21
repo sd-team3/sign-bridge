@@ -141,6 +141,13 @@ tabs.forEach(tab => {
   });
 });
 
+// 자모 카드 전환 시 서버 hold 세션도 함께 리셋 (다음 타겟에 이전 판정이 이어지지 않도록)
+document.addEventListener('click', (e) => {
+  if (e.target.closest('.jamo-card')) {
+    window.resetJamoSession?.();
+  }
+});
+
 /// 카드 클릭 -> 상세 표시
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.jamo-card');
@@ -181,6 +188,7 @@ document.addEventListener('click', (e) => {
 document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('jamoDetail').classList.remove('show');
   window.stopJamoCam?.();
+  window.resetJamoSession?.();
   window.currentJamoChar = null;
 
   const resultEl = document.getElementById('result');
