@@ -24,7 +24,6 @@
   <div>
     <div class="section-eyebrow">단어 관리</div>
     <div class="section-hd">단어 수정</div>
-    <div class="section-sub">기존 단어 정보를 수정합니다</div>
   </div>
 </div>
 

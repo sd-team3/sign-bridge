@@ -51,6 +51,13 @@
       <version>8.0.33</version>
     </dependency>
 
+    <!-- HikariCP : 커넥션 풀 -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <version>5.1.0</version>
+    </dependency>
+
     <!-- MyBatis -->
     <dependency>
       <groupId>org.mybatis</groupId>
@@ -69,6 +76,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <!-- Spring WebSocket (끝말잇기 실시간 방/턴 브로드캐스트용, /ws/** 하위) -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-websocket</artifactId>
       <version>${spring.version}</version>
     </dependency>
     

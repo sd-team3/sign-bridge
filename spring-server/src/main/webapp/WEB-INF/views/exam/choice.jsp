@@ -52,6 +52,11 @@
           </div>
         </div>
 
+        <div class="hint-area" style="margin: 12px 0;">
+          <button class="btn btn-ghost btn-sm" id="hint-toggle-btn" onclick="toggleHint()">💡 힌트 보기</button>
+          <div class="hint-box" id="hint-box" style="display:none; margin-top:8px; padding:12px 16px; background:var(--surface2); border-radius:var(--radius-sm); font-size:14px; color:var(--text-sub);"></div>
+        </div>
+
         <div id="multiple-choice-area">
           <p style="font-size:14px; font-weight:700; color:var(--text-sub); margin-bottom:14px;">이 수어가 나타내는 단어는 무엇인가요?</p>
           <div class="choices" id="choices-list"></div>
@@ -108,6 +113,7 @@ Promise.all([
       signWordId: q.signWordId,
       word: q.word,
       type: q.type,
+      description: q.description,
       choices: q.choices || [],
       correct: q.choices ? q.choices.indexOf(q.word) : -1
     }));
@@ -121,6 +127,16 @@ Promise.all([
 
 function loadQuizQuestion(idx) {
   const q = quizBank[idx % quizBank.length];
+
+  const hintBtn = document.getElementById('hint-toggle-btn');
+  const hintBox = document.getElementById('hint-box');
+  hintBox.style.display = 'none';
+  if (q.description) {
+    hintBtn.style.display = 'inline-flex';
+    hintBox.textContent = q.description;
+  } else {
+    hintBtn.style.display = 'none';
+  }
 
   const videoEl = document.getElementById('quiz-video');
   const fallbackEl = document.getElementById('video-fallback');
@@ -294,6 +310,11 @@ function saveAnswer(q, questionNo, userAnswer, isCorrect) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: body
   }).catch(err => console.error('답안 저장 실패', err));
+}
+
+function toggleHint() {
+  const box = document.getElementById('hint-box');
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
 }
 </script>
 </body>

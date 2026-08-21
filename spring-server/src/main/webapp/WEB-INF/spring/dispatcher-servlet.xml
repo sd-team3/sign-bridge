@@ -30,6 +30,7 @@
     <context:component-scan base-package="com.soldesk.controller, 
                                           com.soldesk.service, 
                                           com.soldesk.config,
+                                          com.soldesk.game,
                                           com.soldesk.util" >
     </context:component-scan>
     <!-- 뷰 리졸버 설정 -->

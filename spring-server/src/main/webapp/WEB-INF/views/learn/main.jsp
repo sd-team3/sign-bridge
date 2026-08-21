@@ -19,18 +19,20 @@
     <!-- 상단 요약 배너 -->
     <div class="learn-hero">
       <div class="learn-hero-text">
-        <h1>👋 홍길동님, 오늘도 함께 배워볼까요?</h1>
+        <c:choose>
+          <c:when test="${not empty memberName}">
+            <h1>👋 ${memberName}님, 오늘도 함께 배워볼까요?</h1>
+          </c:when>
+          <c:otherwise>
+            <h1>👋 오늘도 함께 배워볼까요?</h1>
+          </c:otherwise>
+        </c:choose>
         <p>꾸준한 학습이 실력을 만듭니다. 오늘의 목표를 채워보세요.</p>
-      </div>
-      <div class="learn-hero-stats">
-        <div class="lh-stat"><div class="lh-stat-num">42</div><div class="lh-stat-lbl">학습한 단어</div></div>
-        <div class="lh-stat"><div class="lh-stat-num">87%</div><div class="lh-stat-lbl">평균 정확도</div></div>
-        <div class="lh-stat"><div class="lh-stat-num">7일</div><div class="lh-stat-lbl">연속 학습</div></div>
       </div>
     </div>
 
     <!-- 이어하기 -->
-    <div class="continue-banner">
+    <!-- <div class="continue-banner">
       <div class="cb-left">
         <div class="cb-icon">🍎</div>
         <div>
@@ -39,13 +41,12 @@
         </div>
       </div>
       <a href="learn_word_detail.html" class="btn btn-primary btn-sm">이어서 하기 →</a>
-    </div>
+    </div> -->
 
     <!-- 카테고리 -->
     <div class="section-title">학습 카테고리</div>
     <div class="cat-grid">
       <a href="/learn/jamo" class="cat-card">
-        <span class="cat-card-new">NEW</span>
         <div class="cat-card-icon">🤟</div>
         <div class="cat-card-title">자음 · 모음 지문자</div>
         <div class="cat-card-desc">수어의 기초, 지문자 ${jamoCount}개를 처음부터 차근차근 익혀요.</div>

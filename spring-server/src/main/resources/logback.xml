@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- MyBatis 매퍼 SQL 로그 (쿼리문 + 파라미터 + 결과 확인용) -->
+    <logger name="com.soldesk.mapper" level="DEBUG"/>
+
+    <!-- HikariCP 커넥션 풀 상태 로그 (커넥션 획득 대기시간 확인용) -->
+    <logger name="com.zaxxer.hikari" level="DEBUG"/>
+
+    <!-- 나머지는 INFO로 (너무 많이 안 찍히게) -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>

@@ -88,15 +88,9 @@
   </div>
 
   <div class="card">
-    <div class="card-title"><span class="ct-icon">⚡</span> 최근 활동</div>
+    <div class="card-title"><span class="ct-icon">⚡</span> 카메라 모션 </div>
     <div class="feed">
-      <c:forEach var="a" items="${dashboard.recentActivities}">
-        <div class="feed-item">
-          <div class="feed-dot" style="background:${a.dotColor}"></div>
-          <div class="feed-text">${a.text}</div>
-          <span class="feed-time">${a.timeAgo}</span>
-        </div>
-      </c:forEach>
+      <a href="http://localhost:8000/"></a>
     </div>
   </div>
 </div>

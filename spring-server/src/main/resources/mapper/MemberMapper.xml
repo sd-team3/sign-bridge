@@ -159,4 +159,11 @@
         where member_id = #{memberId}
     </update>
 
+    <!-- 끝말잇기 등에서 획득한 점수를 누적 -->
+    <update id="addPoint">
+        update member
+        set point = point + #{delta}
+        where member_id = #{memberId}
+    </update>
+
 </mapper>

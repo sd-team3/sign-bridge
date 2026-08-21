@@ -35,11 +35,11 @@
         <a href="#">플레이존 <span class="nav-caret">▾</span></a>
         <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
-            <a href="#" class="nav-dropdown-link">
+            <a href="${ctx}/playzone/chain" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔗</span>
             <span class="nav-dropdown-text">
                 <span class="nav-dropdown-title">수어 끝말잇기</span>
-                <span class="nav-dropdown-desc">AI와 실시간 끝말잇기 대결</span>
+                <span class="nav-dropdown-desc">최대 4인, 실시간 수어 끝말잇기 대결</span>
             </span>
             </a>
             <a href="#" class="nav-dropdown-link">

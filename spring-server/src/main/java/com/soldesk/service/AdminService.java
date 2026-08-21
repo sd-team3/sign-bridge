@@ -24,7 +24,18 @@ public class AdminService {
     @Autowired
     private MemberSettingService memberSettingService;
 
+    // dict.jsp 등에서 넘어오는 오류신고 세부코드 목록 (관리자 페이지 ERROR_REPORT 탭에서 통합 조회용)
+    private static final List<String> ERROR_REPORT_CATEGORIES = List.of(
+            "ACTION_RECOGNITION", "VIDEO_PLAYBACK", "TRANSLATION", "UI_BUG", "ETC");
+
     public List<InquiryVO> getInquiryList(String category, String status) {
+        // ERROR_REPORT 탭은 세부 오류유형 코드들을 IN절로 묶어서 조회
+        if ("ERROR_REPORT".equals(category)) {
+            if ("ALL".equalsIgnoreCase(status)) {
+                return adminMapper.selectByCategoryList(ERROR_REPORT_CATEGORIES);
+            }
+            return adminMapper.selectByCategoryListAndStatus(ERROR_REPORT_CATEGORIES, status);
+        }
         if ("ALL".equalsIgnoreCase(status)) {
             return adminMapper.selectByCategory(category);
         }
@@ -32,6 +43,9 @@ public class AdminService {
     }
 
     public int getStatusCount(String category, String status) {
+        if ("ERROR_REPORT".equals(category)) {
+            return adminMapper.countByCategoryListAndStatus(ERROR_REPORT_CATEGORIES, status);
+        }
         return adminMapper.countByCategoryAndStatus(category, status);
     }
 

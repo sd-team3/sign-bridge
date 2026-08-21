@@ -69,7 +69,7 @@
                 · ${inq.regDateStr} · ${inq.memberName}
               </span>
             </div>
-            <div style="font-size:15px;font-weight:700;margin-bottom:4px">${inq.title}</div>
+            <div style="font-size:15px;font-weight:700;margin-bottom:4px">[${inq.category}] ${inq.title}</div>
             <div style="font-size:13px;color:var(--ink2)">${inq.content}</div>
 
             <c:if test="${not empty inq.answerContent}">
