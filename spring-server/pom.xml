@@ -164,7 +164,6 @@
       <artifactId>elasticsearch-rest-client</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
-    
   </dependencies>
 
 </project>

@@ -6,6 +6,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 게시글 수정</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -25,7 +27,7 @@
       <div class="alert alert-warn">작성하신 원문은 저장되지 않으니, 수정 전 내용을 미리 확인해주세요.</div>
 
       <div class="card">
-        <form id="editForm" action="/board/update" method="post">
+        <form id="editForm" action="/board/update" method="post" enctype="multipart/form-data">
           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
           <input type="hidden" name="boardId" value="${board.boardId}">
           <div class="form-group">
@@ -63,6 +65,43 @@
             <div class="char-count"><span id="charCount">0</span> / 2000</div>
           </div>
 
+          <div class="form-group">
+            <label class="form-label">기존 첨부파일</label>
+            <div class="upload-preview-grid" id="existingFiles">
+              <c:forEach var="f" items="${boardFiles}">
+                <div class="upload-preview-item" data-file-id="${f.boardFileId}">
+                  <c:choose>
+                    <c:when test="${f.fileType == 'IMAGE'}">
+                      <img src="${f.filePath}" alt="${f.origName}">
+                    </c:when>
+                    <c:otherwise>
+                      <video src="${f.filePath}" muted></video>
+                    </c:otherwise>
+                  </c:choose>
+                  <button type="button" class="upload-preview-remove"
+                    onclick="markExistingFileForDelete(${f.boardFileId}, this)">✕</button>
+                </div>
+              </c:forEach>
+            </div>
+            <c:if test="${empty boardFiles}">
+              <div class="form-hint">첨부된 파일이 없어요.</div>
+            </c:if>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="files">새 이미지 · 영상 첨부</label>
+            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="파일 선택">
+              <div class="upload-zone-icon">📎</div>
+              <div class="upload-zone-text"><strong>클릭</strong>하거나 파일을 끌어다 놓으세요</div>
+              <div class="upload-zone-hint">JPG, PNG, GIF, WEBP, MP4, WEBM · 최대 5개 · 개당 100MB 이하</div>
+              <input type="file" id="filesInput" name="files" accept="image/*,video/*" multiple style="display:none;">
+            </div>
+            <div class="upload-preview-grid" id="uploadPreview"></div>
+            <div class="upload-count" id="uploadCount"></div>
+          </div>
+
+          <div id="deleteFileIdsContainer"></div>
+
           <div class="edit-actions">
             <a href="/board/list?category=${board.categoryIdx}" class="btn btn-ghost">취소</a>
             <button type="submit" class="btn btn-primary">수정 완료</button>
@@ -95,6 +134,83 @@ function toggleReportFields() {
 
 categorySelect.addEventListener('change', toggleReportFields);
 toggleReportFields();
+
+const MAX_FILES = 5;
+const filesInput = document.getElementById('filesInput');
+const uploadZone = document.getElementById('uploadZone');
+const previewGrid = document.getElementById('uploadPreview');
+const uploadCountEl = document.getElementById('uploadCount');
+let attachedFiles = [];
+
+function updateUploadCount() {
+  uploadCountEl.textContent = attachedFiles.length > 0 ? (attachedFiles.length + '개 첨부됨') : '';
+}
+
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  attachedFiles.forEach((file, idx) => {
+    const isVideo = file.type.startsWith('video/');
+    const url = URL.createObjectURL(file);
+
+    const item = document.createElement('div');
+    item.className = 'upload-preview-item';
+    item.innerHTML = isVideo
+      ? '<video src="' + url + '" muted></video><button type="button" class="upload-preview-remove">✕</button>'
+      : '<img src="' + url + '" alt="' + file.name + '"><button type="button" class="upload-preview-remove">✕</button>';
+
+    item.querySelector('.upload-preview-remove').addEventListener('click', () => {
+      URL.revokeObjectURL(url);
+      attachedFiles.splice(idx, 1);
+      syncInputFiles();
+      renderPreviews();
+      updateUploadCount();
+    });
+    previewGrid.appendChild(item);
+  });
+}
+
+function syncInputFiles() {
+  const dt = new DataTransfer();
+  attachedFiles.forEach(f => dt.items.add(f));
+  filesInput.files = dt.files;
+}
+
+function addFiles(fileList) {
+  const incoming = Array.from(fileList).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
+  const room = MAX_FILES - attachedFiles.length;
+  if (room <= 0) {
+    alert('파일은 최대 ' + MAX_FILES + '개까지 첨부할 수 있어요.');
+    return;
+  }
+  attachedFiles = attachedFiles.concat(incoming.slice(0, room));
+  syncInputFiles();
+  renderPreviews();
+  updateUploadCount();
+}
+
+filesInput.addEventListener('change', (e) => addFiles(e.target.files));
+uploadZone.addEventListener('click', () => filesInput.click());
+uploadZone.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); filesInput.click(); }
+});
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+
+// 기존 첨부파일 삭제 마킹
+function markExistingFileForDelete(fileId, btn) {
+  const item = btn.closest('.upload-preview-item');
+  item.remove();
+  const hidden = document.createElement('input');
+  hidden.type = 'hidden';
+  hidden.name = 'deleteFileIds';
+  hidden.value = fileId;
+  document.getElementById('deleteFileIdsContainer').appendChild(hidden);
+}
 </script>
 
 </body>
