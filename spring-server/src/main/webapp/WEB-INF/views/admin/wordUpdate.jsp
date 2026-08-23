@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="단어 수정" scope="request" />
-<c:set var="pagePath" value="/admin/word/update" scope="request" />
+<c:set var="pageName" value="wordUpdate" scope="request" />
 <c:set var="activeMenu" value="word-update" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
