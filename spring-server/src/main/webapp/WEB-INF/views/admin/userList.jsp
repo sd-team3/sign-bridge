@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="유저 목록" scope="request" />
-<c:set var="pagePath" value="/admin/user/list" scope="request" />
+<c:set var="pageName" value="userList" scope="request" />
 <c:set var="activeMenu" value="user-list" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">

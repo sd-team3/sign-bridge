@@ -67,6 +67,10 @@
     </div>
 
     <a href="#" class="nav-link">게시판</a>
+
+    <sec:authorize access="hasRole('ADMIN')">
+      <a href="${ctx}/admin/main" class="nav-link">관리자</a>
+    </sec:authorize>
   </div>
 
   <div class="nav-cta">
