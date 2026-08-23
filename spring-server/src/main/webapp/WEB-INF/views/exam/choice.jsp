@@ -282,6 +282,7 @@ function endQuizPhase() {
   const body = new URLSearchParams();
   body.append('correctCount', quizCorrectCount);
   body.append('totalCount', totalCount);
+  body.append('passScore', params.get('pass') || 70);
 
   fetch(`/exam/api/\${sessionId}/finish`, {
     method: 'POST',
