@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,8 @@ import co.elastic.clients.elasticsearch.core.CountResponse;
 
 @Service
 public class BoardSearchService implements InitializingBean {
+    private static final Logger logger = LoggerFactory.getLogger(BoardSearchService.class);
+
     @Autowired
     private ElasticsearchClient elasticsearchClient;
     @Autowired
@@ -31,6 +35,7 @@ public class BoardSearchService implements InitializingBean {
     @Value("${elasticsearch.index}")
     private String indexName;
 
+    // 검색용 인덱스가 없을 경우 새로 생성
     public void createIndex() throws Exception {
         try {
             boolean exists = elasticsearchClient.indices()
@@ -66,6 +71,7 @@ public class BoardSearchService implements InitializingBean {
 
     }
 
+    // 서버 시작 시 DB - ES 데이터 초기 동기화
     @Override
     public void afterPropertiesSet() throws Exception {
         try {
@@ -79,11 +85,11 @@ public class BoardSearchService implements InitializingBean {
                 );
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("게시글과 ES 동기화 중 오류 발생: ", e);
         }
         
     }
-    
+    // 게시글 1건을 ES에 추가/갱신
     public void indexBoard(BoardVO board) {
         try {
             elasticsearchClient.index(index -> index
@@ -92,10 +98,10 @@ public class BoardSearchService implements InitializingBean {
                 .document(BoardDocument.from(board))
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("검색 인덱스에 게시글 추가 중 오류 발생: ", e);
         }
     }
-
+    // 게시글 1건을 ES에 삭제
     public void deleteBoard(int boardId) {
         try {
             elasticsearchClient.delete(delete -> delete
@@ -103,10 +109,10 @@ public class BoardSearchService implements InitializingBean {
                 .id(String.valueOf(boardId))
             );
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("검색 인덱스에 게시글 삭제 중 에러 발생: ", e);
         }
     }
-
+    // 키워드로 게시글 검색 처리
     public List<BoardVO> search(String keyword, int page) throws IOException {
         int count = 6;
         int start = (page - 1) * count;
@@ -130,12 +136,12 @@ public class BoardSearchService implements InitializingBean {
                 return boards;
             }
             catch (Exception e) {
-                e.printStackTrace();
+                logger.error("게시글 검색 중 오류 발생: ", e);
                 return new ArrayList<>();
             }
             
         } 
-
+    // 키워드 검색 결과의 전체 건수 조회
     public long searchCount(String keyword) throws IOException {
         try {
             CountResponse response = elasticsearchClient.count(count -> count
@@ -149,7 +155,7 @@ public class BoardSearchService implements InitializingBean {
             );
             return response.count();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("키워드 카운트 중 오류 발생: ", e);
             return 0;
         }
 
