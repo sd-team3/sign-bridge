@@ -35,7 +35,7 @@
             </span>
           </a>
           <a href="${ctx}/learn/dict" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🚨</span>
+            <span class="nav-dropdown-icon">🔍</span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 사전</span>
               <span class="nav-dropdown-desc">초성으로 찾고 검색해서 단어 학습</span>

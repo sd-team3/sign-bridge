@@ -34,21 +34,21 @@
             <input type="radio" name="exam-mode" value="choice" id="mode-choice" checked>
             <div class="mode-card-body">
               <div class="mode-card-title">🖼️ 객관식 / 주관식 퀴즈</div>
-              <div class="mode-card-desc">수어 영상을 보고 알맞은 단어를 고르거나 직접 입력합니다. 수어를 처음 배우는 분께 추천해요.</div>
+              <div class="mode-card-desc">수어 영상을 보고 알맞은 단어를 고르거나 직접 입력합니다.</div>
             </div>
           </label>
           <label class="mode-card">
             <input type="radio" name="exam-mode" value="motion" id="mode-motion">
             <div class="mode-card-body">
               <div class="mode-card-title">📷 카메라 수어 인식</div>
-              <div class="mode-card-desc">화면에 표시된 단어를 직접 수어로 표현합니다. AI가 실시간으로 인식해서 채점합니다.</div>
+              <div class="mode-card-desc">화면에 표시된 단어를 직접 수어로 표현합니다.</div>
             </div>
           </label>
           <label class="mode-card">
             <input type="radio" name="exam-mode" value="both" id="mode-both">
             <div class="mode-card-body">
               <div class="mode-card-title">🔀 퀴즈 → 수어 인식 순서로 모두</div>
-              <div class="mode-card-desc">퀴즈 문제를 먼저 풀고, 이어서 카메라 수어 인식 문제를 풉니다. 설정한 문제 수가 각각 출제됩니다.</div>
+              <div class="mode-card-desc">퀴즈 문제를 먼저 풀고, 이어서 카메라 수어 인식 문제를 풉니다.</div>
             </div>
           </label>
         </div>
@@ -102,7 +102,7 @@
     </div>
 
     <div style="display:flex; gap:12px; justify-content:flex-end;">
-      <a href="/learn.jsp" class="btn btn-ghost">학습하고 오기</a>
+      <a href="/learn" class="btn btn-ghost">학습하고 오기</a>
       <button class="btn btn-primary btn-lg" onclick="startExam()">🚀 시험 시작</button>
     </div>
 

@@ -55,6 +55,7 @@
         <div class="hint-area" style="margin: 12px 0;">
           <button class="btn btn-ghost btn-sm" id="hint-toggle-btn" onclick="toggleHint()">💡 힌트 보기</button>
           <div class="hint-box" id="hint-box" style="display:none; margin-top:8px; padding:12px 16px; background:var(--surface2); border-radius:var(--radius-sm); font-size:14px; color:var(--text-sub);"></div>
+          <div class="hint-source" id="hint-source" style="display:none; margin-top:4px; font-size:11px; color:var(--text-sub); opacity:0.7;">일부 단어 뜻풀이 출처: 국립국어원 한국어기초사전</div>
         </div>
 
         <div id="multiple-choice-area">
@@ -130,7 +131,9 @@ function loadQuizQuestion(idx) {
 
   const hintBtn = document.getElementById('hint-toggle-btn');
   const hintBox = document.getElementById('hint-box');
+  const hintSource = document.getElementById('hint-source');
   hintBox.style.display = 'none';
+  hintSource.style.display = 'none';
   if (q.description) {
     hintBtn.style.display = 'inline-flex';
     hintBox.textContent = q.description;
@@ -279,6 +282,7 @@ function endQuizPhase() {
   const body = new URLSearchParams();
   body.append('correctCount', quizCorrectCount);
   body.append('totalCount', totalCount);
+  body.append('passScore', params.get('pass') || 70);
 
   fetch(`/exam/api/\${sessionId}/finish`, {
     method: 'POST',
@@ -314,7 +318,10 @@ function saveAnswer(q, questionNo, userAnswer, isCorrect) {
 
 function toggleHint() {
   const box = document.getElementById('hint-box');
-  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  const source = document.getElementById('hint-source');
+  const show = box.style.display === 'none';
+  box.style.display = show ? 'block' : 'none';
+  source.style.display = show ? 'block' : 'none';
 }
 </script>
 </body>

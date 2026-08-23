@@ -109,10 +109,14 @@ public class ExamController {
     public Map<String, Object> finish(
             @PathVariable Long sessionId,
             @RequestParam int correctCount,
-            @RequestParam int totalCount) {
-        examService.finishSession(sessionId, correctCount, totalCount);
+            @RequestParam int totalCount,
+            @RequestParam(defaultValue = "70") int passScore) {
+        int memberId = getCurrentMemberId();
+        int score = examService.finishSession(sessionId, correctCount, totalCount, memberId, passScore);
         Map<String, Object> result = new HashMap<>();
         result.put("ok", true);
+        result.put("score", score);
+        result.put("earnedPoint", score >= passScore ? score : 0);
         return result;
     }
 }
