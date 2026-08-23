@@ -119,7 +119,6 @@ public class ExamService {
         examMapper.insertAnswer(detail);
     }
 
-    /** 시험 종료: 점수 계산해서 세션 업데이트 */
     public int finishSession(Long testSessionId, int correctCount, int totalCount, int memberId, int passScore) {
         int score = (int) Math.round((correctCount * 100.0) / totalCount);
         examMapper.updateSessionResult(testSessionId, correctCount, score);
