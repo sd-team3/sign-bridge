@@ -6,6 +6,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 게시글 작성</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -23,7 +25,7 @@
       </div>
 
       <div class="card">
-        <form id="writeForm" action="/board/write" method="post">
+        <form id="writeForm" action="/board/write" method="post" enctype="multipart/form-data">
           <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
           <div class="form-group">
             <label class="form-label" for="category">카테고리</label>
@@ -63,17 +65,17 @@
             <div class="char-count"><span id="charCount">0</span> / 2000</div>
           </div>
 
-          <!-- <div class="form-group">
-            <label class="form-label" for="images">이미지 첨부</label>
-            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="이미지 파일 선택">
+          <div class="form-group">
+            <label class="form-label" for="files">이미지 · 영상 첨부</label>
+            <div class="upload-zone" id="uploadZone" role="button" tabindex="0" aria-label="파일 선택">
               <div class="upload-zone-icon">📎</div>
               <div class="upload-zone-text"><strong>클릭</strong>하거나 파일을 끌어다 놓으세요</div>
-              <div class="upload-zone-hint">JPG, PNG, GIF · 최대 1장 · 10MB 이하</div>
-              <input type="file" id="images" name="images" accept="image/*">
+              <div class="upload-zone-hint">JPG, PNG, GIF, WEBP, MP4, WEBM · 최대 5개 · 개당 100MB 이하</div>
+              <input type="file" id="filesInput" name="files" accept="image/*,video/*" multiple style="display:none;">
             </div>
             <div class="upload-preview-grid" id="uploadPreview"></div>
             <div class="upload-count" id="uploadCount"></div>
-          </div> -->
+          </div>
 
           <div class="edit-actions">
             <a href="/board/list" class="btn btn-ghost">취소</a>
@@ -95,72 +97,71 @@ function updateCount(){ charCountEl.textContent = contentEl.value.length; }
 contentEl.addEventListener('input', updateCount);
 updateCount();
 
-// 이미지 첨부 (최대 1장)
-// const MAX_IMAGES = 1;
-// const imagesInput = document.getElementById('images');
-// const uploadZone = document.getElementById('uploadZone');
-// const previewGrid = document.getElementById('uploadPreview');
-// const uploadCountEl = document.getElementById('uploadCount');
-// let attachedFiles = [];
+const MAX_FILES = 5;
+const filesInput = document.getElementById('filesInput');
+const uploadZone = document.getElementById('uploadZone');
+const previewGrid = document.getElementById('uploadPreview');
+const uploadCountEl = document.getElementById('uploadCount');
+let attachedFiles = [];
 
-// function updateUploadCount() {
-//   uploadCountEl.textContent = attachedFiles.length > 0 ? `${attachedFiles.length}장 첨부됨` : '';
-//   uploadZone.style.display = attachedFiles.length >= MAX_IMAGES ? 'none' : '';
-// }
+function updateUploadCount() {
+  uploadCountEl.textContent = attachedFiles.length > 0 ? (attachedFiles.length + '개 첨부됨') : '';
+}
 
-// function renderPreviews() {
-//   previewGrid.innerHTML = '';
-//   attachedFiles.forEach((file, idx) => {
-//     const reader = new FileReader();
-//     reader.onload = (e) => {
-//       const item = document.createElement('div');
-//       item.className = 'upload-preview-item';
-//       item.innerHTML = `<img src="${e.target.result}" alt="${file.name}"><button type="button" class="upload-preview-remove" aria-label="이미지 삭제">✕</button>`;
-//       item.querySelector('.upload-preview-remove').addEventListener('click', () => {
-//         attachedFiles.splice(idx, 1);
-//         renderPreviews();
-//         updateUploadCount();
-//       });
-//       previewGrid.appendChild(item);
-//     };
-//     reader.readAsDataURL(file);
-//   });
-// }
+function renderPreviews() {
+  previewGrid.innerHTML = '';
+  attachedFiles.forEach((file, idx) => {
+    const isVideo = file.type.startsWith('video/');
+    const url = URL.createObjectURL(file);
 
-// function addFiles(fileList) {
-//   const incoming = Array.from(fileList).filter(f => f.type.startsWith('image/'));
-//   const room = MAX_IMAGES - attachedFiles.length;
-//   if (room <= 0) {
-//     alert(`이미지는 최대 ${MAX_IMAGES}장까지 첨부할 수 있어요.`);
-//     return;
-//   }
-//   attachedFiles = attachedFiles.concat(incoming.slice(0, room));
-//   renderPreviews();
-//   updateUploadCount();
-// }
+    const item = document.createElement('div');
+    item.className = 'upload-preview-item';
+    item.innerHTML = isVideo
+      ? '<video src="' + url + '" muted></video><button type="button" class="upload-preview-remove">✕</button>'
+      : '<img src="' + url + '" alt="' + file.name + '"><button type="button" class="upload-preview-remove">✕</button>';
 
-// imagesInput.addEventListener('change', (e) => {
-//   addFiles(e.target.files);
-//   imagesInput.value = '';
-// });
+    item.querySelector('.upload-preview-remove').addEventListener('click', () => {
+      URL.revokeObjectURL(url);
+      attachedFiles.splice(idx, 1);
+      syncInputFiles();
+      renderPreviews();
+      updateUploadCount();
+    });
+    previewGrid.appendChild(item);
+  });
+}
 
-// uploadZone.addEventListener('click', () => imagesInput.click());
-// uploadZone.addEventListener('keydown', (e) => {
-//   if (e.key === 'Enter' || e.key === ' ') {
-//     e.preventDefault();
-//     imagesInput.click();
-//   }
-// });
-// uploadZone.addEventListener('dragover', (e) => {
-//   e.preventDefault();
-//   uploadZone.classList.add('dragover');
-// });
-// uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-// uploadZone.addEventListener('drop', (e) => {
-//   e.preventDefault();
-//   uploadZone.classList.remove('dragover');
-//   addFiles(e.dataTransfer.files);
-// });
+function addFiles(fileList) {
+  const incoming = Array.from(fileList).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
+  const room = MAX_FILES - attachedFiles.length;
+  if (room <= 0) {
+    alert('파일은 최대 ' + MAX_FILES + '개까지 첨부할 수 있어요.');
+    return;
+  }
+  attachedFiles = attachedFiles.concat(incoming.slice(0, room));
+  syncInputFiles();
+  renderPreviews();
+  updateUploadCount();
+}
+
+function syncInputFiles() {
+  const dt = new DataTransfer();
+  attachedFiles.forEach(f => dt.items.add(f));
+  filesInput.files = dt.files;
+}
+
+filesInput.addEventListener('change', (e) => addFiles(e.target.files));
+uploadZone.addEventListener('click', () => filesInput.click());
+uploadZone.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); filesInput.click(); }
+});
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
 
 const categorySelect = document.getElementById('category');
 const reportExtraFields = document.getElementById('reportExtraFields');

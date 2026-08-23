@@ -20,21 +20,44 @@
   <div class="mp-wrap">
 
     <!-- 프로필 히어로 -->
+    <c:choose>
+      <c:when test="${member.point >= 100000}">
+        <c:set var="tierClass" value="tier-platinum" />
+        <c:set var="tierLabel" value="💎 플래티넘" />
+      </c:when>
+      <c:when test="${member.point >= 50000}">
+        <c:set var="tierClass" value="tier-gold" />
+        <c:set var="tierLabel" value="🥇 골드" />
+      </c:when>
+      <c:when test="${member.point >= 10000}">
+        <c:set var="tierClass" value="tier-silver" />
+        <c:set var="tierLabel" value="🥈 실버" />
+      </c:when>
+      <c:when test="${member.point >= 1000}">
+        <c:set var="tierClass" value="tier-bronze" />
+        <c:set var="tierLabel" value="🥉 브론즈" />
+      </c:when>
+      <c:otherwise>
+        <c:set var="tierClass" value="tier-none" />
+        <c:set var="tierLabel" value="티어 없음" />
+      </c:otherwise>
+    </c:choose>
+
     <div class="mp-hero">
       <div class="mp-hero-ring">
         <svg viewBox="0 0 96 96">
           <circle class="track" cx="48" cy="48" r="44"></circle>
-          <circle class="fill" cx="48" cy="48" r="44" stroke-dasharray="276" stroke-dashoffset="72"></circle>
+          <circle class="fill ${tierClass}" cx="48" cy="48" r="44" stroke-dasharray="276" stroke-dashoffset="72"></circle>
         </svg>
-        <div class="mp-hero-avatar">👤</div>
+        <div class="mp-hero-avatar">${fn:toUpperCase(fn:substring(member.memberName, 0, 1))}</div>
       </div>
       <div class="mp-hero-info">
         <div class="mp-hero-name-row">
           <span class="mp-hero-name">${member.memberName}</span>
-          <!-- <span class="mp-hero-tier">🥇 골드 티어</span> -->
+          <span class="mp-hero-tier ${tierClass}">${tierLabel}</span>
         </div>
         <div class="mp-hero-meta">${member.memberEmail}</div>
-        <!-- <div class="mp-hero-pct">이번 달 학습 진행률 74%</div> -->
+        <div class="mp-hero-point">점수 ${member.point}점</div>
       </div>
       <button class="mp-hero-edit" onclick="mpTab('settings')">프로필 수정</button>
     </div>
@@ -54,6 +77,7 @@
       <button class="mp-tab" data-tab="wronganswer" onclick="mpTab('wronganswer')">오답노트</button>
       <button class="mp-tab" data-tab="badges" onclick="mpTab('badges')">뱃지</button>
       <button class="mp-tab" data-tab="mycontent" onclick="mpTab('mycontent')">작성물 관리</button>
+      <button class="mp-tab" data-tab="chainhistory" onclick="mpTab('chainhistory')">게임 전적</button>
       <button class="mp-tab" data-tab="settings" onclick="mpTab('settings')">계정 설정</button>
     </div>
 
@@ -231,6 +255,15 @@
       <div class="pagination"></div>
     </div>
   </div>
+
+    <!-- 게임 전적 -->
+    <div class="mp-panel" id="mp-panel-chainhistory">
+      <div class="mp-card">
+        <div class="history-table-header"><div>방 이름</div><div>순위</div><div>날짜</div></div>
+        <div class="mp-list-wrap" id="chain-history-wrap"></div>
+      </div>
+      <div class="pagination" id="chain-history-pagination"></div>
+    </div>
 
     <!-- 계정 설정 -->
     <div class="mp-panel" id="mp-panel-settings">

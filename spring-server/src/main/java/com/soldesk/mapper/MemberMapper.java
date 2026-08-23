@@ -50,4 +50,7 @@ public interface MemberMapper {
 
     void updatePassword(@Param("memberId") int memberId, @Param("encodedPassword") String encodedPassword);
 
+    // 끝말잇기 등에서 획득한 점수를 회원 누적 점수(point)에 더함
+    void addPoint(@Param("memberId") int memberId, @Param("delta") int delta);
+
 }

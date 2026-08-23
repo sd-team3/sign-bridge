@@ -30,6 +30,7 @@ public class MemberVO {
     private String status; // 상태 (enum: MemberStatus, ACTIVE/DORMANT/WITHDRAWN)
     private LocalDateTime suspendEndDate; // 정지 종료 일 
     private LocalDateTime regDate; // 가입일시
+    private int point; // 누적 점수
 
     // oAuth용
     private String provider;
@@ -101,6 +102,12 @@ public class MemberVO {
     }
     public void setRegDate(LocalDateTime regDate) {
         this.regDate = regDate;
+    }
+    public int getPoint() {
+        return point;
+    }
+    public void setPoint(int point) {
+        this.point = point;
     }
 
     public LocalDateTime getSuspendEndDate() { 

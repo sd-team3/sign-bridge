@@ -5,7 +5,7 @@ import java.util.Date;
 public class TestSessionVO {
     private Long testSessionId;
     private int memberId;
-    private String testSessionType;   // 'choice' / 'motion' / 'both'
+    private String testSessionType;
     private Integer numOfQuestion;
     private Integer correctCount;
     private Integer score;

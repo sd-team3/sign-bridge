@@ -26,6 +26,7 @@ import com.soldesk.service.CommentService;
 import com.soldesk.service.LearningHistoryService;
 import com.soldesk.service.MemberService;
 import com.soldesk.service.MemberSettingService;
+import com.soldesk.service.ChainRoomService;
 import com.soldesk.service.OverviewStatsService;
 import com.soldesk.service.WrongAnswerService;
 import com.soldesk.util.SecurityUtil;
@@ -33,7 +34,6 @@ import com.soldesk.vo.MemberVO;
 import com.soldesk.vo.OverviewStatsVO;
 import com.soldesk.service.FavoriteService;
 import com.soldesk.vo.FavoriteWordVO;
-import java.util.HashMap;
 
 @Controller
 @RequestMapping("/member")
@@ -58,6 +58,8 @@ public class MemberController {
     private FavoriteService favoriteService;
     @Autowired
     private MemberSettingService memberSettingService;
+    @Autowired
+    private ChainRoomService chainRoomService;
 
     @GetMapping("/join")
     public String join(@ModelAttribute("joinMember") MemberVO member) {
@@ -230,6 +232,33 @@ public class MemberController {
         if (memberId == null) { result.put("success", false); return result; }
         result = learningHistoryService.getWordHistoryByMember(memberId, category, page);
         result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/history/chain")
+    @ResponseBody
+    public Map<String, Object> myChainHistory(@RequestParam(defaultValue = "1") int page) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        result = chainRoomService.myChainHistory(memberId, page);
+        result.put("success", true);
+        return result;
+    }
+
+    @GetMapping("/mypage/history/chain/{roomId}")
+    @ResponseBody
+    public Map<String, Object> myChainHistoryDetail(@org.springframework.web.bind.annotation.PathVariable long roomId) {
+        Integer memberId = securityUtil.getCurrentMemberId();
+        Map<String, Object> result = new HashMap<>();
+        if (memberId == null) { result.put("success", false); return result; }
+        try {
+            result = chainRoomService.chainHistoryDetail(roomId, memberId);
+            result.put("success", true);
+        } catch (IllegalStateException e) {
+            result.put("success", false);
+            result.put("message", e.getMessage());
+        }
         return result;
     }
 

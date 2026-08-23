@@ -6,6 +6,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <meta name="_csrf" content="${_csrf.token}">
 <meta name="_csrf_header" content="${_csrf.headerName}">
 <title>SignBridge 관리자 - 문의 확인</title>
