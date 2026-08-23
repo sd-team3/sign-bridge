@@ -6,7 +6,7 @@ public class ExamQuestionVO {
     private Long signWordId;
     private String word;
     private String type;
-    private String description;   // ← 추가
+    private String description;
     private List<String> choices;
 
     public Long getSignWordId() { return signWordId; }
