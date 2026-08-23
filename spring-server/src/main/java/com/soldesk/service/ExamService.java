@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.soldesk.mapper.SignWordMapper;
 import com.soldesk.mapper.ExamMapper;
+import com.soldesk.mapper.MemberMapper;
 import com.soldesk.vo.ExamQuestionVO;
 import com.soldesk.vo.ExamResultVO;
 import com.soldesk.vo.SignWordVO;
@@ -25,6 +26,9 @@ public class ExamService {
 
     @Autowired
     private ExamMapper examMapper;
+
+    @Autowired
+    private MemberMapper memberMapper;
 
     private List<ExamQuestionVO> buildQuizQuestions(List<SignWordVO> words) {
         int objectiveCount = (int) Math.ceil(words.size() / 2.0);
@@ -116,9 +120,15 @@ public class ExamService {
     }
 
     /** 시험 종료: 점수 계산해서 세션 업데이트 */
-    public void finishSession(Long testSessionId, int correctCount, int totalCount) {
+    public int finishSession(Long testSessionId, int correctCount, int totalCount, int memberId, int passScore) {
         int score = (int) Math.round((correctCount * 100.0) / totalCount);
         examMapper.updateSessionResult(testSessionId, correctCount, score);
+
+        if (score >= passScore) {
+            memberMapper.addPoint(memberId, score);
+        }
+
+        return score;
     }
 
     public ExamResultVO getResult(Long testSessionId) {
