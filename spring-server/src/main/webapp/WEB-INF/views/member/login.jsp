@@ -75,7 +75,7 @@
     </div>
 
     <div class="auth-footer">
-      아직 계정이 없으신가요? <a href="auth_register.html">회원가입</a>
+      아직 계정이 없으신가요? <a href="/member/join">회원가입</a>
     </div>
   </div>
 </div>
