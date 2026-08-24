@@ -16,7 +16,6 @@
         select coalesce(round(avg(ts.correct_count / ts.num_of_question) * 100), 0)
         from test_session ts
         where ts.member_id = #{memberId}
-          and ts.test_session_type = 'WORD'
           and ts.ended_date is not null
           and ts.num_of_question > 0
     </select>

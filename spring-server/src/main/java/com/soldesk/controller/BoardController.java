@@ -7,6 +7,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +38,8 @@ import com.soldesk.vo.PageBean;
 @RequestMapping("/board")
 public class BoardController {
 
+    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
+
     @Autowired
     private MemberService memberService;
     @Autowired
@@ -53,6 +57,7 @@ public class BoardController {
     @Autowired
     private FileUploadUtil fileUploadUtil;
 
+    // 게시글 목록 페이지
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
             Model model) {
@@ -74,6 +79,7 @@ public class BoardController {
         return "board/list";
     }
 
+    // 게시글 쓰기 페이지
     @GetMapping("/write")
     public String writeBoard(Model model) {
         model.addAttribute("isAdmin", securityUtil.isAdmin());
@@ -97,7 +103,7 @@ public class BoardController {
         board.setNoticeYn(isNotice ? "N" : "Y");
         boardService.writeBoard(board); // 여기서 board.getBoardId()에 새 id 채워짐
 
-            // 첨부파일 저장
+        // 첨부파일 저장
         if (files != null) {
             for (MultipartFile file : files) {
                 if (file.isEmpty()) continue;
@@ -112,8 +118,7 @@ public class BoardController {
                     fileVO.setFileSize(saved.fileSize);
                     boardFileMapper.insertBoardFile(fileVO);
                 } catch (Exception e) {
-                    System.out.println("### files is NULL");
-                    e.printStackTrace();
+                    logger.error("첨부파일 저장 중 오류 발생: ", e);
                 }
             }
         }
@@ -132,6 +137,7 @@ public class BoardController {
         return board.getCategoryIdx() != null ? redirectUrl + "?category=" + board.getCategoryIdx() : redirectUrl;
     }
 
+    // 게시글 상세 페이지
     @GetMapping("/info")
     public String infoBoard(@RequestParam int boardId, Model model, HttpServletRequest request,
             HttpServletResponse response) {
@@ -142,6 +148,7 @@ public class BoardController {
         String cookieName = "viewed_" + boardId;
         boolean alreadyViewed = false;
 
+        // 쿠키 생성
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie c : cookies) {
@@ -166,6 +173,7 @@ public class BoardController {
         model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId));
         model.addAttribute("currentMemberId", securityUtil.getCurrentMemberId());
 
+        // REPORT 카테고리이면 오류 유형 출력
         if ("REPORT".equals(board.getCategoryIdx())) {
             model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
         }
@@ -173,12 +181,14 @@ public class BoardController {
         return "board/info";
     }
 
+    // 게시글 수정 페이지
     @GetMapping("/update")
     public String updateBoard(@RequestParam int boardId, Model model) {
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
-        model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId)); // 추가
+        model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId));
 
+        // REPORT 카테고리이면 오류 유형 출력
         if ("REPORT".equals(board.getCategoryIdx())) {
             model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
         }
@@ -186,6 +196,7 @@ public class BoardController {
         return "board/update";
     }
 
+    // 게시글 수정 처리
     @PostMapping("/update")
     public String updateSubmit(@ModelAttribute BoardVO board,
         @RequestParam(required = false) String errorType,    
@@ -232,6 +243,7 @@ public class BoardController {
             }
         }
 
+        // REPORT 카테고리이면 오류 유형 출력
         if ("REPORT".equals(board.getCategoryIdx())) {
             adminService.syncInquiryContentByBoard(
                 board.getBoardId(), errorType, board.getBoardTitle(), board.getBoardContent());
@@ -240,11 +252,13 @@ public class BoardController {
         return "redirect:/board/info?boardId=" + board.getBoardId();
     }
 
+    // 게시글 삭제 처리
     @PostMapping("/delete")
     public String deleteBoard(@RequestParam int boardId) {
         Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(boardId);
 
+        // 게시글 작성자인지 확인
         boolean isOwner = currentMemberId != null && original != null
                 && currentMemberId.equals(original.getMemberId());
 
@@ -263,6 +277,7 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
+    // 게시글 검색 처리
     @GetMapping("/search")
     public String searchBoard(
             @RequestParam(required = false) String keyword,
@@ -287,7 +302,7 @@ public class BoardController {
             model.addAttribute("pageBean", pageBean);
         } catch (Exception e) {
             model.addAttribute("searchError", "검색 중 오류가 발생했습니다.");
-            e.printStackTrace();
+            logger.warn("게시글 검색 중 오류 발생: searchKeyword={}", searchKeyword, e);
         }
         return "board/list";
     }

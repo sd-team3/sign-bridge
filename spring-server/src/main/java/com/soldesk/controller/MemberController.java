@@ -61,10 +61,12 @@ public class MemberController {
     @Autowired
     private ChainRoomService chainRoomService;
 
+    // 회원가입 페이지
     @GetMapping("/join")
     public String join(@ModelAttribute("joinMember") MemberVO member) {
         return "member/join";
     }
+    // 회원가입 처리
     @PostMapping("/join")
     public String joinSubmit(@Valid @ModelAttribute("joinMember") 
         MemberVO member, BindingResult bindingResult) {
@@ -77,12 +79,12 @@ public class MemberController {
             memberService.join(member);
             return "redirect:/member/login";
     }
-
+    // 로그인 페이지(로그인 처리는 Security에서 처리)
     @GetMapping("/login")
     public String login() {
         return "member/login";
     }
-    
+    // 마이페이지
     @GetMapping("/mypage")
     public String mypage(Model model) {
         Integer currentMemberId = securityUtil.getCurrentMemberId();
@@ -97,6 +99,7 @@ public class MemberController {
         model.addAttribute("offAlarmTypesCsv", "," + String.join(",", offList) + ",");
         return "member/mypage";
     }
+    // 회원 수정 처리(비동기)
     @PostMapping("/update")
     @ResponseBody
     public Map<String, Object> updateMember(@RequestParam int memberId, @RequestParam String memberName) {
@@ -113,7 +116,7 @@ public class MemberController {
         result.put("success", true);
         return result;
     }
-
+    // 비밀번호 수정처리(비동기)
     @PostMapping("/passUpdate")
     @ResponseBody
     public Map<String, Object> updatePassword(@RequestParam String currentPassword, @RequestParam String newPassword) {
@@ -125,6 +128,7 @@ public class MemberController {
             return result;
         }
 
+        // OAuth 로그인 시 비밀번호 변경 X
         MemberVO member = memberService.getMemberById(currentMemberId);
         if (!"LOCAL".equals(member.getProvider())) {
             result.put("success", false);
@@ -143,7 +147,7 @@ public class MemberController {
         result.put("success", true);
         return result;
     }
-
+    // 회원 삭제 처리(비동기)
     @PostMapping("/delete")
     @ResponseBody
     public Map<String, Object> deleteMember(@RequestParam(required = false) String password,
@@ -159,6 +163,7 @@ public class MemberController {
         
         MemberVO member = memberService.getMemberById(currentMemberId);
         
+        // LOCAL 로그인인 경우 비밀번호 확인
         if("LOCAL".equals(member.getProvider())) {
             if(password == null || !passwordEncoder.matches(password, member.getMemberPassword())) {
                 result.put("success", false);
@@ -175,6 +180,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 게시글 관리 페이지(비동기)
     @GetMapping("/mypage/board")
     @ResponseBody
     public Map<String, Object> myPosts(@RequestParam(defaultValue = "1") int page,
@@ -187,6 +193,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 댓글 관리 페이지(비동기)
     @GetMapping("/mypage/comment")
     @ResponseBody
     public Map<String, Object> myComments(@RequestParam(defaultValue = "1") int page,
@@ -199,6 +206,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 오답노트 페이지(비동기)
     @GetMapping("/mypage/wronganswer")
     @ResponseBody
     public Map<String, Object> myWrongAnswers(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
@@ -213,6 +221,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 자모 학습기록(비동기)
     @GetMapping("/mypage/history/jamo")
     @ResponseBody
     public Map<String, Object> myJamoHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
@@ -224,6 +233,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 단어 학습기록(비동기)
     @GetMapping("/mypage/history/word")
     @ResponseBody
     public Map<String, Object> myWordHistory(@RequestParam(defaultValue = "1") int page, @RequestParam(required = false) String category) {
@@ -235,6 +245,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 끝말잇기 기록(비동기)
     @GetMapping("/mypage/history/chain")
     @ResponseBody
     public Map<String, Object> myChainHistory(@RequestParam(defaultValue = "1") int page) {
@@ -246,6 +257,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 끝말잇기 기록 상세(비동기)
     @GetMapping("/mypage/history/chain/{roomId}")
     @ResponseBody
     public Map<String, Object> myChainHistoryDetail(@org.springframework.web.bind.annotation.PathVariable long roomId) {
@@ -262,6 +274,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 즐겨찾기 처리(비동기)
     @PostMapping("/favorite/toggle")
     @ResponseBody
     public Map<String, Object> toggleFavorite(@RequestParam Integer signWordId) {
@@ -278,6 +291,7 @@ public class MemberController {
         return result;
     }
 
+    // 마이페이지 즐겨찾기 페이지(비동기)
     @GetMapping("/mypage/favorite")
     @ResponseBody
     public Map<String, Object> getMyFavorites(@RequestParam(defaultValue = "1") int page) {
@@ -294,6 +308,7 @@ public class MemberController {
         result.put("totalPages", Math.max(totalPages, 1));
         return result;
     }
+    // 마이페이지 즐겨찾기 조회
     @GetMapping("/favorite/ids")
     @ResponseBody
     public Map<String, Object> getFavoriteIds() {
@@ -308,6 +323,7 @@ public class MemberController {
         result.put("ids", favoriteService.getFavoriteIds(memberId));
         return result;
     }
+    // 마이페이지 알람 설정 처리(비동기)
     @PostMapping("/alarm/update")
     @ResponseBody
     public Map<String, Object> updateAlarm(@RequestParam String notificationType, @RequestParam boolean on) {
