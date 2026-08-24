@@ -54,7 +54,7 @@
     </div>
     <a href="${ctx}/board/list">게시판</a>
     <sec:authorize access="hasRole('ADMIN')">
-        <a href="${ctx}/admin/main">관리자</a>
+        <a href="${ctx}/admin/main" class="btn btn-ghost btn-sm" style="margin-left:12px;">관리자</a>
     </sec:authorize>
 
     <sec:authorize access="isAuthenticated()">
