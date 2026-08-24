@@ -131,11 +131,13 @@ public class MemberService {
         memberMapper.deleteMember(memberId);
     }
 
+    // 멤버 이름 변경 처리
     @Transactional
     public void updateMemberName(int memberId, String memberName) {
         memberMapper.updateMemberName(memberId, memberName);
     }
 
+    // 비밀번호 변경 처리
     @Transactional
     public void updatePassword(int memberId, String encodedPassword) {
         memberMapper.updatePassword(memberId, encodedPassword);

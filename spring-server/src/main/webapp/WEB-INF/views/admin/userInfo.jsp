@@ -1,7 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="유저 상세" scope="request" />
-<c:set var="pagePath" value="/admin/user/info" scope="request" />
+<c:set var="pageName" value="user" scope="request" />
 <c:set var="activeMenu" value="user-info" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
@@ -37,10 +38,10 @@
     <div style="font-size:13px;color:var(--ink3);margin-bottom:12px">${userEmail}</div>
     <span class="pill pill-green" style="margin-bottom:16px">${user.roleLabel}</span>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;text-align:left">
-      <div class="detail-row"><span class="detail-label">학습 수</span><span class="detail-value mono">${user.studyCount}</span></div>
-      <div class="detail-row"><span class="detail-label">정확도</span><span class="detail-value mono">${user.accuracy}%</span></div>
-      <div class="detail-row"><span class="detail-label">티어</span><span class="detail-value">${user.tierLabel}</span></div>
-      <div class="detail-row"><span class="detail-label">XP</span><span class="detail-value mono">${user.xp}</span></div>
+      <div class="detail-row"><span class="detail-label">학습 수</span><span class="detail-value mono">${overviewStats.learnedWordCount}</span></div>
+      <div class="detail-row"><span class="detail-label">정확도</span><span class="detail-value mono">${overviewStats.avgAccuracy}%</span></div>
+      <div class="detail-row"><span class="detail-label">연속 학습</span><span class="detail-value">${overviewStats.streakDays}일</span></div>
+      <div class="detail-row"><span class="detail-label">획득 뱃지</span><span class="detail-value mono">${overviewStats.earnedBadges.size()} / 8</span></div>
     </div>
   </div>
 
@@ -51,7 +52,7 @@
         <div class="detail-row"><span class="detail-label">UID</span><span class="detail-value mono">${member.memberId}</span></div>
         <div class="detail-row"><span class="detail-label">이름</span><span class="detail-value">${member.memberName}</span></div>
         <div class="detail-row"><span class="detail-label">이메일</span><span class="detail-value mono">${member.memberEmail}</span></div>
-        <div class="detail-row"><span class="detail-label">가입일</span><span class="detail-value mono">${member.regDate}</span></div>
+        <div class="detail-row"><span class="detail-label">가입일</span><span class="detail-value mono">${fn:substring(member.regDate, 0, 10)}</span></div>
         <div class="detail-row">
           <span class="detail-label">가입 방법</span>
           <span class="detail-value">

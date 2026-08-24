@@ -22,11 +22,13 @@ import com.soldesk.service.BoardService;
 import com.soldesk.service.CommentService;
 import com.soldesk.service.LearnService;
 import com.soldesk.service.MemberService;
+import com.soldesk.service.OverviewStatsService;
 import com.soldesk.service.SuspendService;
 import com.soldesk.vo.AnswerRequest;
 import com.soldesk.vo.BoardVO;
 import com.soldesk.vo.InquiryVO;
 import com.soldesk.vo.MemberVO;
+import com.soldesk.vo.OverviewStatsVO;
 import com.soldesk.vo.PageBean;
 import com.soldesk.vo.SignWordVO;
 
@@ -51,6 +53,9 @@ public class AdminController {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private OverviewStatsService overviewStatsService;
 
     @GetMapping("/main")
     public String dashboard(Model model, Authentication authentication) {
@@ -120,8 +125,11 @@ public class AdminController {
             @RequestParam int memberId) {
         MemberVO member = memberService.getMemberInfo(memberId);
         List<BoardVO> boards = boardService.boardByMemberId(memberId);
+        OverviewStatsVO overviewStats = overviewStatsService.getOverviewStats(memberId); 
+        
         model.addAttribute("member", member);
         model.addAttribute("boards", boards);
+        model.addAttribute("overviewStats", overviewStats);
         return "admin/userInfo";
     }
 

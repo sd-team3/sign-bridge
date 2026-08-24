@@ -70,6 +70,7 @@
     </div>
 
     <a href="${ctx}/board/list" class="nav-link">게시판</a>
+
   </div>
 
   <div class="nav-cta">
@@ -81,6 +82,9 @@
     </sec:authorize>
     <sec:authorize access="isAuthenticated()">
       <jsp:include page="notification/notification.jsp" />
+      <sec:authorize access="hasRole('ADMIN')">
+        <a href="${ctx}/admin/main" class="btn btn-ghost btn-sm" style="margin-left:8px;">관리자</a>
+      </sec:authorize>
       <form action="${ctx}/member/logout" method="post" style="display:inline; margin-left:12px;">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
         <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>

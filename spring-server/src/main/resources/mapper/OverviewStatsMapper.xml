@@ -8,7 +8,6 @@
         from test_session_detail tsd
         join test_session ts on tsd.test_session_id = ts.test_session_id
         where ts.member_id = #{memberId}
-          and ts.test_session_type = 'WORD'
           and tsd.is_correct = 'Y'
     </select>
 
@@ -16,7 +15,6 @@
         select coalesce(round(avg(ts.correct_count / ts.num_of_question) * 100), 0)
         from test_session ts
         where ts.member_id = #{memberId}
-          and ts.test_session_type = 'WORD'
           and ts.ended_date is not null
           and ts.num_of_question > 0
     </select>
@@ -28,7 +26,6 @@
             from test_session_detail tsd
             join test_session ts on tsd.test_session_id = ts.test_session_id
             where ts.member_id = #{memberId}
-              and ts.test_session_type = 'WORD'
             group by tsd.sign_word_id
             order by last_date desc
             limit #{limit}
@@ -61,7 +58,6 @@
             from test_session_detail tsd
             join test_session ts on tsd.test_session_id = ts.test_session_id
             where ts.member_id = #{memberId}
-            and ts.test_session_type = 'WORD'
             and tsd.is_correct = 'Y'
         ) learned on learned.sign_word_id = sw.sign_word_id
         group by coalesce(nullif(sw.choseong, ''), '기타')

@@ -220,6 +220,7 @@ function finishExam() {
   const body = new URLSearchParams();
   body.append('correctCount', camCorrectCount);
   body.append('totalCount', total);
+  body.append('passScore', params.get('pass') || 70);
 
   fetch(`/exam/api/\${sessionId}/finish`, {
     method: 'POST',

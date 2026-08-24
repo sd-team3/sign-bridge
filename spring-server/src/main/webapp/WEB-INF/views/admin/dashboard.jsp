@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="pageTitle" value="대시보드" scope="request" />
-<c:set var="pagePath" value="/admin/main" scope="request" />
+<c:set var="pageName" value="main" scope="request" />
 <c:set var="activeMenu" value="dashboard" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
