@@ -54,9 +54,9 @@
     </div>
     <a href="#">게시판</a>
     <sec:authorize access="hasRole('ADMIN')">
-        <a href="${ctx}/admin">관리자</a>
+        <a href="${ctx}/admin/main">관리자</a>
     </sec:authorize>
-    
+
     <sec:authorize access="isAuthenticated()">
         <jsp:include page="../notification/notification.jsp" />
         <a href="${ctx}/member/mypage" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
