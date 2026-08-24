@@ -5,8 +5,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
-<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 학습</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -97,7 +95,17 @@
         <div class="cat-card-title">나의 학습 기록</div>
         <div class="cat-card-desc">지금까지 학습한 단어와 정확도를 한눈에 확인해요.</div>
         <div class="cat-card-meta">
-          <span style="font-size:13px; font-weight:700; color:var(--text-muted);">최근 학습: 오늘</span>
+          <c:choose>
+            <c:when test="${not empty lastLearningLabel}">
+              <span style="font-size:13px; font-weight:700; color:var(--text-muted);">최근 학습: ${lastLearningLabel}</span>
+            </c:when>
+            <c:when test="${not empty memberName}">
+              <span style="font-size:13px; font-weight:700; color:var(--text-muted);">아직 학습 기록이 없어요</span>
+            </c:when>
+            <c:otherwise>
+              <span style="font-size:13px; font-weight:700; color:var(--text-muted);">로그인하면 기록이 저장돼요</span>
+            </c:otherwise>
+          </c:choose>
           <span class="cat-card-arrow">›</span>
         </div>
       </a>

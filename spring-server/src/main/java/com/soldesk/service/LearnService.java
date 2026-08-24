@@ -5,6 +5,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.soldesk.mapper.JamoMapper;
+import com.soldesk.mapper.RecognitionConfirmLogMapper;
 import com.soldesk.mapper.SignWordMapper;
 import com.soldesk.vo.JamoVO;
 import com.soldesk.vo.SignWordVO;
@@ -25,6 +29,9 @@ public class LearnService {
 
     @Autowired
     private SignWordMapper signWordMapper;
+
+    @Autowired
+    private RecognitionConfirmLogMapper recognitionConfirmLogMapper;
 
     // 사전 전체 목록(필터 없는 경우) 캐시.
     // 페이지 이동할 때마다 3696건을 매번 새로 긁어오면 너무 느려서
@@ -131,5 +138,23 @@ public class LearnService {
 
     public int countAll() {
         return jamoMapper.countAll();
+    }
+
+    // 학습 메인페이지 "나의 학습 기록" 카드에 쓸 "최근 학습: N" 라벨.
+    // 학습 기록이 없으면 null 반환 -> jsp에서 문구를 다르게 보여줌.
+    public String getLastLearningLabel(int memberId) {
+        LocalDateTime lastRegDate = recognitionConfirmLogMapper.findLastRegDateByMemberId((long) memberId);
+        if (lastRegDate == null) {
+            return null;
+        }
+
+        long daysBetween = ChronoUnit.DAYS.between(lastRegDate.toLocalDate(), LocalDate.now());
+        if (daysBetween <= 0) {
+            return "오늘";
+        } else if (daysBetween == 1) {
+            return "어제";
+        } else {
+            return daysBetween + "일 전";
+        }
     }
 }

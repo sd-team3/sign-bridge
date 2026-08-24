@@ -50,6 +50,7 @@ public class LearnController {
         model.addAttribute("jamoCount", learnService.countAll());
         if (userDetails != null) {
             model.addAttribute("memberName", userDetails.getMemberName());
+            model.addAttribute("lastLearningLabel", learnService.getLastLearningLabel(userDetails.getMemberId()));
         }
         return "learn/main";
     }
