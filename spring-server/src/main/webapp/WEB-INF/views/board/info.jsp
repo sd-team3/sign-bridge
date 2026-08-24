@@ -9,6 +9,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="_csrf" content="${_csrf.token}">
 <meta name="_csrf_header" content="${_csrf.headerName}">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 게시글 상세</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -75,10 +77,20 @@
         <!-- 게시글 본문 -->
         <div class="detail-content">
           ${board.boardContent}
-          <!-- <div class="detail-images">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NDAiIGhlaWdodD0iMzIwIj4KICA8cmVjdCB3aWR0aD0iNDQwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iIzBkMWExMyIvPgogIDxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjQwOCIgaGVpZ2h0PSIyODgiIHJ4PSIxMiIgZmlsbD0iIzExMWMxNyIgc3Ryb2tlPSIjMmQ5YjZmIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIyMCIgeT0iMTIwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+4pyLPC90ZXh0PgogIDx0ZXh0IHg9IjIyMCIgeT0iMTgwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwuNSkiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFJIOyduOyLnSDqsrDqs7w8L3RleHQ+CiAgPHRleHQgeD0iMjIwIiB5PSIyMTIiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2UwNjA1YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7J247IudIOyLpO2MqDwvdGV4dD4KICA8dGV4dCB4PSIyMjAiIHk9IjI0MCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjM1KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7Iug66Kw64+EIDQyJTwvdGV4dD4KPC9zdmc+Cg==" alt="인식 실패 스크린샷" onclick="window.open(this.src)">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NDAiIGhlaWdodD0iMzIwIj4KICA8cmVjdCB3aWR0aD0iNDQwIiBoZWlnaHQ9IjMyMCIgZmlsbD0iIzBkMWExMyIvPgogIDxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjQwOCIgaGVpZ2h0PSIyODgiIHJ4PSIxMiIgZmlsbD0iIzExMWMxNyIgc3Ryb2tlPSIjMmQ5YjZmIiBzdHJva2Utd2lkdGg9IjEuNSIvPgogIDx0ZXh0IHg9IjIyMCIgeT0iMTEwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSI2NCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+8J+ZjzwvdGV4dD4KICA8dGV4dCB4PSIyMjAiIHk9IjE3MiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjUpIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BSSDsnbjsi50g6rKw6rO8PC90ZXh0PgogIDx0ZXh0IHg9IjIyMCIgeT0iMjA0IiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmMGMwNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPiLslYjrhZXtlZjshLjsmpQi66GcIOyduOyLneuQqDwvdGV4dD4KICA8dGV4dCB4PSIyMjAiIHk9IjIzMiIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsLjM1KSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+7J2Y64+E7ZWcIOuLqOyWtDog6rCQ7IKs7ZWp64uI64ukPC90ZXh0Pgo8L3N2Zz4K" alt="다른 단어로 인식된 스크린샷" onclick="window.open(this.src)">
-          </div> -->
+          <c:if test="${not empty boardFiles}">
+            <div class="detail-images">
+              <c:forEach var="f" items="${boardFiles}">
+                <c:choose>
+                  <c:when test="${f.fileType == 'IMAGE'}">
+                    <img src="${f.filePath}" alt="${f.origName}" onclick="window.open(this.src)">
+                  </c:when>
+                  <c:otherwise>
+                    <video src="${f.filePath}" controls></video>
+                  </c:otherwise>
+                </c:choose>
+              </c:forEach>
+            </div>
+          </c:if>
         </div>
 
         <c:if test="${not empty currentMemberId and currentMemberId == board.memberId}">

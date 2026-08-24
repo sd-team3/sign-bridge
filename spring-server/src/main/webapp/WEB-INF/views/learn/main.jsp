@@ -5,6 +5,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 학습</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -108,7 +110,7 @@
         <p>수어 끝말잇기와 디펜스 게임으로 재미있게 실력을 점검해보세요.</p>
       </div>
       <div class="play-banner-btns">
-        <a href="play_chain.html" class="btn btn-primary btn-sm">끝말잇기</a>
+        <a href="/playzone/chain" class="btn btn-primary btn-sm">끝말잇기</a>
         <a href="play_defense.html" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.3); color:rgba(255,255,255,.85);">디펜스 모드</a>
       </div>
     </div>

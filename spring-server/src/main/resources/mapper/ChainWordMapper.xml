@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soldesk.mapper.ChainWordMapper">
+
+    <select id="findByName" resultType="com.soldesk.vo.ChainWordVO">
+        select
+            chain_word_id as chainWordId,
+            word_name as wordName,
+            first_char as firstChar,
+            last_char as lastChar,
+            reg_date as regDate
+        from chain_word
+        where word_name = #{wordName}
+    </select>
+
+    <select id="findAll" resultType="com.soldesk.vo.ChainWordVO">
+        select chain_word_id as chainWordId, word_name as wordName
+        from chain_word
+    </select>
+
+    <!-- word_name 에 UNIQUE 제약이 있으므로, 동시에 두 게임에서 같은 신규단어가 검증되어도 충돌 없이 무시 -->
+    <insert id="insertIgnore" parameterType="com.soldesk.vo.ChainWordVO">
+        insert ignore into chain_word (word_name, first_char, last_char)
+        values (#{wordName}, #{firstChar}, #{lastChar})
+    </insert>
+
+</mapper>

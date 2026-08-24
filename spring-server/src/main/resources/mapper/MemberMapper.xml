@@ -12,6 +12,7 @@
         <result column="reg_date" property="regDate" />
         <result column="provider" property="provider" />
         <result column="provider_id" property="providerId" />
+        <result column="point" property="point" />
     </resultMap>
     <resultMap id="dailySignupResultMap" type="com.soldesk.vo.DailySignupVO">
         <result column="reg_day" property="day" />
@@ -115,7 +116,7 @@
     </select>
 
     <select id="findById" resultMap="memberResultMap">
-        select member_id, member_name, member_email, reg_date, provider, status, member_password
+        select member_id, member_name, member_email, reg_date, provider, status, member_password, point
         from member
         where member_id = #{memberId}
     </select>
@@ -156,6 +157,13 @@
     <update id="updatePassword">
         update member 
         set member_password = #{encodedPassword} 
+        where member_id = #{memberId}
+    </update>
+
+    <!-- 끝말잇기 등에서 획득한 점수를 누적 -->
+    <update id="addPoint">
+        update member
+        set point = point + #{delta}
         where member_id = #{memberId}
     </update>
 

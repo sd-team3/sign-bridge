@@ -8,7 +8,7 @@ public class TestSessionDetailVO {
     private Long signWordId;
     private Integer questionNo;
     private String userAnswer;
-    private String isCorrect;   // 'Y' / 'N'
+    private String isCorrect;
     private Date answerDate;
 
     public Long getTestSessionDetailId() { return testSessionDetailId; }

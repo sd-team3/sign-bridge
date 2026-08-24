@@ -78,6 +78,13 @@
       <artifactId>spring-jdbc</artifactId>
       <version>${spring.version}</version>
     </dependency>
+
+    <!-- Spring WebSocket (끝말잇기 실시간 방/턴 브로드캐스트용, /ws/** 하위) -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-websocket</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
     
     <!-- Spring Security -->
     <dependency>
@@ -157,7 +164,6 @@
       <artifactId>elasticsearch-rest-client</artifactId>
       <version>${elasticsearch.version}</version>
     </dependency>
-    
   </dependencies>
 
 </project>
