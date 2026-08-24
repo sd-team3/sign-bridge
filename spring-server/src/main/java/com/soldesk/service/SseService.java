@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class SseService {
-    // 만약 알림이 더 필요하다면 밑에 Map을 repository 파일 만들어서 한꺼번에 저장 해야됨
     private Map<Integer, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>(); // id 별 emitter 보관
     private final ObjectMapper objectMapper = new ObjectMapper();
     
