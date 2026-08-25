@@ -17,7 +17,7 @@
 <div class="auth-wrap">
   <div class="auth-box">
     <div class="auth-logo">
-      <div class="logo-text">✋ SignBridge</div>
+      <div class="logo-text">SignBridge</div>
       <p>수어 학습을 계속하려면 로그인하세요.</p>
     </div>
 
