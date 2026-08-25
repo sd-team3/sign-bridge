@@ -155,12 +155,12 @@
       <div class="mp-wrongnote-summary">
         <span class="badge badge-danger" id="wa-total-badge">틀린 단어 0개</span>
       </div>
-      <div class="mp-filter-row" data-scope="wronganswer">
+      <!-- <div class="mp-filter-row" data-scope="wronganswer">
         <button class="mp-filter-chip active" data-category="">전체</button>
         <button class="mp-filter-chip" data-category="CONSONANT">자음</button>
         <button class="mp-filter-chip" data-category="VOWEL">모음</button>
         <button class="mp-filter-chip" data-category="WORD">단어</button>
-      </div>
+      </div> -->
       <div class="wrong-list-card">
         <h3>⚠️ 틀린 단어 모음</h3>
         <table class="wrong-table">
