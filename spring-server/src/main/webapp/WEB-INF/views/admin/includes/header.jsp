@@ -12,7 +12,7 @@
       <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;background:none;border:none;font-size:20px;cursor:pointer" id="menu-toggle">☰</button>
       <span class="topbar-title">${pageTitle}</span>
     </div>
-    <span class="topbar-path">${pagePath}</span>
+    <span class="topbar-path">${pageName}</span>
     <div class="topbar-right">
       <button class="topbar-btn btn-ghost" onclick="location.reload()">↻ 새로고침</button>
       <a href="${pageContext.request.contextPath}/" class="topbar-btn btn-ghost">← 사이트로</a>

@@ -23,16 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 브라우저가 0.15초 간격으로 이 컨트롤러의 /frame을 호출한다.
- * 이 컨트롤러는:
- *   1. 매 요청마다 Python /predict를 호출해서 이번 프레임의 raw 예측을 받고
- *   2. 같은 라벨이 1.2초 이상 유지됐는지 세션 단위로 판정하고
- *   3. 유지가 끝나면(=확정되면) 그 자모를 HangulComposer에 투입해서 단어를 조합한다.
- *
- * 상태(유지 시간, 조합 중인 텍스트)는 HttpSession에 저장하므로,
- * 사용자가 새로고침해도 세션이 살아있는 한 유지된다.
- */
 @RestController
 @RequestMapping("/api/sign")
 public class SignRecognitionController {
@@ -88,19 +78,13 @@ public class SignRecognitionController {
             res.setHoldProgress(progress);
 
             if (held >= HOLD_THRESHOLD_MS && !state.isCandidateConfirmed()) {
-                // 1.2초 유지 완료 -> 확정
-                state.getComposer().addJamo(rawLabel.charAt(0));
+                state.getComposer().addJamo(rawLabel.charAt(0), now);
                 state.markConfirmed();
                 res.setConfirmedChar(rawLabel);
 
-                // 확정된 자모 하나당 로그 한 줄 (실제 측정된 유지 시간, 확정 시점 랜드마크 좌표 포함)
                 recognitionLogService.logConfirm(
                     clientSessionId, req.getMemberId(), rawLabel, rawConfidence, held, req.getLandmarks()
                 );
-
-                // 확정 후에는 후보를 초기화하지 않는다.
-                // (같은 손모양을 계속 유지하고 있는 동안 매 프레임 중복 확정되는 걸
-                //  candidateConfirmed 플래그로 막고, 사용자가 손모양을 바꿔야 다음 확정으로 넘어간다.)
             }
         }
 
@@ -108,7 +92,6 @@ public class SignRecognitionController {
         return res;
     }
 
-    /** 사용자가 명시적으로 "띄어쓰기/다음 단어" 버튼을 눌렀을 때. */
     @PostMapping("/space")
     public FrameResponse insertSpace(HttpSession session) {
         RecognitionState state = getOrCreateState(session);
@@ -118,7 +101,6 @@ public class SignRecognitionController {
         return res;
     }
 
-    /** 조합 중이던 걸 전부 지우고 새로 시작. */
     @PostMapping("/reset")
     public FrameResponse reset(HttpSession session) {
         session.removeAttribute(SESSION_KEY);
@@ -154,7 +136,6 @@ public class SignRecognitionController {
             );
             return response.getBody();
         } catch (Exception e) {
-            // 모델이 아직 없거나(503) 파이썬 서버가 잠깐 응답 없을 때 등 -> 이번 프레임은 그냥 스킵
             return null;
         }
     }

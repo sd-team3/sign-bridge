@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="게시글 목록" scope="request" />
-<c:set var="pagePath" value="/admin/board/list" scope="request" />
+<c:set var="pageName" value="board" scope="request" />
 <c:set var="activeMenu" value="board-list" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">

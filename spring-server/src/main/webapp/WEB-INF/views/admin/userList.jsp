@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <c:set var="pageTitle" value="유저 목록" scope="request" />
-<c:set var="pagePath" value="/admin/user/list" scope="request" />
+<c:set var="pageName" value="userList" scope="request" />
 <c:set var="activeMenu" value="user-list" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
@@ -87,11 +87,11 @@
 </div>
 
   <div class="pagination">
-    <a class="pg-btn" href="/admin/member?page=${pageBean.prevPage}&role=${user.role}">‹</a>
+    <a class="pg-btn" href="/admin/user/list?page=${pageBean.prevPage}&filterType=${filterType}&keyword=${param.keyword}&sort=${param.sort}">‹</a>
     <c:forEach var="p" begin="${pageBean.min}" end="${pageBean.max}">
-      <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/member?page=${p}&role=${param.role}">${p}</a>
+      <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/user/list?page=${p}&filterType=${filterType}&keyword=${param.keyword}&sort=${param.sort}">${p}</a>
     </c:forEach>
-    <a class="pg-btn" href="/admin/member?page=${pageBean.nextPage}&role=${param.role}">›</a>
+    <a class="pg-btn" href="/admin/user/list?page=${pageBean.nextPage}&filterType=${filterType}&keyword=${param.keyword}&sort=${param.sort}">›</a>
   </div>
 
 <jsp:include page="includes/footer.jsp" />

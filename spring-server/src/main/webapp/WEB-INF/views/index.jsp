@@ -48,18 +48,18 @@
     <a href="${ctx}/exam/setup" class="nav-link">시험</a>
 
     <div class="nav-item has-sub">
-      <a href="#" class="nav-link">플레이존 <span class="nav-caret">▾</span></a>
+      <a href="#" class="nav-link">플레이존<span class="nav-caret">▾</span></a>
       <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
-          <a href="#" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔗</span>
+          <a href="${ctx}/playzone/chain" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon"></span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 끝말잇기</span>
               <span class="nav-dropdown-desc">준비중입니다</span>
             </span>
           </a>
           <a href="#" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🎯</span>
+            <span class="nav-dropdown-icon"></span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 디펜스</span>
               <span class="nav-dropdown-desc">준비중입니다</span>
@@ -70,6 +70,7 @@
     </div>
 
     <a href="${ctx}/board/list" class="nav-link">게시판</a>
+
   </div>
 
   <div class="nav-cta">
@@ -81,6 +82,9 @@
     </sec:authorize>
     <sec:authorize access="isAuthenticated()">
       <jsp:include page="notification/notification.jsp" />
+      <sec:authorize access="hasRole('ADMIN')">
+        <a href="${ctx}/admin/main" class="btn btn-ghost btn-sm" style="margin-left:8px;">관리자</a>
+      </sec:authorize>
       <form action="${ctx}/member/logout" method="post" style="display:inline; margin-left:12px;">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
         <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>

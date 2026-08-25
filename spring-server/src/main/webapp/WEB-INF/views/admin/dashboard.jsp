@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:set var="pageTitle" value="대시보드" scope="request" />
-<c:set var="pagePath" value="/admin/main" scope="request" />
+<c:set var="pageName" value="main" scope="request" />
 <c:set var="activeMenu" value="dashboard" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
@@ -90,7 +90,7 @@
   <div class="card">
     <div class="card-title"><span class="ct-icon">⚡</span> 카메라 모션 </div>
     <div class="feed">
-      <a href="http://localhost:8000/"></a>
+      <a href="http://localhost:8000/">JAMO KSL 콘솔</a>
     </div>
   </div>
 </div>
