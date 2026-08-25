@@ -8,12 +8,8 @@ import java.util.Set;
 public class HangulComposer {
     private static final long MERGE_WINDOW_MS = 3000;
 
-    // 초성 합성 규칙
     private static final Map<Character, Character> TENSE_CHO = new HashMap<>();
-    // 종성 합성 규칙
-    // (ㄸ, ㅃ, ㅉ 제외)
     private static final Map<Character, Character> TENSE_JONG = new HashMap<>();
-    // 이중모음 합성 규칙
     private static final Map<String, Character> VOWEL_COMBO = new HashMap<>();
     static {
         TENSE_CHO.put('ㄱ', 'ㄲ');
@@ -27,11 +23,8 @@ public class HangulComposer {
 
         VOWEL_COMBO.put("ㅗㅏ", 'ㅘ');
         VOWEL_COMBO.put("ㅗㅐ", 'ㅙ');
-        VOWEL_COMBO.put("ㅗㅣ", 'ㅚ');
         VOWEL_COMBO.put("ㅜㅓ", 'ㅝ');
         VOWEL_COMBO.put("ㅜㅔ", 'ㅞ');
-        VOWEL_COMBO.put("ㅜㅣ", 'ㅟ');
-        VOWEL_COMBO.put("ㅡㅣ", 'ㅢ');
     }
 
     private static final char[] CHOSUNG = {
@@ -78,24 +71,20 @@ public class HangulComposer {
         boolean withinMergeWindow = (now - lastConfirmedAt) < MERGE_WINDOW_MS;
 
         if (cho == null) {
-            cho = c; // 새 음절 시작
+            cho = c;
         } else if (jung == null) {
-            // 초성만 있는 상태에서 자음이 또 옴
             if (withinMergeWindow && c == cho && TENSE_CHO.containsKey(c)) {
                 cho = TENSE_CHO.get(c);
             } else {
-                // 3초 이상 텀
                 flushOrphanChosung();
                 cho = c;
             }
         } else if (jong == null) {
-            jong = c; // 받침 후보
+            jong = c;
         } else {
             if (withinMergeWindow && c == jong && TENSE_JONG.containsKey(c)) {
-                // 받침 위치에서 3초 이내 같은 자음 반복
                 jong = TENSE_JONG.get(c);
             } else {
-                // 3초 이상 텀
                 commitSyllable();
                 cho = c;
             }
@@ -109,7 +98,7 @@ public class HangulComposer {
         if (cho == null) {
             finalized.append(v);
         } else if (jung == null) {
-            jung = v; // 중성 확정
+            jung = v;
         } else if (jong == null) {
             String comboKey = "" + jung + v;
             if (withinMergeWindow && VOWEL_COMBO.containsKey(comboKey)) {
@@ -121,7 +110,7 @@ public class HangulComposer {
         } else {
             char movedJong = jong;
             jong = null;
-            commitSyllable(); // 종성 없이 확정
+            commitSyllable();
             cho = movedJong;
             jung = v;
         }
