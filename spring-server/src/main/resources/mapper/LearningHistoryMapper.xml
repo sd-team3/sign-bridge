@@ -27,7 +27,7 @@
         from test_session_detail tsd
         join test_session ts on tsd.test_session_id = ts.test_session_id
         join sign_word sw on tsd.sign_word_id = sw.sign_word_id
-        where ts.member_id = #{memberId} and ts.test_session_type = 'WORD'
+        where ts.member_id = #{memberId}
         order by tsd.answer_date desc
         limit #{start}, #{limit}
     </select>
@@ -36,7 +36,7 @@
         select count(*)
         from test_session_detail tsd
         join test_session ts on tsd.test_session_id = ts.test_session_id
-        where ts.member_id = #{memberId} and ts.test_session_type = 'WORD'
+        where ts.member_id = #{memberId}
     </select>
 
     <select id="findJamoHistoryByMemberId" resultMap="jamoHistoryResultMap">
