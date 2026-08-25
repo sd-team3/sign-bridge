@@ -14,24 +14,25 @@ window.currentJamoChar = null;
 
 const resultEl = document.getElementById("result");
 
-// 정답/오답 문구가 뜬 뒤 바로 다음 프레임(raw label)에 덮어써지지 않도록
-// 이 시간 동안은 화면 갱신을 잠깐 붙잡아둔다 (사용자가 결과를 읽을 시간을 줌)
+// 정답/오답 문구가 뜬 뒤 바로 다음 프레임에 덮어써지지 않도록
+// 이 시간 동안은 화면 갱신을 잠깐 붙잡아둔다
 const FEEDBACK_HOLD_MS = 1500;
 let feedbackLockUntil = 0;
+let handWasPresent = false; // 손 인식 여부의 이전 프레임 상태
 
 const signInput = new SignInputSession({
   onUpdate: (data) => {
     const now = performance.now();
     if (now < feedbackLockUntil) return; // 정답/오답 문구 유지 중이면 아무것도 안 함
 
-    // 타겟 자모를 아직 선택 안 한 상태 -> 지금 인식되고 있는 raw label만 보여줌 (판정 없음)
+    // 타겟 자모를 아직 선택 안 한 상태 -> 지금 인식되고 있는 것만 보여줌 (판정 없음)
     if (!window.currentJamoChar) {
       resultEl.textContent = data.rawLabel || '';
       resultEl.style.color = '';
       return;
     }
 
-    // 1.2초 유지가 끝나서 서버가 이번 프레임에 "확정"한 경우에만 정답 판정
+    // 1.2초 유지가 끝나서 서버가 이번 프레임에 확정한 경우에만 정답 판정
     if (data.confirmedChar) {
       const isCorrect = data.confirmedChar === window.currentJamoChar;
       resultEl.textContent = isCorrect
@@ -58,14 +59,23 @@ const cam = new HandCameraWidget({
   canvasEl: document.getElementById("canvas"),
   onFrame: (landmarks) => {
     if (!landmarks) {
-      // 손을 화면에서 내리면(인식 안 되면) 직전 정답/오답 문구를 바로 지운다.
-      // submitFrame은 landmarks가 없으면 서버로 아예 안 보내서 onUpdate가 안 불리기 때문에
-      // 여기서 직접 처리해야 함.
-      feedbackLockUntil = 0;
-      resultEl.textContent = '';
-      resultEl.style.color = '';
+      // 손을 화면에서 내리면 직전 정답/오답 문구를 바로 지운다.
+      // submitFrame은 landmarks가 없으면 서버로 아예 안 보내서 onUpdate가 안 불리기 때문에 직접 처리
+      if (handWasPresent) {
+        // 손이 카메라에서 사라지는 순간 호출
+        handWasPresent = false;
+        feedbackLockUntil = 0;
+        resultEl.textContent = '';
+        resultEl.style.color = '';
+
+        // 학습했던 자/모음을 재시도할 시 세션 초기화
+        if (window.jamoCamStarted) {
+          signInput.reset().catch((err) => console.error('세션 리셋 실패:', err));
+        }
+      }
       return;
     }
+    handWasPresent = true;
     signInput.submitFrame(landmarks);
   },
 });
@@ -81,7 +91,7 @@ document.getElementById("jdCam").addEventListener("click", async () => {
   resultEl.textContent = '-';
 
   try {
-    await signInput.reset(); // 이전 조합/hold 상태 초기화하고 깨끗하게 시작
+    await signInput.reset(); // 이전 조합/hold 상태 리셋
     await cam.start();
   } catch (error) {
     console.error('카메라 시작 실패: ', error);

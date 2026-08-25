@@ -90,7 +90,7 @@
   <div class="card">
     <div class="card-title"><span class="ct-icon">⚡</span> 카메라 모션 </div>
     <div class="feed">
-      <a href="http://localhost:8000/"></a>
+      <a href="http://localhost:8000/">JAMO KSL 콘솔</a>
     </div>
   </div>
 </div>

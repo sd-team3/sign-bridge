@@ -168,7 +168,7 @@ async function submitAnswer(){
 
     showToast('답변이 등록되었습니다 ✓', '#2d9b6f');
     closeAnswerModal();
-    setTimeout(() => location.reload(), 600);
+    location.reload(); 
   } catch (err) {
     showToast('답변 등록에 실패했습니다', '#c0392b');
   }

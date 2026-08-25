@@ -46,4 +46,9 @@
         ORDER BY reg_date ASC
     </select>
 
+    <select id="findLastRegDateByMemberId" resultType="java.time.LocalDateTime">
+        SELECT MAX(reg_date)
+        FROM recognition_confirm_log
+        WHERE member_id = #{memberId}
+    </select>
 </mapper>
