@@ -87,11 +87,11 @@
 </div>
 
   <div class="pagination">
-    <a class="pg-btn" href="/admin/member?page=${pageBean.prevPage}&role=${user.role}">‹</a>
+    <a class="pg-btn" href="/admin/user/list?page=${pageBean.prevPage}&filterType=${filterType}&keyword=${param.keyword}&sort=${param.sort}">‹</a>
     <c:forEach var="p" begin="${pageBean.min}" end="${pageBean.max}">
-      <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/member?page=${p}&role=${param.role}">${p}</a>
+      <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/user/list?page=${p}&filterType=${filterType}&keyword=${param.keyword}&sort=${param.sort}">${p}</a>
     </c:forEach>
-    <a class="pg-btn" href="/admin/member?page=${pageBean.nextPage}&role=${param.role}">›</a>
+    <a class="pg-btn" href="/admin/user/list?page=${pageBean.nextPage}&filterType=${filterType}&keyword=${param.keyword}&sort=${param.sort}">›</a>
   </div>
 
 <jsp:include page="includes/footer.jsp" />
