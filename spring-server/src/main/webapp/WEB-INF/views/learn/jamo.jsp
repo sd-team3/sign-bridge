@@ -6,8 +6,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
-<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 자음/모음 지문자 학습</title>
 <link rel="stylesheet" href="/resources/css/shared.css">
 </head>
@@ -62,6 +60,7 @@
             <canvas id="canvas"></canvas>
           </div>
           <div id="result" style="font-size: large; cursor: pointer;">클릭해서 시작</div>
+          <div id="coachTip" style="display:none; margin-top:8px; padding:8px 12px; background:#FFF7E6; border:1px solid #FFD57E; border-radius:8px; font-size:14px; color:#8A5A00;"></div>
         </div>
       </div>
     </div>
@@ -140,14 +139,8 @@ tabs.forEach(tab => {
     resultEl.textContent = '클릭해서 시작';
     resultEl.style.cursor = 'pointer';
     resultEl.style.color = '';
+    document.getElementById('coachTip').style.display = 'none';
   });
-});
-
-// 자모 카드 전환 시 서버 hold 세션도 함께 리셋 (다음 타겟에 이전 판정이 이어지지 않도록)
-document.addEventListener('click', (e) => {
-  if (e.target.closest('.jamo-card')) {
-    window.resetJamoSession?.();
-  }
 });
 
 /// 카드 클릭 -> 상세 표시
@@ -170,6 +163,7 @@ document.addEventListener('click', (e) => {
     resultEl.style.cursor = 'pointer';
   }
   resultEl.style.color = '';
+  document.getElementById('coachTip').style.display = 'none';
 
   const img = document.getElementById('jdImage');
   const imgPlaceholder = document.getElementById('jdImagePlaceholder');
@@ -190,13 +184,13 @@ document.addEventListener('click', (e) => {
 document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('jamoDetail').classList.remove('show');
   window.stopJamoCam?.();
-  window.resetJamoSession?.();
   window.currentJamoChar = null;
 
   const resultEl = document.getElementById('result');
   resultEl.textContent = '클릭해서 시작';
   resultEl.style.cursor = 'pointer';
   resultEl.style.color = '';
+  document.getElementById('coachTip').style.display = 'none';
 });
 </script>
 <script type="module" src="/resources/js/jamo-camera.js"></script>

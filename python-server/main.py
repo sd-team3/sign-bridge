@@ -14,6 +14,7 @@ from joblib import load
 from pydantic import BaseModel
 
 import training
+import coaching
 from config import (
     ARCHIVE_DIR,
     CSV_PATH,
@@ -120,6 +121,33 @@ def predict(req: PredictRequest):
         confidence=float(probs[best_idx]),
         top3=top3,
     )
+
+
+class CoachRequest(BaseModel):
+    landmarks: List[Landmark]
+    label: str
+    mirror: bool = False
+
+
+class CoachResponse(BaseModel):
+    tip: str | None = None
+    feature: str | None = None
+
+
+@app.post("/coach", response_model=CoachResponse)
+def coach(req: CoachRequest):
+    if req.label not in LABELS:
+        raise HTTPException(status_code=400, detail=f"알 수 없는 라벨입니다: {req.label}")
+    if len(req.landmarks) != 21:
+        raise HTTPException(status_code=400, detail="landmark는 21개여야 합니다.")
+
+    points = [lm.model_dump() for lm in req.landmarks]
+    feature_vector = extract_feature_vector_from_points(points, mirror=req.mirror)
+
+    result = coaching.generate_tip(req.label, feature_vector)
+    if result is None:
+        return CoachResponse(tip=None, feature=None)
+    return CoachResponse(tip=result["tip"], feature=result["feature"])
 
 _SAFE_NAME_RE = re.compile(r"[^0-9A-Za-z가-힣_-]+")
 

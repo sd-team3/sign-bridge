@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class HangulComposer {
+
     private static final long MERGE_WINDOW_MS = 3000;
 
     private static final Map<Character, Character> TENSE_CHO = new HashMap<>();
@@ -23,8 +24,11 @@ public class HangulComposer {
 
         VOWEL_COMBO.put("ㅗㅏ", 'ㅘ');
         VOWEL_COMBO.put("ㅗㅐ", 'ㅙ');
+        VOWEL_COMBO.put("ㅗㅣ", 'ㅚ');
         VOWEL_COMBO.put("ㅜㅓ", 'ㅝ');
         VOWEL_COMBO.put("ㅜㅔ", 'ㅞ');
+        VOWEL_COMBO.put("ㅜㅣ", 'ㅟ');
+        VOWEL_COMBO.put("ㅡㅣ", 'ㅢ');
     }
 
     private static final char[] CHOSUNG = {

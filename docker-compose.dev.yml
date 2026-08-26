@@ -9,6 +9,7 @@ services:
       - ./python-server:/app
     environment:
       - PYTHONUNBUFFERED=1
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
     networks:
       - app-network
       
@@ -55,8 +56,6 @@ services:
       # spring-compiler가 계속 갱신해주는 컴파일 결과물 / 의존성
       - ./spring-server/target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes
       - ./spring-server/target/dependency:/usr/local/tomcat/webapps/ROOT/WEB-INF/lib
-      # 게시글 업로드 파일 저장 경로
-      - ./uploads:/app/uploads
     networks:
       - app-network
 

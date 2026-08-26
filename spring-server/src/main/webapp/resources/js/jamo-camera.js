@@ -1,82 +1,118 @@
-// jamo-camera.js
-// 자모 학습 페이지(jamo.jsp)의 카메라 인식 로직.
-//
-// 기존에는 Python 서버(JamoApiClient)를 직접 호출해서 인식만 하고 끝났는데,
-// 그러면 Spring을 거치지 않아서 recognition_confirm_log에 아무것도 안 쌓였다.
-// word-camera.js / dict-camera.js와 동일하게 SignInputSession(/api/sign/frame)을
-// 태우도록 바꿔서, hold(1.2초 유지) 판정과 로그 저장(RecognitionLogService)을
-// 그대로 재사용한다. 정답 여부(target과 일치하는지) 판정은 지금처럼 프론트에서만 한다.
 import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-import { SignInputSession } from "/resources/js/sign-input.js";
+import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
+
+const api = new JamoApiClient("http://localhost:8000");
 
 window.jamoCamStarted = false;
 window.currentJamoChar = null;
 
-const resultEl = document.getElementById("result");
+const COACH_INTERVAL_MS = 6000;
+const STABLE_HOLD_MS = 1200;
+let lastCoachAt = 0;
+let coachInFlight = false;
+let coachTrackedJamo = null;
 
-// 정답/오답 문구가 뜬 뒤 바로 다음 프레임에 덮어써지지 않도록
-// 이 시간 동안은 화면 갱신을 잠깐 붙잡아둔다
-const FEEDBACK_HOLD_MS = 1500;
-let feedbackLockUntil = 0;
-let handWasPresent = false; // 손 인식 여부의 이전 프레임 상태
+let holdLabel = null;
+let holdStartAt = null;
 
-const signInput = new SignInputSession({
-  onUpdate: (data) => {
-    const now = performance.now();
-    if (now < feedbackLockUntil) return; // 정답/오답 문구 유지 중이면 아무것도 안 함
+function hideCoachTip() {
+  const tipEl = document.getElementById("coachTip");
+  if (tipEl) tipEl.style.display = 'none';
+}
 
-    // 타겟 자모를 아직 선택 안 한 상태 -> 지금 인식되고 있는 것만 보여줌 (판정 없음)
-    if (!window.currentJamoChar) {
-      resultEl.textContent = data.rawLabel || '';
-      resultEl.style.color = '';
-      return;
-    }
+function showCoachTip(text) {
+  const tipEl = document.getElementById("coachTip");
+  if (!tipEl) return;
+  tipEl.textContent = '💡 ' + text;
+  tipEl.style.display = 'block';
+}
 
-    // 1.2초 유지가 끝나서 서버가 이번 프레임에 확정한 경우에만 정답 판정
-    if (data.confirmedChar) {
-      const isCorrect = data.confirmedChar === window.currentJamoChar;
-      resultEl.textContent = isCorrect
-        ? '✅ 정답! (' + data.confirmedChar + ')'
-        : '❌ 오답 (' + data.confirmedChar + ')';
-      resultEl.style.color = isCorrect ? '#2D9B6F' : '#D85A30';
-      feedbackLockUntil = now + FEEDBACK_HOLD_MS;
-      return;
-    }
+function resetCoachThrottleIfJamoChanged() {
+  if (window.currentJamoChar !== coachTrackedJamo) {
+    coachTrackedJamo = window.currentJamoChar;
+    lastCoachAt = 0;
+  }
+}
 
-    // 아직 유지 중 / 확정 전 -> raw label만 참고용으로 표시
-    if (data.rawLabel) {
-      resultEl.textContent = data.rawLabel;
-      resultEl.style.color = '';
+function isHandShapeStable(label) {
+  const now = Date.now();
+  if (label !== holdLabel) {
+    holdLabel = label;
+    holdStartAt = now;
+    return false;
+  }
+  return now - holdStartAt >= STABLE_HOLD_MS;
+}
+
+async function maybeFetchCoachTip(landmarks, label) {
+  resetCoachThrottleIfJamoChanged();
+  const now = Date.now();
+  if (coachInFlight || now - lastCoachAt < COACH_INTERVAL_MS) return;
+  coachInFlight = true;
+  lastCoachAt = now;
+  try {
+    const res = await api.coach(landmarks, label, false);
+    if (res && res.tip) {
+      showCoachTip(res.tip);
     } else {
-      resultEl.textContent = '';
-      resultEl.style.color = '';
+      hideCoachTip();
     }
-  },
-});
+  } catch (err) {
+    console.error('코칭 팁 요청 실패:', err);
+  } finally {
+    coachInFlight = false;
+  }
+}
+
+function resetHold() {
+  holdLabel = null;
+  holdStartAt = null;
+}
 
 const cam = new HandCameraWidget({
   videoEl: document.getElementById("video"),
   canvasEl: document.getElementById("canvas"),
-  onFrame: (landmarks) => {
+  onFrame: async (landmarks) => {
+    const resultEl = document.getElementById("result");
     if (!landmarks) {
-      // 손을 화면에서 내리면 직전 정답/오답 문구를 바로 지운다.
-      // submitFrame은 landmarks가 없으면 서버로 아예 안 보내서 onUpdate가 안 불리기 때문에 직접 처리
-      if (handWasPresent) {
-        // 손이 카메라에서 사라지는 순간 호출
-        handWasPresent = false;
-        feedbackLockUntil = 0;
-        resultEl.textContent = '';
-        resultEl.style.color = '';
-
-        // 학습했던 자/모음을 재시도할 시 세션 초기화
-        if (window.jamoCamStarted) {
-          signInput.reset().catch((err) => console.error('세션 리셋 실패:', err));
-        }
-      }
+      resultEl.textContent = '';
+      resultEl.style.color = '';
+      hideCoachTip();
+      resetHold();
       return;
     }
-    handWasPresent = true;
-    signInput.submitFrame(landmarks);
+    const result = await api.predict(landmarks, false);
+
+    if (!result || !result.label) {
+      resultEl.textContent = '';
+      resultEl.style.color = '';
+      hideCoachTip();
+      resetHold();
+      return;
+    }
+
+    if (!window.currentJamoChar) {
+      resultEl.textContent = result.label;
+      resultEl.style.color = '';
+      hideCoachTip();
+      resetHold();
+      return;
+    }
+
+    const isCorrect = result.label === window.currentJamoChar;
+    resultEl.textContent = isCorrect
+      ? '✅ 정답! (' + result.label + ')'
+      : '인식: ' + result.label;
+    resultEl.style.color = isCorrect ? '#2D9B6F' : '#D85A30';
+
+    if (isCorrect) {
+      if (isHandShapeStable(result.label)) {
+        maybeFetchCoachTip(landmarks, result.label);
+      }
+    } else {
+      hideCoachTip();
+      resetHold();
+    }
   },
 });
 
@@ -87,11 +123,11 @@ document.getElementById("jdCam").addEventListener("click", async () => {
   started = true;
   window.jamoCamStarted = true;
 
+  const resultEl = document.getElementById("result");
   resultEl.style.cursor = 'default';
   resultEl.textContent = '-';
 
   try {
-    await signInput.reset(); // 이전 조합/hold 상태 리셋
     await cam.start();
   } catch (error) {
     console.error('카메라 시작 실패: ', error);
@@ -106,18 +142,6 @@ window.stopJamoCam = () => {
   cam.stopCamera();
   started = false;
   window.jamoCamStarted = false;
-};
-
-// jamo.jsp에서 카드/탭 전환 시 호출 -> 카메라는 그대로 두고 hold 상태만 리셋.
-// (같은 손모양을 유지한 채로 타겟만 바꾸는 경우, 새 타겟에 대해 다시 판정/로그가
-//  찍히도록 하기 위함. 카메라 자체를 껐다 켤 필요는 없음)
-window.resetJamoSession = async () => {
-  if (!window.jamoCamStarted) return;
-  try {
-    await signInput.reset();
-  } catch (err) {
-    console.error('세션 리셋 실패:', err);
-  }
 };
 
 window.addEventListener('beforeunload', () => {
