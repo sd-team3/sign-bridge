@@ -54,10 +54,9 @@
       <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
           <a href="${ctx}/playzone/chain" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon"></span>
+            <span class="nav-dropdown-icon">🔗</span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 끝말잇기</span>
-              <span class="nav-dropdown-desc">준비중입니다</span>
             </span>
           </a>
           <a href="#" class="nav-dropdown-link">
