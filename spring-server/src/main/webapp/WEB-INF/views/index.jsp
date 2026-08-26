@@ -7,6 +7,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="_csrf" content="${_csrf.token}"/>
+<meta name="_csrf_header" content="${_csrf.headerName}"/>
 <link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
 <link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 수어 학습 플랫폼</title>
@@ -52,10 +54,9 @@
       <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
           <a href="${ctx}/playzone/chain" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon"></span>
+            <span class="nav-dropdown-icon">🔗</span>
             <span class="nav-dropdown-text">
               <span class="nav-dropdown-title">수어 끝말잇기</span>
-              <span class="nav-dropdown-desc">준비중입니다</span>
             </span>
           </a>
           <a href="#" class="nav-dropdown-link">
@@ -93,6 +94,13 @@
     </sec:authorize>
   </div>
 </nav>
+
+<sec:authorize access="isAuthenticated()">
+  <script>
+      window.ctx = "${ctx}";
+  </script>
+  <script src="${ctx}/resources/js/notification.js"></script>
+</sec:authorize>
 
 <!-- HERO -->
 <section class="hero">
@@ -382,28 +390,6 @@
   </div>
 </section>
 
-<style>
-  .cam-wrap {
-    position: relative;
-    width: 320px;
-    aspect-ratio: 4 / 3;
-    margin: 0 auto;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #000;
-  }
-  .cam-wrap video,
-  .cam-wrap canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1);
-  }
-</style>
-
 <div class="cta-section">
   <div class="cta-inner">
     <div class="cta-title">지금 바로 시작해보세요<br><span>첫 단어는 오늘, SignBridge에서</span></div>
@@ -419,14 +405,6 @@
     </div>
   </div>
 </div>
-
-<div class="cam-wrap">
-  <video id="video-word" autoplay playsinline muted></video>
-  <canvas id="canvas-word"></canvas>
-</div>
-<div id="result-word">-</div>
-<div class="progress-bar"><div id="progressFill"></div></div>
-<script type="module" src="${ctx}/resources/js/word-camera.js"></script>
 
 <!-- FOOTER -->
 <footer>
