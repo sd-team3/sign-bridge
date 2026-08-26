@@ -390,28 +390,6 @@
   </div>
 </section>
 
-<style>
-  .cam-wrap {
-    position: relative;
-    width: 320px;
-    aspect-ratio: 4 / 3;
-    margin: 0 auto;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #000;
-  }
-  .cam-wrap video,
-  .cam-wrap canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1);
-  }
-</style>
-
 <div class="cta-section">
   <div class="cta-inner">
     <div class="cta-title">지금 바로 시작해보세요<br><span>첫 단어는 오늘, SignBridge에서</span></div>
@@ -427,14 +405,6 @@
     </div>
   </div>
 </div>
-
-<div class="cam-wrap">
-  <video id="video-word" autoplay playsinline muted></video>
-  <canvas id="canvas-word"></canvas>
-</div>
-<div id="result-word">-</div>
-<div class="progress-bar"><div id="progressFill"></div></div>
-<script type="module" src="${ctx}/resources/js/word-camera.js"></script>
 
 <!-- FOOTER -->
 <footer>
