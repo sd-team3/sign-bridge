@@ -119,7 +119,7 @@
       </div>
       <div class="play-banner-btns">
         <a href="/playzone/chain" class="btn btn-primary btn-sm">끝말잇기</a>
-        <a href="play_defense.html" class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.3); color:rgba(255,255,255,.85);">디펜스 모드</a>
+        <span class="btn btn-ghost btn-sm" style="border-color:rgba(255,255,255,.3); color:rgba(255,255,255,.5); cursor:not-allowed; opacity:.6;" aria-disabled="true">디펜스 모드 (준비중)</span>
       </div>
     </div>
   </div>
