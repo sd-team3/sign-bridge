@@ -11,6 +11,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import LabelEncoder
 
 from config import CSV_PATH, LABEL_ENCODER_PATH, MODEL_OLD_DIR, MODEL_PATH
+import coaching
 
 
 def load_dataset(csv_path=CSV_PATH):
@@ -49,7 +50,6 @@ def train(csv_path=CSV_PATH):
     encoder = LabelEncoder()
     y_encoded = encoder.fit_transform(y)
 
-    # 클래스당 샘플이 극히 적으면 stratify 분할이 실패할 수 있어 방어적으로 처리
     min_class_count = min(label_counts.values())
     stratify = y_encoded if min_class_count >= 2 else None
 
@@ -80,6 +80,8 @@ def train(csv_path=CSV_PATH):
     backup_current_model()
     dump(model, MODEL_PATH)
     dump(encoder, LABEL_ENCODER_PATH)
+
+    coaching.build_reference(csv_path)
 
     return {
         "trained_at": time.strftime("%Y-%m-%d %H:%M:%S"),
