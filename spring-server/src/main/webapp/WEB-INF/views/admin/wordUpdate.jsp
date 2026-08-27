@@ -65,13 +65,13 @@
   </table>
 </div>
 
-  <div class="pagination">
-    <a class="pg-btn" href="/admin/word?page=${pageBean.prevPage}">‹</a>
-    <c:forEach var="p" begin="${pageBean.min}" end="${pageBean.max}">
-      <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/word?page=${p}">${p}</a>
-    </c:forEach>
-    <a class="pg-btn" href="/admin/word?page=${pageBean.nextPage}">›</a>
-  </div>
+<div class="pagination">
+  <a class="pg-btn" href="/admin/word/update?page=${pageBean.prevPage}">‹</a>
+  <c:forEach var="p" begin="${pageBean.min}" end="${pageBean.max}">
+    <a class="pg-btn ${p == pageBean.currentPage ? 'active' : ''}" href="/admin/word/update?page=${p}">${p}</a>
+  </c:forEach>
+  <a class="pg-btn" href="/admin/word/update?page=${pageBean.nextPage}">›</a>
+</div>
 
 <jsp:include page="includes/footer.jsp" />
 </body>
