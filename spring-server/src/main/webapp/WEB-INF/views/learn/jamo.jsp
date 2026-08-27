@@ -60,8 +60,8 @@
             <canvas id="canvas"></canvas>
           </div>
           <div id="result" style="font-size: large; cursor: pointer;">클릭해서 시작</div>
-          <div id="coachTip" style="display:none; margin-top:8px; padding:8px 12px; background:#FFF7E6; border:1px solid #FFD57E; border-radius:8px; font-size:14px; color:#8A5A00;"></div>
         </div>
+        <div id="coachTip" style="display:none; margin:10px 16px 16px; padding:10px 14px; border:1px solid; border-radius:8px; font-size:14px; line-height:1.5;"></div>
       </div>
     </div>
 

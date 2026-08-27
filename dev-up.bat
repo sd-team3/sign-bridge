@@ -2,14 +2,11 @@
 
 cd /d "%~dp0"
 
-docker compose -f docker-compose.dev.yml up -d --build
+docker compose -f docker-compose.dev.yml up -d
 
 if %errorlevel% neq 0 (
     pause
     exit /b %errorlevel%
 )
-
-timeout /t 5 /nobreak > nul
-docker compose -f docker-compose.dev.yml ps
 
 pause

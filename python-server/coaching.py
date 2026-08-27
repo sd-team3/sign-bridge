@@ -198,12 +198,59 @@ def _call_groq(label, deviation, fallback) -> str:
         return fallback
 
 
-def generate_tip(label, feat_vec):
+def _call_groq_mismatch(target_label, predicted_label, fallback) -> str:
+    if not config.GROQ_API_KEY:
+        return fallback
+
+    system_prompt = (
+        "당신은 한국 수어(한국어 지문자) 초보자를 돕는 다정한 코치입니다. "
+        "사용자가 목표로 하는 자모와 지금 카메라에 인식되는 자모가 서로 다릅니다. "
+        "두 자모의 관계만 짧게 짚어서, 지금 손모양이 목표와 얼마나 다른지를 "
+        "20자 이내의 짧고 친절한 한국어 한 문장으로 알려주세요. "
+        "인사말, 따옴표, 부연설명은 넣지 마세요."
+    )
+    user_prompt = (
+        f"목표 자모: '{target_label}'. "
+        f"지금 인식되는 자모: '{predicted_label}'. "
+        f"참고용 기본 문구: '{fallback}'"
+    )
+
+    try:
+        res = requests.post(
+            config.GROQ_API_URL,
+            headers={
+                "Authorization": f"Bearer {config.GROQ_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": config.GROQ_MODEL,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                "temperature": 0.5,
+                "max_tokens": 40,
+            },
+            timeout=config.GROQ_TIMEOUT_SEC,
+        )
+        res.raise_for_status()
+        content = res.json()["choices"][0]["message"]["content"].strip()
+        return content if content else fallback
+    except Exception:
+        return fallback
+
+
+def generate_feedback(target_label, predicted_label, predicted_confidence, feat_vec):
+    if predicted_label != target_label:
+        fallback = f"지금은 '{predicted_label}'에 가까운 손모양이에요. '{target_label}'과는 많이 달라요."
+        tip = _call_groq_mismatch(target_label, predicted_label, fallback)
+        return {"tip": tip, "kind": "mismatch", "predicted_label": predicted_label}
+
     reference_df = load_reference()
-    deviation = detect_deviation(label, feat_vec, reference_df)
+    deviation = detect_deviation(target_label, feat_vec, reference_df)
     if deviation is None:
-        return None
+        return {"tip": "완벽합니다!", "kind": "perfect", "predicted_label": predicted_label}
 
     fallback = fallback_tip(deviation)
-    tip = _call_groq(label, deviation, fallback)
-    return {"tip": tip, "feature": deviation["name"]}
+    tip = _call_groq(target_label, deviation, fallback)
+    return {"tip": tip, "kind": "advice", "predicted_label": predicted_label}
