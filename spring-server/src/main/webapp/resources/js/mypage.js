@@ -128,7 +128,7 @@ document.querySelectorAll('.mp-filter-row').forEach(row => {
 loadedTabs.wronganswer = false;
 filterState.wronganswer = '';
 
-const waTypeLabel = { CONSONANT: '자음', VOWEL: '모음', WORD: '단어' };
+const waTypeLabel = { choice: '객관식/주관식', motion: '카메라 인식', both: '혼합' };
 
 function loadWrongAnswers(page) {
     fetch(`/member/mypage/wronganswer?page=${page}&category=${filterState.wronganswer}`)
