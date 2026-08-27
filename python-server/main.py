@@ -126,28 +126,31 @@ def predict(req: PredictRequest):
 class CoachRequest(BaseModel):
     landmarks: List[Landmark]
     label: str
+    predicted_label: str
+    predicted_confidence: float = 0.0
     mirror: bool = False
 
 
 class CoachResponse(BaseModel):
     tip: str | None = None
-    feature: str | None = None
+    kind: str | None = None
+    predicted_label: str | None = None
 
 
 @app.post("/coach", response_model=CoachResponse)
 def coach(req: CoachRequest):
     if req.label not in LABELS:
         raise HTTPException(status_code=400, detail=f"알 수 없는 라벨입니다: {req.label}")
+    if req.predicted_label not in LABELS:
+        raise HTTPException(status_code=400, detail=f"알 수 없는 라벨입니다: {req.predicted_label}")
     if len(req.landmarks) != 21:
         raise HTTPException(status_code=400, detail="landmark는 21개여야 합니다.")
 
     points = [lm.model_dump() for lm in req.landmarks]
     feature_vector = extract_feature_vector_from_points(points, mirror=req.mirror)
 
-    result = coaching.generate_tip(req.label, feature_vector)
-    if result is None:
-        return CoachResponse(tip=None, feature=None)
-    return CoachResponse(tip=result["tip"], feature=result["feature"])
+    result = coaching.generate_feedback(req.label, req.predicted_label, req.predicted_confidence, feature_vector)
+    return CoachResponse(tip=result["tip"], kind=result["kind"], predicted_label=result["predicted_label"])
 
 _SAFE_NAME_RE = re.compile(r"[^0-9A-Za-z가-힣_-]+")
 

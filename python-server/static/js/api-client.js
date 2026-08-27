@@ -43,8 +43,14 @@ export class JamoApiClient {
     return this._postJson("/predict", { landmarks, mirror });
   }
 
-  coach(landmarks, label, mirror = false) {
-    return this._postJson("/coach", { landmarks, label, mirror });
+  coach(landmarks, label, predictedLabel, predictedConfidence, mirror = false) {
+    return this._postJson("/coach", {
+      landmarks,
+      label,
+      predicted_label: predictedLabel,
+      predicted_confidence: predictedConfidence,
+      mirror,
+    });
   }
 
   collect(label, frames, mirror = false, collector = "unknown") {
