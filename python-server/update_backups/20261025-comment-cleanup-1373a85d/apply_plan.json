@@ -1,0 +1,85 @@
+{
+  "files": [
+    {
+      "path": "sign_api/__init__.py",
+      "previous": "3d5cfa5cd77e99ef150249386020bff5fe073aba2855228e3f9096f3de16ea27",
+      "source": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "sign_api/api.py",
+      "previous": "597d8b98f2a1455b90d240cd5af865f707402830ccc1828b598be2e539a9012e",
+      "source": "135dfb028d94a76a39651ea4b39b26c8fe22e2c802baa5776e22062a60996f75"
+    },
+    {
+      "path": "sign_api/body_features.py",
+      "previous": "5c436937a877bca4cec7e8d2bee7867fd7d79b517d553c4a2de98e252549112d",
+      "source": "70fee06da43e9bc03f6f6e87b01dcb1b2167c225819daff5ec8df298279bd2c4"
+    },
+    {
+      "path": "sign_api/curriculum.py",
+      "previous": "99a2aa91dde400e9a59bd9016c0774d64860aee123cedba3f0396f491ba9f76b",
+      "source": "d20d544d98804bbfb3ecad66e1a9206563799ea7f7ac41cfe38a009b7217716c"
+    },
+    {
+      "path": "sign_api/groq_feedback.py",
+      "previous": "139518160ca1690ef9039a15d98ce8d102e7842e9a469d2ad4abfb01c93bad16",
+      "source": "82c99378b5d9a85e733a351f7f144300631d650a29cbe15a8062d5686c4cc0f7"
+    },
+    {
+      "path": "sign_api/pose_feedback.py",
+      "previous": "9fb2bd6da44414e6b94a1c633322e470cfcb40f5fadd6e611b44f992a522a51a",
+      "source": "6c7dfab600d4b8d7cfc0fdd3d97c8e0a66ea32ee3717324adc4443308835dd47"
+    },
+    {
+      "path": "sign_api/seated_active_features.py",
+      "previous": "c741d0133c41db84ce92975bf8e7baf59c00b891ed270bba1aa8fe35090c457e",
+      "source": "7fdf6e6c89dc3765a3d45b6f13e4df9466f3ec0abeb4a574898aa255c23a56b0"
+    },
+    {
+      "path": "sign_api/seated_features.py",
+      "previous": "a42fe94390add201fa86d71489418fed388433ecb3012160ca6fdc4d75ae320d",
+      "source": "1793986151d312c689501032b7ac54a5bd01f1c21fd4b3d9e914ca9da3a89bb3"
+    },
+    {
+      "path": "sign_api/sign_model.py",
+      "previous": "f66409131d1dc6d8fe657c648f72fbd1f04e6607d387f4da8170197a349b320b",
+      "source": "dce3ba36ebc9fc3947260333c9084f7477eada9b024a28e4780fe36ab69aa61d"
+    },
+    {
+      "path": "sign_api/standalone.py",
+      "previous": "e99b01ba6357ae4e31390efc1de0248aeebe8453f9ce624b07c666e09cbab0ae",
+      "source": "91dad674e99a527a0676fb9a9ef0279bb6c96b7b3e806e214c74146dae2972be"
+    },
+    {
+      "path": "sign_api/video_api.py",
+      "previous": "cecbc8fba94c70df18a7f8e63a02a824116816afabf1947e4187dd9f930cfe6b",
+      "source": "e373d60e4f3c6ff194e92bfc9bc4a8a83695fc3b8006a70f91b9e6308b193d9d"
+    },
+    {
+      "path": "tests/smoke_sign_word_video.py",
+      "previous": "3be6911921338a503b885346e0a8861b904c8ccf029d6c127b8dd299f86448cb",
+      "source": "1936fdcca17d76b35014aba6a4f6fa664afa09b2b73249b6635b9ac4a7e75477"
+    },
+    {
+      "path": "main.py",
+      "previous": "0369232efba3c3cf880c41ae58eccdfe532c8dc83bdfd46ec059e422033b6017",
+      "source": "576f58a89092ccaa97ec29a51a1bdc9e1519352b80238304b2c9edc09e3de631"
+    },
+    {
+      "path": "SIGN_WORD_API.md",
+      "previous": "c8f8a2f545d65b5dd36d5ec71a5c22ed8c606011be0992bf6002e85618664a08",
+      "source": "3f84c6bbd7ec332453e5fc484b3132f043c618c468ca84cf1a341583606d72a1"
+    },
+    {
+      "path": "SIGN_LEARNING_PAGE_GUIDE.md",
+      "previous": null,
+      "source": "60f4694a654d9a866377a05f70a2e6aaf3ae5e5f99a74245c660fa4088af62dc"
+    },
+    {
+      "path": "SIGN_LEARNING_API_EXAMPLES.json",
+      "previous": null,
+      "source": "9de45fa6469d7472912188f1dc154b57a4ed85a4333328baa63a8bdaca5b8079"
+    }
+  ],
+  "removed": 33
+}

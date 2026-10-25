@@ -1,0 +1,585 @@
+{
+  "version": "curriculum100-2026-10-13",
+  "chapters": [
+    {
+      "chapter_id": "chapter-01",
+      "order": 1,
+      "title": "첫 만남과 나의 의사",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD1157",
+          "label": "나",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1351",
+          "label": "너",
+          "order": 2
+        },
+        {
+          "word_id": "WORD0461",
+          "label": "농인",
+          "order": 3
+        },
+        {
+          "word_id": "WORD1242",
+          "label": "사람",
+          "order": 4
+        },
+        {
+          "word_id": "WORD0566",
+          "label": "소개",
+          "order": 5
+        },
+        {
+          "word_id": "WORD1140",
+          "label": "반갑다",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1201",
+          "label": "미안하다",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1381",
+          "label": "괜찮다",
+          "order": 8
+        },
+        {
+          "word_id": "WORD0738",
+          "label": "좋다",
+          "order": 9
+        },
+        {
+          "word_id": "WORD0025",
+          "label": "싫다",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-02",
+      "order": 2,
+      "title": "모르더라도 계속 배우기",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD1185",
+          "label": "알다",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1096",
+          "label": "모르다",
+          "order": 2
+        },
+        {
+          "word_id": "WORD1207",
+          "label": "이해하다",
+          "order": 3
+        },
+        {
+          "word_id": "WORD0530",
+          "label": "질문하다",
+          "order": 4
+        },
+        {
+          "word_id": "WORD0935",
+          "label": "천천히",
+          "order": 5
+        },
+        {
+          "word_id": "WORD0227",
+          "label": "공부",
+          "order": 6
+        },
+        {
+          "word_id": "WORD0241",
+          "label": "연습",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1232",
+          "label": "쉽다",
+          "order": 8
+        },
+        {
+          "word_id": "WORD1211",
+          "label": "어렵다",
+          "order": 9
+        },
+        {
+          "word_id": "WORD1282",
+          "label": "가능",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-03",
+      "order": 3,
+      "title": "나와 가까운 사람",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD1204",
+          "label": "친구",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1492",
+          "label": "가족",
+          "order": 2
+        },
+        {
+          "word_id": "WORD1528",
+          "label": "어머니",
+          "order": 3
+        },
+        {
+          "word_id": "WORD1565",
+          "label": "할머니",
+          "order": 4
+        },
+        {
+          "word_id": "WORD1566",
+          "label": "할아버지",
+          "order": 5
+        },
+        {
+          "word_id": "WORD1104",
+          "label": "남자",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1275",
+          "label": "여자",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1117",
+          "label": "나이",
+          "order": 8
+        },
+        {
+          "word_id": "WORD1216",
+          "label": "친하다",
+          "order": 9
+        },
+        {
+          "word_id": "WORD2136",
+          "label": "생일",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-04",
+      "order": 4,
+      "title": "함께 먹고 취향 나누기",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD1534",
+          "label": "밥",
+          "order": 1
+        },
+        {
+          "word_id": "WORD0115",
+          "label": "커피",
+          "order": 2
+        },
+        {
+          "word_id": "WORD0815",
+          "label": "우유",
+          "order": 3
+        },
+        {
+          "word_id": "WORD0953",
+          "label": "배고프다",
+          "order": 4
+        },
+        {
+          "word_id": "WORD1200",
+          "label": "배부르다",
+          "order": 5
+        },
+        {
+          "word_id": "WORD2036",
+          "label": "목마르다",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1130",
+          "label": "원하다",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1384",
+          "label": "없다",
+          "order": 8
+        },
+        {
+          "word_id": "WORD0101",
+          "label": "달다",
+          "order": 9
+        },
+        {
+          "word_id": "WORD1924",
+          "label": "맛없다",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-05",
+      "order": 5,
+      "title": "일상에서 만나고 이동하기",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD0943",
+          "label": "가다",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1149",
+          "label": "오다",
+          "order": 2
+        },
+        {
+          "word_id": "WORD1295",
+          "label": "걷다",
+          "order": 3
+        },
+        {
+          "word_id": "WORD1148",
+          "label": "서다",
+          "order": 4
+        },
+        {
+          "word_id": "WORD1182",
+          "label": "의자",
+          "order": 5
+        },
+        {
+          "word_id": "WORD0165",
+          "label": "자동차",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1593",
+          "label": "기차",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1592",
+          "label": "회사",
+          "order": 8
+        },
+        {
+          "word_id": "WORD0170",
+          "label": "출근",
+          "order": 9
+        },
+        {
+          "word_id": "WORD1591",
+          "label": "기다리다",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-06",
+      "order": 6,
+      "title": "몸과 기분 돌보기",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD1152",
+          "label": "아프다",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1115",
+          "label": "건강",
+          "order": 2
+        },
+        {
+          "word_id": "WORD0037",
+          "label": "감기",
+          "order": 3
+        },
+        {
+          "word_id": "WORD1496",
+          "label": "병원",
+          "order": 4
+        },
+        {
+          "word_id": "WORD0163",
+          "label": "의사",
+          "order": 5
+        },
+        {
+          "word_id": "WORD1158",
+          "label": "피곤하다",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1222",
+          "label": "힘들다",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1127",
+          "label": "기분",
+          "order": 8
+        },
+        {
+          "word_id": "WORD1169",
+          "label": "행복하다",
+          "order": 9
+        },
+        {
+          "word_id": "WORD1224",
+          "label": "웃다",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-07",
+      "order": 7,
+      "title": "좋아하는 것과 주변 세상",
+      "stage": "기본70",
+      "words": [
+        {
+          "word_id": "WORD0071",
+          "label": "영화",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1539",
+          "label": "사진",
+          "order": 2
+        },
+        {
+          "word_id": "WORD0034",
+          "label": "독서",
+          "order": 3
+        },
+        {
+          "word_id": "WORD2570",
+          "label": "축구",
+          "order": 4
+        },
+        {
+          "word_id": "WORD2604",
+          "label": "나무",
+          "order": 5
+        },
+        {
+          "word_id": "WORD2546",
+          "label": "바다",
+          "order": 6
+        },
+        {
+          "word_id": "WORD2552",
+          "label": "비",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1383",
+          "label": "봄",
+          "order": 8
+        },
+        {
+          "word_id": "WORD1382",
+          "label": "여름",
+          "order": 9
+        },
+        {
+          "word_id": "WORD1248",
+          "label": "겨울",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-08",
+      "order": 8,
+      "title": "감정을 더 세밀하게",
+      "stage": "확장1",
+      "words": [
+        {
+          "word_id": "WORD0684",
+          "label": "걱정하다",
+          "order": 1
+        },
+        {
+          "word_id": "WORD1134",
+          "label": "무섭다",
+          "order": 2
+        },
+        {
+          "word_id": "WORD1236",
+          "label": "화나다",
+          "order": 3
+        },
+        {
+          "word_id": "WORD1240",
+          "label": "놀라다",
+          "order": 4
+        },
+        {
+          "word_id": "WORD1102",
+          "label": "답답하다",
+          "order": 5
+        },
+        {
+          "word_id": "WORD1195",
+          "label": "실망하다",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1123",
+          "label": "불안하다",
+          "order": 7
+        },
+        {
+          "word_id": "WORD1128",
+          "label": "당황하다",
+          "order": 8
+        },
+        {
+          "word_id": "WORD1133",
+          "label": "잘하다",
+          "order": 9
+        },
+        {
+          "word_id": "WORD1097",
+          "label": "못하다",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-09",
+      "order": 9,
+      "title": "시간과 계획 나누기",
+      "stage": "확장2",
+      "words": [
+        {
+          "word_id": "WORD2543",
+          "label": "아침",
+          "order": 1
+        },
+        {
+          "word_id": "WORD0699",
+          "label": "밤",
+          "order": 2
+        },
+        {
+          "word_id": "WORD2578",
+          "label": "언제",
+          "order": 3
+        },
+        {
+          "word_id": "WORD2623",
+          "label": "지난주",
+          "order": 4
+        },
+        {
+          "word_id": "WORD2632",
+          "label": "일",
+          "order": 5
+        },
+        {
+          "word_id": "WORD2050",
+          "label": "계획",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1530",
+          "label": "바쁘다",
+          "order": 7
+        },
+        {
+          "word_id": "WORD0312",
+          "label": "공휴일",
+          "order": 8
+        },
+        {
+          "word_id": "WORD0333",
+          "label": "연말",
+          "order": 9
+        },
+        {
+          "word_id": "WORD0595",
+          "label": "완료",
+          "order": 10
+        }
+      ]
+    },
+    {
+      "chapter_id": "chapter-10",
+      "order": 10,
+      "title": "서로 돕고 관계 이어가기",
+      "stage": "확장3",
+      "words": [
+        {
+          "word_id": "WORD2021",
+          "label": "존중",
+          "order": 1
+        },
+        {
+          "word_id": "WORD2388",
+          "label": "돕다",
+          "order": 2
+        },
+        {
+          "word_id": "WORD2394",
+          "label": "주다",
+          "order": 3
+        },
+        {
+          "word_id": "WORD2187",
+          "label": "받다",
+          "order": 4
+        },
+        {
+          "word_id": "WORD2385",
+          "label": "빌리다",
+          "order": 5
+        },
+        {
+          "word_id": "WORD0144",
+          "label": "돌려주다",
+          "order": 6
+        },
+        {
+          "word_id": "WORD1186",
+          "label": "조심",
+          "order": 7
+        },
+        {
+          "word_id": "WORD0363",
+          "label": "보호하다",
+          "order": 8
+        },
+        {
+          "word_id": "WORD1346",
+          "label": "불편",
+          "order": 9
+        },
+        {
+          "word_id": "WORD0360",
+          "label": "편리",
+          "order": 10
+        }
+      ]
+    }
+  ]
+}

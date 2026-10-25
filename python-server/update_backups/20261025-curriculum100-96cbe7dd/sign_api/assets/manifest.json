@@ -1,0 +1,257 @@
+{
+  "model_source": "D:\\sign-lang\\artifacts\\prototype50_seated\\best.pt",
+  "sha256": "f6c415f58bf39e425248a352c521ffd03080291cd1ce38fe4afd188fb139a873",
+  "reference_policy": "one frontal training video per word; not population norms",
+  "references": [
+    {
+      "code": "0115",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0115_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1534",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1534_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0953",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0953_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1200",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1200_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1492",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1492_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1528",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1528_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1565",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1565_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1566",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1566_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1524",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1524_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1531",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1531_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1522",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1522_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1204",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1204_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1104",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1104_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1275",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1275_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1117",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1117_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1140",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1140_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1201",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1201_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0738",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0738_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0025",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0025_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1185",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1185_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1096",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1096_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1381",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1381_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1384",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1384_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1591",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1591_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1130",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1130_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1496",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1496_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1152",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1152_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0037",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0037_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1115",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1115_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0149",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0149_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0064",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0064_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1519",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1519_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0165",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0165_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1593",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1593_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "2177",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD2177_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1592",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1592_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0227",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0227_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0241",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0241_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1182",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1182_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0071",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0071_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0034",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0034_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1539",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1539_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "2570",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD2570_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1248",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1248_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1382",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1382_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "1383",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD1383_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "2552",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD2552_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "2546",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD2546_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "2604",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD2604_REAL01_F.mp4",
+      "subject": "REAL01"
+    },
+    {
+      "code": "0699",
+      "video": "D:\\sign-lang\\data\\curriculum_videos\\REAL01\\NIA_SL_WORD0699_REAL01_F.mp4",
+      "subject": "REAL01"
+    }
+  ]
+}

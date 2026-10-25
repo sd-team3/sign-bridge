@@ -28,6 +28,11 @@ from utils import csv_header, extract_feature_vector_from_points
 
 app = FastAPI(title="Jamo KSL API")
 
+from sign_api.api import router as sign_word_router
+app.include_router(sign_word_router)
+from sign_api.video_api import video_router
+app.include_router(video_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
