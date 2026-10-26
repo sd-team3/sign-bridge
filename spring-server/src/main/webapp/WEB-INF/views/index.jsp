@@ -1,452 +1,58 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="_csrf" content="${_csrf.token}"/>
-<meta name="_csrf_header" content="${_csrf.headerName}"/>
-<link rel="icon" href="/resources/favicon.ico" type="image/x-icon">
-<link rel="apple-touch-icon" href="/resources/images/icon-180.png">
-<title>SignBridge - 수어 학습 플랫폼</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${ctx}/resources/css/shared.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SignBridge — 수어로 가까워지는 일상</title>
+  <link rel="icon" href="${ctx}/resources/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="${ctx}/resources/images/icon-180.png">
+  <link rel="stylesheet" href="${ctx}/resources/css/shared.css">
+  <link rel="stylesheet" href="${ctx}/resources/css/home.css">
 </head>
-<body class="page-index">
-
-<!-- NAV -->
-<nav>
-  <a href="${ctx}/" class="nav-logo">
-    <div class="nav-logo-icon"><img src="${ctx}/resources/images/icon-180.png" alt="SignBridge"></div>
-    
-    <span class="nav-logo-text">SignBridge</span>
-  </a>
-  <div class="nav-links">
-    <div class="nav-item has-sub">
-      <a href="${ctx}/learn" class="nav-link">학습<span class="nav-caret">▾</span></a>
-      <div class="nav-dropdown">
-        <div class="nav-dropdown-inner">
-          <a href="${ctx}/learn/jamo" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔤</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">자음,모음</span>
-              <span class="nav-dropdown-desc">ㄱ부터 ㅎ까지, 자음과 모음 손모양 익히기</span>
-            </span>
-          </a>
-          <a href="${ctx}/learn/dict" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔍</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">수어 사전</span>
-              <span class="nav-dropdown-desc">초성으로 찾고 검색해서 단어 학습</span>
-            </span>
-          </a>
-        </div>
+<body class="page-home">
+<a class="home-skip" href="#home-content">본문으로 건너뛰기</a>
+<jsp:include page="includes/header.jsp" />
+<main id="home-content" class="home-main">
+  <section class="home-hero" aria-labelledby="home-title">
+    <div class="home-intro">
+      <p class="home-eyebrow">손으로 전하는 말, 마음을 잇는 배움</p>
+      <h1 id="home-title">하루 한 단어,<br> <span>수어로 가까워져요.</span></h1>
+      <p class="home-lead">모범 영상을 보고, 내 손으로 따라 하고.<br> 처음 배우는 수어도 SignBridge와 차근차근 시작하세요.</p>
+      <div class="home-actions">
+        <a class="home-primary" href="${ctx}/learn/signs">수어 학습 시작하기 <span aria-hidden="true">↗</span></a>
+        <a class="home-secondary" href="${ctx}/learn/jamo">자음·모음부터 배우기</a>
       </div>
+      <p class="home-note">웹캠 녹화와 평가는 로그인 후 이용할 수 있어요.</p>
     </div>
-
-    <a href="${ctx}/exam/setup" class="nav-link">시험</a>
-
-    <div class="nav-item has-sub">
-      <a href="#" class="nav-link">플레이존<span class="nav-caret">▾</span></a>
-      <div class="nav-dropdown">
-        <div class="nav-dropdown-inner">
-          <a href="${ctx}/playzone/chain" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔗</span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">수어 끝말잇기</span>
-            </span>
-          </a>
-          <a href="#" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon"></span>
-            <span class="nav-dropdown-text">
-              <span class="nav-dropdown-title">수어 디펜스</span>
-              <span class="nav-dropdown-desc">준비중입니다</span>
-            </span>
-          </a>
-        </div>
-      </div>
+    <aside class="home-start" aria-labelledby="home-start-title">
+      <div class="home-start-top"><span>처음이라면 여기부터</span><span aria-hidden="true">01</span></div>
+      <h2 id="home-start-title">첫 만남과 나의 의사</h2>
+      <p>‘나’와 ‘너’부터, 일상에서 나를 표현하는 단어를 만나보세요.</p>
+      <div class="home-word-list" aria-label="학습 단어 예시"><span>나</span><span>너</span><span>반갑다</span></div>
+      <a href="${ctx}/learn/signs">챕터별 단어 살펴보기 <span aria-hidden="true">→</span></a>
+    </aside>
+  </section>
+  <section class="home-tools" aria-labelledby="home-tools-title">
+    <div class="home-section-head"><div><p class="home-eyebrow">나에게 맞는 시작</p><h2 id="home-tools-title">배우고, 찾아보고, 함께 연습해요</h2></div><a href="${ctx}/learn">학습 홈 보기 →</a></div>
+    <div class="home-tool-grid">
+      <a class="home-tool" href="${ctx}/learn/dict"><span class="home-tool-symbol" aria-hidden="true">가</span><h3>수어 사전</h3><p>궁금한 단어를 검색하고<br> 영상으로 뜻과 동작을 확인해요.</p><span class="home-tool-link">단어 찾아보기 <span aria-hidden="true">→</span></span></a>
+      <a class="home-tool" href="${ctx}/exam/setup"><span class="home-tool-symbol" aria-hidden="true">✓</span><h3>수어 시험</h3><p>배운 내용을 얼마나 기억하는지<br> 시험으로 확인해 보세요.</p><span class="home-tool-link">시험 준비하기 <span aria-hidden="true">→</span></span></a>
+      <a class="home-tool" href="${ctx}/playzone/chain"><span class="home-tool-symbol" aria-hidden="true">↔</span><h3>수어 끝말잇기</h3><p>다른 사람들과 단어를 이어 가며<br> 즐겁게 수어를 연습해요.</p><span class="home-tool-link">플레이존 가기 <span aria-hidden="true">→</span></span></a>
+      <a class="home-tool" href="${ctx}/board/list"><span class="home-tool-symbol" aria-hidden="true">“</span><h3>함께하는 게시판</h3><p>궁금한 점을 묻고<br> 나의 학습 경험을 나눠 보세요.</p><span class="home-tool-link">게시판 둘러보기 <span aria-hidden="true">→</span></span></a>
     </div>
-
-    <a href="${ctx}/board/list" class="nav-link">게시판</a>
-
-  </div>
-
-  <div class="nav-cta">
-    <sec:authorize access="isAnonymous()">
-      <div class="nav-cta-guest">
-        <a href="${ctx}/member/login" class="btn btn-ghost">로그인</a>
-        <a href="${ctx}/member/join" class="btn btn-primary">회원가입</a>
-      </div>
-    </sec:authorize>
-    <sec:authorize access="isAuthenticated()">
-      <jsp:include page="notification/notification.jsp" />
-      <sec:authorize access="hasRole('ADMIN')">
-        <a href="${ctx}/admin/main" class="btn btn-ghost btn-sm" style="margin-left:8px;">관리자</a>
-      </sec:authorize>
-      <form action="${ctx}/member/logout" method="post" style="display:inline; margin-left:12px;">
-        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
-        <button type="submit" class="btn btn-ghost btn-sm">로그아웃</button>
-      </form>
-      <a href="${ctx}/member/mypage" class="active btn btn-primary btn-sm" style="margin-left:8px;">내 계정</a>
-    </sec:authorize>
-  </div>
-</nav>
-
-<sec:authorize access="isAuthenticated()">
-  <script>
-      window.ctx = "${ctx}";
-  </script>
-  <script src="${ctx}/resources/js/notification.js"></script>
-</sec:authorize>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-bg">
-    <div class="hero-blob hero-blob-1"></div>
-    <div class="hero-blob hero-blob-2"></div>
-    <div class="hero-blob hero-blob-3"></div>
-  </div>
-
-  <div class="hero-eyebrow">
-    <div class="hero-dot"></div>
-    AI 수어 인식 플랫폼
-  </div>
-
-  <h1 class="hero-title">
-    수어, 이제 <span class="under accent">누구나</span><br>
-    배울 수 있습니다
-  </h1>
-
-  <p class="hero-sub">
-    실시간 AI 인식으로 수어를 배우고 연습하세요.<br>청각장애인과 비장애인을 이어주는 다리, SignBridge.
-  </p>
-
-  <div class="hero-btns">
-    <a href="${ctx}/learn" class="btn btn-primary btn-large">학습 시작하기</a>
-    <a href="#" class="btn btn-ghost btn-large">플레이존 가기</a>
-  </div>
-
-  <div class="hero-signs-row">
-    <div class="floating-sign">
-      <span class="fs-char">안</span>
-      <span class="fs-label">안녕하세요</span>
-      <span class="fs-badge pill pill-teal">기초</span>
-    </div>
-    <div class="floating-sign">
-      <span class="fs-char">감</span>
-      <span class="fs-label">감사합니다</span>
-      <span class="fs-badge pill pill-p">기초</span>
-    </div>
-    <div class="floating-sign">
-      <span class="fs-char">도</span>
-      <span class="fs-label">도와주세요</span>
-      <span class="fs-badge pill pill-rose">비상</span>
-    </div>
-    <div class="floating-sign">
-      <span class="fs-char">화</span>
-      <span class="fs-label">화재 신고</span>
-      <span class="fs-badge pill pill-rose">비상</span>
-    </div>
-  </div>
-
-  <div class="hero-scroll">
-    <span>스크롤</span>
-    <div class="scroll-arrow"></div>
-  </div>
-</section>
-
-<!-- STATS BAR -->
-<div class="stats-bar">
-  <div class="stat-item">
-    <span class="stat-num">1,240+</span>
-    <span class="stat-key">등록된 수어 단어</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-num">98.2%</span>
-    <span class="stat-key">AI 인식 정확도</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-num">3,800+</span>
-    <span class="stat-key">누적 학습 횟수</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-num">52개</span>
-    <span class="stat-key">비상 어휘 카테고리</span>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section class="content-section how" id="how">
-  <div class="how-inner">
-    <div class="how-header">
-      <div class="section-eyebrow">이용 방법</div>
-      <div class="section-title-lg">3단계로 바로 시작</div>
-      <p class="section-sub">복잡한 설치 없이 브라우저에서 바로. 카메라 하나만 있으면 됩니다.</p>
-    </div>
-    <div class="steps">
-      <div class="step" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="step-num">1</div>
-        <div class="step-icon">📝</div>
-        <div class="step-title">회원가입 · 로그인</div>
-        <p class="step-desc">간단한 회원가입으로 10초 만에 시작해요. 학습 수준을 선택하면 맞춤 학습 경로를 제안해드려요.</p>
-      </div>
-      <div class="step" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="step-num">2</div>
-        <div class="step-icon">📚</div>
-        <div class="step-title">단어 학습 &amp; 카메라 연습</div>
-        <p class="step-desc">모범 동작 영상을 보고 직접 따라 해보세요. AI가 내 손 동작을 실시간으로 인식해 피드백을 줍니다.</p>
-      </div>
-      <div class="step" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="step-num">3</div>
-        <div class="step-icon">🎮</div>
-        <div class="step-title">플레이존 &amp; 리그 도전</div>
-        <p class="step-desc">수어 끝말잇기, 수어 디펜스 게임으로 배운 내용을 복습하고 리그 순위를 올려보세요.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- FEATURES -->
-<section class="content-section" id="features" style="background:#fff">
-  <div class="features-inner">
-    <div class="feature-visual">
-      <div class="feature-visual-inner">
-        <div class="mock-topbar">
-          <div class="mock-dots">
-            <div class="mock-dot" style="background:#FF5F56"></div>
-            <div class="mock-dot" style="background:#FFBD2E"></div>
-            <div class="mock-dot" style="background:#27C93F"></div>
-          </div>
-          <div class="mock-title-bar">SignBridge — 카메라 연습</div>
-        </div>
-        <div class="mock-grid">
-          <div class="mock-cell">
-            <div class="mock-cell-label">인식 결과</div>
-            <div class="mock-cell-val" style="font-size:48px">안</div>
-            <div class="mock-cell-sub">안녕하세요</div>
-          </div>
-          <div class="mock-cell">
-            <div class="mock-cell-label">정확도</div>
-            <div class="mock-cell-val">98<span style="font-size:12px;color:rgba(255,255,255,.4)">%</span></div>
-            <div class="mock-bar"><div class="mock-bar-fill" style="width:98%;background:#2d9b6f"></div></div>
-          </div>
-          <div class="mock-cell">
-            <div class="mock-cell-label">오늘 학습</div>
-            <div class="mock-cell-val">14</div>
-            <div class="mock-cell-sub">단어 완료</div>
-          </div>
-          <div class="mock-cell">
-            <div class="mock-cell-label">연속 학습</div>
-            <div class="mock-cell-val" style="color:#F59E0B">🔥 7</div>
-            <div class="mock-cell-sub">일 연속</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div>
-      <div class="section-eyebrow">주요 기능</div>
-      <div class="section-title-lg">AI가 내 수어를<br>실시간으로 봐줘요</div>
-      <div class="features-list" style="margin-top:32px">
-        <div class="feature-item" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-          <div class="feature-icon-wrap" style="background:var(--primary-light)">📷</div>
-          <div>
-            <div class="feature-item-title">MediaPipe 실시간 손 인식</div>
-            <div class="feature-item-desc">별도 앱 설치 없이 브라우저 카메라만으로 내 동작의 정확도를 즉시 알려줘요.</div>
-          </div>
-        </div>
-        <div class="feature-item" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-          <div class="feature-icon-wrap" style="background:#d1fae5">🔄</div>
-          <div>
-            <div class="feature-item-title">SM-2 간격 반복 복습</div>
-            <div class="feature-item-desc">과학적 암기 알고리즘으로 잊어버릴 타이밍에 딱 맞춰 복습 단어를 추려줘요.</div>
-          </div>
-        </div>
-        <div class="feature-item" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-          <div class="feature-icon-wrap" style="background:var(--amber-light)">🎮</div>
-          <div>
-            <div class="feature-item-title">게임형 학습 (플레이존)</div>
-            <div class="feature-item-desc">수어 끝말잇기, 수어 디펜스 게임으로 지루하지 않게 반복 연습. XP와 티어로 성장을 확인해요.</div>
-          </div>
-        </div>
-        <div class="feature-item" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-          <div class="feature-icon-wrap" style="background:var(--rose-light)">🚨</div>
-          <div>
-            <div class="feature-item-title">비상 상황 특화 어휘</div>
-            <div class="feature-item-desc">지진 대피, 화재 신고 등 실제 위급 상황에서 필요한 수어를 별도 커리큘럼으로 제공해요.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 학습 메뉴 -->
-<section class="menu-section">
-  <div class="menu-inner">
-    <div class="menu-header">
-      <div>
-        <div class="section-eyebrow">학습</div>
-        <div class="section-title-lg">어휘 학습</div>
-      </div>
-      <a href="${ctx}/learn" class="btn btn-primary">전체 보기 →</a>
-    </div>
-    <div class="menu-grid">
-      <a href="${ctx}/learn/jamo" class="menu-card" style="--card-color: #2d9b6f; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="menu-arrow">→</div>
-        <div class="menu-card-bg">🔤</div>
-        <span class="menu-icon">🔤</span>
-        <h3>자음, 모음</h3>
-        <p>ㄱ부터 ㅎ까지, 자음과 모음 손모양 익히기</p>
-        <span class="pill pill-p">추천 시작</span>
-      </a>
-      <a href="${ctx}/learn/dict" class="menu-card" style="--card-color: #27ae7a; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="menu-arrow">→</div>
-        <div class="menu-card-bg">🔍</div>
-        <span class="menu-icon">🔍</span>
-        <h3>수어 사전</h3>
-        <p>초성으로 찾고 검색해서 단어 학습.</p>
-        <span class="pill pill-teal">자유 탐색</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- 플레이존 메뉴 -->
-<section class="content-section" style="background:#fff">
-  <div class="menu-inner">
-    <div class="menu-header">
-      <div>
-        <div class="section-eyebrow">플레이존</div>
-        <div class="section-title-lg">게임으로 배워요</div>
-      </div>
-      <a href="#" class="btn btn-primary">전체 보기 →</a>
-    </div>
-    <div class="menu-grid">
-      <a href="#" class="menu-card" style="--card-color: #7c3aed; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="menu-arrow">→</div>
-        <div class="menu-card-bg">🔗</div>
-        <span class="menu-icon">🔗</span>
-        <h3>수어 끝말잇기</h3>
-        <p>준비중인 기능입니다.</p>
-        <span class="pill" style="background:var(--purple-light);color:var(--purple)">준비중</span>
-      </a>
-      <a href="#" class="menu-card" style="--card-color: #d4840a; opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="menu-arrow">→</div>
-        <div class="menu-card-bg">🎯</div>
-        <span class="menu-icon">🎯</span>
-        <h3>수어 디펜스</h3>
-        <p>준비중인 기능입니다.</p>
-        <span class="pill pill-amber">준비중</span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section class="content-section" style="background:var(--cream)">
-  <div class="testimonials-inner">
-    <div class="test-header">
-      <div class="section-eyebrow">사용자 후기</div>
-      <div class="section-title-lg">함께 배우고 있어요</div>
-    </div>
-    <div class="test-grid">
-      <div class="test-card" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="test-stars">★★★★★</div>
-        <div class="test-text">카메라가 내 손동작을 바로 인식해줘서 혼자 연습할 때도 틀렸는지 맞았는지 알 수 있어요. 학원 다니기 전 기초 잡기에 딱 좋았어요.</div>
-        <div class="test-author">
-          <div class="test-avatar" style="background:var(--primary)">김</div>
-          <div>
-            <div class="test-name">김지수</div>
-            <div class="test-role">청각장애인 가족 · 2개월째</div>
-          </div>
-        </div>
-      </div>
-      <div class="test-card" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="test-stars">★★★★★</div>
-        <div class="test-text">비상 상황 어휘 코스가 특히 유용했어요. 평소엔 생각 못 했던 부분인데, 실제로 필요할 때를 대비할 수 있어서 좋았어요.</div>
-        <div class="test-author">
-          <div class="test-avatar" style="background:var(--accent)">이</div>
-          <div>
-            <div class="test-name">이민준</div>
-            <div class="test-role">사회복지사 · 3개월째</div>
-          </div>
-        </div>
-      </div>
-      <div class="test-card" style="opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s;">
-        <div class="test-stars">★★★★☆</div>
-        <div class="test-text">끝말잇기 게임이 생각보다 중독성 있어요. 게임하다 보면 자연스럽게 단어가 외워지는 느낌. 학교 친구한테도 추천했어요.</div>
-        <div class="test-author">
-          <div class="test-avatar" style="background:var(--amber)">박</div>
-          <div>
-            <div class="test-name">박서연</div>
-            <div class="test-role">대학생 · 1개월째</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="cta-section">
-  <div class="cta-inner">
-    <div class="cta-title">지금 바로 시작해보세요<br><span>첫 단어는 오늘, SignBridge에서</span></div>
-    <div class="cta-sub">회원가입 무료 · 별도 앱 설치 없음 · AI 실시간 피드백</div>
-    <div class="cta-btns">
-      <sec:authorize access="isAnonymous()">
-        <a href="${ctx}/member/join" class="btn btn-white btn-large">무료로 학습 시작하기</a>
-        <a href="${ctx}/member/login" class="btn btn-outline-white btn-large">로그인</a>
-      </sec:authorize>
-      <sec:authorize access="isAuthenticated()">
-        <a href="${ctx}/learn/dict" class="btn btn-white btn-large">학습 이어하기</a>
-      </sec:authorize>
-    </div>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">
-      <div class="footer-logo-icon">✋</div>
-      <span class="footer-logo-text">SignBridge</span>
-    </div>
-    <div class="footer-links">
-      <a href="#" class="footer-link">서비스 소개</a>
-      <a href="#" class="footer-link">개인정보처리방침</a>
-      <a href="#" class="footer-link">이용약관</a>
-      <a href="#" class="footer-link">문의하기</a>
-    </div>
-    <div class="footer-copy">© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</div>
-  </div>
-</footer>
-
-<script>
-// Nav scroll effect
-window.addEventListener('scroll', () => {
-  const nav = document.querySelector('nav');
-  nav.style.boxShadow = window.scrollY > 10 ? '0 2px 20px rgba(0,0,0,.06)' : 'none';
-});
-
-// Scroll reveal
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.opacity = '1';
-      e.target.style.transform = 'translateY(0)';
-    }
-  });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.step, .menu-card, .test-card, .feature-item').forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(20px)';
-  el.style.transition = 'opacity .5s ease, transform .5s ease';
-  observer.observe(el);
-});
-</script>
-
+  </section>
+  <section class="home-guide" aria-labelledby="home-guide-title">
+    <div><p class="home-eyebrow">웹캠 학습 이용 방법</p><h2 id="home-guide-title">보고, 따라 하고,<br> 한 번 더 연습해요.</h2></div>
+    <ol class="home-steps">
+      <li><span aria-hidden="true">01</span><div><h3>모범 영상 보기</h3><p>챕터에서 단어를 골라 손모양과 움직임을 살펴보세요.</p></div></li>
+      <li><span aria-hidden="true">02</span><div><h3>내 동작 녹화하기</h3><p>로그인 후 카메라를 켜고, 손과 어깨가 보이도록 따라 해 보세요.</p></div></li>
+      <li><span aria-hidden="true">03</span><div><h3>결과 확인하고 다시 연습하기</h3><p>녹화 후 단어 인식 결과와 제공 가능한 자세 피드백을 확인하세요.</p></div></li>
+    </ol>
+  </section>
+</main>
+<jsp:include page="includes/footer.jsp" />
 </body>
 </html>

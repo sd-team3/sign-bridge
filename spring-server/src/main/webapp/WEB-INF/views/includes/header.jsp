@@ -4,81 +4,49 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <meta name="_csrf" content="${_csrf.token}"/>
 <meta name="_csrf_header" content="${_csrf.headerName}"/>
-
-<header>
-<div class="logo"><img src="${ctx}/resources/images/icon-180.png" alt="SignBridge"> SignBridge</div>
-    <nav>
-    <a href="${ctx}/">홈</a>
-    <div class="nav-item has-sub">
-        <a href="${ctx}/learn">학습 <span class="nav-caret">▾</span></a>
-        <div class="nav-dropdown">
-        <div class="nav-dropdown-inner">
-            <a href="${ctx}/learn/signs" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">📚</span>
-            <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">챕터별 수어 학습</span>
-                <span class="nav-dropdown-desc">단어를 익히고 웹캠 피드백 받기</span>
-            </span>
-            </a>
-            <a href="${ctx}/learn/jamo" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔤</span>
-            <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">자음,모음</span>
-                <span class="nav-dropdown-desc">ㄱ부터 ㅎ까지, 자음과 모음 손모양 익히기</span>
-            </span>
-            </a>
-            <a href="${ctx}/learn/dict" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔍</span>
-            <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">수어사전</span>
-                <span class="nav-dropdown-desc">초성으로 찾고 검색해서 단어 학습</span>
-            </span>
-            </a>
-        </div>
-        </div>
-    </div>
-    <a href="${ctx}/exam/setup">시험</a>
-    <div class="nav-item has-sub">
-        <a href="#">플레이존 <span class="nav-caret">▾</span></a>
-        <div class="nav-dropdown">
-        <div class="nav-dropdown-inner">
-            <a href="${ctx}/playzone/chain" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🔗</span>
-            <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">수어 끝말잇기</span>
-                <span class="nav-dropdown-desc">최대 4인, 실시간 수어 끝말잇기 대결</span>
-            </span>
-            </a>
-            <a href="#" class="nav-dropdown-link">
-            <span class="nav-dropdown-icon">🎯</span>
-            <span class="nav-dropdown-text">
-                <span class="nav-dropdown-title">수어 디펜스</span>
-                <span class="nav-dropdown-desc">떨어지는 단어를 수어로 막기</span>
-            </span>
-            </a>
-        </div>
-        </div>
-    </div>
-    <a href="${ctx}/board/list">게시판</a>
-    <sec:authorize access="hasRole('ADMIN')">
-        <a href="${ctx}/admin/main" class="btn btn-ghost btn-sm" style="margin-left:12px;">관리자</a>
-    </sec:authorize>
-
-    <sec:authorize access="isAuthenticated()">
+<link rel="stylesheet" href="${ctx}/resources/css/site-header.css">
+<header class="sb-header">
+  <a class="sb-brand" href="${ctx}/" aria-label="SignBridge 홈"><img src="${ctx}/resources/images/icon-180.png" alt="" width="32" height="32">SignBridge</a>
+  <button class="sb-menu-toggle" type="button" aria-expanded="false" aria-controls="sb-navigation" hidden>메뉴</button>
+  <nav id="sb-navigation" class="sb-navigation" aria-label="주요 메뉴">
+    <a class="sb-link" data-section="home" href="${ctx}/">홈</a>
+    <details class="sb-menu" data-section="learn">
+      <summary>학습 <span aria-hidden="true">⌄</span></summary>
+      <div class="sb-dropdown">
+        <a href="${ctx}/learn">학습 홈 <small>나에게 맞는 학습 선택하기</small></a>
+        <a href="${ctx}/learn/signs">챕터별 수어 학습 <small>모범 영상을 보고 웹캠으로 연습하기</small></a>
+        <a href="${ctx}/learn/jamo">자음·모음 <small>기본 손모양부터 차근차근</small></a>
+        <a href="${ctx}/learn/dict">수어 사전 <small>궁금한 단어 찾아보기</small></a>
+      </div>
+    </details>
+    <a class="sb-link" data-section="exam" href="${ctx}/exam/setup">시험</a>
+    <details class="sb-menu" data-section="playzone">
+      <summary>플레이존 <span aria-hidden="true">⌄</span></summary>
+      <div class="sb-dropdown">
+        <a href="${ctx}/playzone/chain">수어 끝말잇기 <small>함께 즐기는 수어 단어 게임</small></a>
+        <span class="sb-unavailable">수어 디펜스 <small>준비 중</small></span>
+      </div>
+    </details>
+    <a class="sb-link" data-section="board" href="${ctx}/board/list">게시판</a>
+    <div class="sb-account">
+      <sec:authorize access="hasRole('ADMIN')"><a class="sb-link" href="${ctx}/admin/main">관리자</a></sec:authorize>
+      <sec:authorize access="isAuthenticated()">
         <jsp:include page="../notification/notification.jsp" />
-        <a href="${ctx}/member/mypage" class="active btn btn-ghost btn-sm" style="margin-left:12px;">내 계정</a>
-    </sec:authorize>
-
-    <sec:authorize access="!isAuthenticated()">
-        <a href="${ctx}/member/login" class="active btn btn-ghost btn-sm" style="margin-left:12px;">로그인</a>
-    </sec:authorize>
-    
-    </nav>
-
-    <sec:authorize access="isAuthenticated()">
-      <script>
-          window.ctx = "${ctx}";
-      </script>
-      <script src="${ctx}/resources/js/notification.js"></script>
-    </sec:authorize>
+        <a class="sb-account-link" data-section="member" href="${ctx}/member/mypage">내 계정</a>
+        <form action="${ctx}/member/logout" method="post">
+          <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
+          <button class="sb-logout" type="submit">로그아웃</button>
+        </form>
+      </sec:authorize>
+      <sec:authorize access="!isAuthenticated()">
+        <a class="sb-link" href="${ctx}/member/login">로그인</a>
+        <a class="sb-account-link" href="${ctx}/member/join">회원가입</a>
+      </sec:authorize>
+    </div>
+  </nav>
 </header>
+<script src="${ctx}/resources/js/site-header.js" defer></script>
+<sec:authorize access="isAuthenticated()">
+  <script>window.ctx = "${ctx}";</script>
+  <script src="${ctx}/resources/js/notification.js"></script>
+</sec:authorize>

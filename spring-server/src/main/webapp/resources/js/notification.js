@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropdown = document.getElementById('notificationDropdown');
 
     btn.addEventListener('click', function() {
-        const isOpening = dropdown.style.display === 'none';
+        const isOpening = getComputedStyle(dropdown).display === 'none';
         dropdown.style.display = isOpening ? 'block' : 'none';
         if (isOpening) {
             loadNotificationList(); 
