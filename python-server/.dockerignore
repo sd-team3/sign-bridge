@@ -5,3 +5,4 @@ venv/
 .git/
 data/
 model/
+update_backups/

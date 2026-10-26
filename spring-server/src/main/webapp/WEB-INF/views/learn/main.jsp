@@ -44,6 +44,11 @@
     <!-- 카테고리 -->
     <div class="section-title">학습 카테고리</div>
     <div class="cat-grid">
+      <a href="<c:url value='/learn/signs'/>" class="cat-card">
+        <div class="cat-card-icon">📚</div>
+        <div class="cat-card-title">챕터별 수어 학습</div>
+        <div class="cat-card-desc">단어를 하나씩 익히고, 웹캠으로 따라 하며 동작 피드백을 받아요.</div>
+      </a>
       <a href="/learn/jamo" class="cat-card">
         <div class="cat-card-icon">🤟</div>
         <div class="cat-card-title">자음 · 모음 지문자</div>
