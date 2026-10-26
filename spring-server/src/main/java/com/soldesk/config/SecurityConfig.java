@@ -30,6 +30,7 @@ public class SecurityConfig {
                 new AntPathRequestMatcher("/api/playzone/chain/**")
             )
         ).authorizeHttpRequests(auth -> auth
+            .requestMatchers(new AntPathRequestMatcher("/api/sign-learning/evaluate-video", "POST")).authenticated()
             .requestMatchers(
                 new AntPathRequestMatcher("/ws/**")
             ).permitAll()
@@ -66,7 +67,12 @@ public class SecurityConfig {
             .logoutUrl("/member/logout")
             .logoutSuccessUrl("/")
             .permitAll()
-        ).authenticationProvider(authenticationProvider);
+        ).exceptionHandling(errors -> errors.defaultAuthenticationEntryPointFor((request, response, exception) -> {
+            response.setStatus(401);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\":\"로그인 후 웹캠 평가를 이용해 주세요.\"}");
+        }, new AntPathRequestMatcher("/api/sign-learning/**")))
+        .authenticationProvider(authenticationProvider);
         return http.build();
     }
 

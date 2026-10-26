@@ -13,6 +13,13 @@
         <a href="${ctx}/learn">학습 <span class="nav-caret">▾</span></a>
         <div class="nav-dropdown">
         <div class="nav-dropdown-inner">
+            <a href="${ctx}/learn/signs" class="nav-dropdown-link">
+            <span class="nav-dropdown-icon">📚</span>
+            <span class="nav-dropdown-text">
+                <span class="nav-dropdown-title">챕터별 수어 학습</span>
+                <span class="nav-dropdown-desc">단어를 익히고 웹캠 피드백 받기</span>
+            </span>
+            </a>
             <a href="${ctx}/learn/jamo" class="nav-dropdown-link">
             <span class="nav-dropdown-icon">🔤</span>
             <span class="nav-dropdown-text">

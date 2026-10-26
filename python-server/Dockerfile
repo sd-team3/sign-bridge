@@ -9,6 +9,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+# This API loads the model on CPU. Use the same pinned torch version without CUDA packages.
+RUN grep '^torch==' requirements.txt > /tmp/torch-requirements.txt \
+    && pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu -r /tmp/torch-requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
