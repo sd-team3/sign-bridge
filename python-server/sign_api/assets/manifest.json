@@ -1,8 +1,11 @@
 {
-  "model_id": "curriculum100_seated_active_v2",
+  "model_id": "curriculum70_seated_v3",
   "input_policy": "seated_active_v2",
-  "sha256": "28545c65fb95bb1546d6cb0372d55204056e22542deb9dc0e9a539c0082debc0",
-  "reference_policy": "one frontal training video per word; not population norms",
+  "classes": 70,
+  "chapters": 7,
+  "sha256": "5a7ecec0f33badcdcb28d23e312f79d772a5bdc8c9a7cacf635be452c51ddc24",
+  "reference_variants": 210,
+  "reference_policy": "training REAL01-03 only; nearest comparable original or mirrored demonstration",
   "references": [
     {
       "code": "1157",
@@ -352,156 +355,6 @@
     {
       "code": "1248",
       "video": "videos/1248.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0684",
-      "video": "videos/0684.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1134",
-      "video": "videos/1134.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1236",
-      "video": "videos/1236.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1240",
-      "video": "videos/1240.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1102",
-      "video": "videos/1102.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1195",
-      "video": "videos/1195.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1123",
-      "video": "videos/1123.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1128",
-      "video": "videos/1128.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1133",
-      "video": "videos/1133.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1097",
-      "video": "videos/1097.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2543",
-      "video": "videos/2543.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0699",
-      "video": "videos/0699.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2578",
-      "video": "videos/2578.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2623",
-      "video": "videos/2623.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2632",
-      "video": "videos/2632.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2050",
-      "video": "videos/2050.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1530",
-      "video": "videos/1530.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0312",
-      "video": "videos/0312.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0333",
-      "video": "videos/0333.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0595",
-      "video": "videos/0595.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2021",
-      "video": "videos/2021.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2388",
-      "video": "videos/2388.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2394",
-      "video": "videos/2394.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2187",
-      "video": "videos/2187.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "2385",
-      "video": "videos/2385.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0144",
-      "video": "videos/0144.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1186",
-      "video": "videos/1186.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0363",
-      "video": "videos/0363.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "1346",
-      "video": "videos/1346.mp4",
-      "subject": "REAL01"
-    },
-    {
-      "code": "0360",
-      "video": "videos/0360.mp4",
       "subject": "REAL01"
     }
   ]

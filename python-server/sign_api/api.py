@@ -16,10 +16,11 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator, ValidationEr
 from starlette.concurrency import run_in_threadpool
 
 from .body_features import encode
-from .pose_feedback import geometry, compare
+from .pose_feedback import geometry
 from .seated_features import prepare
-from .sign_model import SignLSTM, resample_sequence
+from .sign_model import SignLSTM, resample_sequence, inference_logits
 from .curriculum import load_catalog
+from .feedback_policy import evaluate_feedback
 
 LOG = logging.getLogger(__name__)
 ROOT = Path(__file__).resolve().parent
@@ -87,18 +88,24 @@ class Runtime:
         self.model = None
         self.error = None
         self.references = {}
+        self.reference_banks = {}
         self.words = {}
         self.curriculum = None
         self.chapter_by_word = {}
         self.gate = threading.BoundedSemaphore(1)
+        self.feedback_threshold = 70.0
 
     def load(self):
         self.model = None
         self.references = {}
+        self.reference_banks = {}
         self.words = {}
         self.curriculum = None
         self.chapter_by_word = {}
         try:
+            self.feedback_threshold = float(os.environ.get('SIGN_FEEDBACK_SIMILARITY_THRESHOLD','70'))
+            if not np.isfinite(self.feedback_threshold) or not 0 <= self.feedback_threshold <= 100:
+                raise ValueError('SIGN_FEEDBACK_SIMILARITY_THRESHOLD must be between 0 and 100')
             torch.set_num_threads(2)
 
             path = Path(os.environ.get('SIGN_MODEL_PATH', ROOT / 'assets' / 'best.pt'))
@@ -125,6 +132,24 @@ class Runtime:
                     if a.ndim != 3 or a.shape[1:] != (2, 6) or len(a) > 96:
                         raise ValueError('Invalid reference geometry')
                     self.references[code] = a
+            bank_path=ROOT/'assets/reference_bank.json'
+            if bank_path.exists():
+                banks=json.loads(bank_path.read_text(encoding='utf-8'))
+                if set(banks)!=set(self.words): raise ValueError('Reference bank and vocabulary differ')
+                for code,entries in banks.items():
+                    variants=[]
+                    for entry in entries:
+                        subject=entry['subject']
+                        if subject not in ('REAL01','REAL02','REAL03'): raise ValueError('Invalid reference subject')
+                        name=entry['geometry']
+                        if name not in (f'{code}.npy',f'{code}_{subject}.npy'): raise ValueError('Invalid geometry path')
+                        geometry=np.load(ROOT/'assets/references'/name,allow_pickle=False)
+                        if geometry.ndim!=3 or geometry.shape[1:]!=(2,6) or not 12<=len(geometry)<=96: raise ValueError('Invalid reference geometry')
+                        video=entry['video']
+                        if video not in (f'{code}.mp4',f'{code}_{subject}.mp4') or not (ROOT/'assets/videos'/video).is_file(): raise ValueError('Invalid reference video')
+                        url=f'/api/v1/signs/reference/WORD{code}' if subject=='REAL01' else f'/api/v1/signs/reference/WORD{code}/{subject}'
+                        variants.append(dict(subject=subject,geometry=geometry,video_url=url))
+                    self.reference_banks[code]=variants
             if self.curriculum and (len(self.references) != len(self.words) or
                     any(not (ROOT/'assets/videos'/f'{code}.mp4').is_file() for code in self.words)):
                 raise ValueError('Curriculum requires a reference video and geometry for every word')
@@ -164,7 +189,11 @@ class Runtime:
                         'model_id': self.ckpt.get('model_id'), 'target_word_id': clip.target_word_id,
                         'input_policy': self.ckpt.get('input_policy', 'original'),
                         'recognition': None, 'feedback': {'status': 'insufficient_tracking',
-                        'message': '동작에 사용하는 손과 양쪽 어깨가 보이도록 전체 동작을 다시 촬영해 주세요. 쉬는 손은 내려놓아도 됩니다.'}}
+                        'feedback_required': True, 'reason': 'insufficient_tracking',
+                        'message': '동작에 사용하는 손을 충분히 확인하지 못했어요. 양쪽 어깨와 움직이는 손이 화면 안에 보이도록 처음부터 끝까지 다시 촬영해 주세요. 쉬는 손은 내려놓아도 괜찮아요.',
+                        'actions': ['양쪽 어깨와 동작에 사용하는 손이 화면 안에 들어오도록 맞춰 주세요.', '준비 자세부터 동작이 끝날 때까지 2~10초 정도 촬영해 주세요.'],
+                        'similarity': {'available': False, 'score': None, 'threshold': self.feedback_threshold,
+                                       'below_threshold': None, 'method': 'dtw_geometry_v1'}, 'source': 'rules'}}
             if self.ckpt.get('input_policy') == 'seated_active_v2':
                 from .seated_active_features import prepare as prepare_active
                 seq, mask = prepare_active(features, self.ckpt['sequence_length'])
@@ -173,7 +202,7 @@ class Runtime:
             else:
                 seq, mask = resample_sequence(features, self.ckpt['sequence_length'])
             with torch.inference_mode():
-                probs = self.model(torch.from_numpy(seq)[None], torch.from_numpy(mask)[None]).softmax(1)[0].numpy()
+                probs = inference_logits(self.model,torch.from_numpy(seq)[None],torch.from_numpy(mask)[None],self.ckpt).softmax(1)[0].numpy()
             top = []
             for i in np.argsort(probs)[-3:][::-1]:
                 label = self.ckpt['labels'][int(i)]
@@ -183,28 +212,27 @@ class Runtime:
                       'target_word_id': clip.target_word_id, 'model_id': self.ckpt.get('model_id'),
                       'input_policy': self.ckpt.get('input_policy', 'original'),
                       'recognition': {'top3': top, 'predicted_label': top[0]['label'],
+                                      'target_score': float(probs[self.ckpt['labels'].index(self.words[code])]) if code else None,
                                       'target_matches_top1': top[0]['label'] == self.words[code] if code else None},
                       'feedback': None}
             if evaluate:
-                if code not in self.references:
-                    result['feedback'] = {'status': 'reference_unavailable', 'message': '이 단어의 비교 기준이 없습니다.'}
-                else:
-                    indices = np.linspace(0, len(shapes)-1, min(80,len(shapes))).round().astype(int)
-                    feedback = compare(self.references[code], shapes[indices],
-                                       ignore_resting=self.ckpt.get('input_policy') == 'seated_active_v2')
-                    result['feedback'] = {'status': 'advice' if feedback['corrections'] else 'no_reliable_correction',
-                                          'message': feedback['summary'], 'observations': feedback, 'source': 'rules'}
+                indices = np.linspace(0, len(shapes)-1, min(80,len(shapes))).round().astype(int)
+                result['feedback'] = evaluate_feedback(self.reference_banks.get(code,self.references.get(code)), shapes[indices],
+                    self.words[code], top[0]['label'], result['recognition']['target_score'],
+                    ignore_resting=self.ckpt.get('input_policy')=='seated_active_v2', threshold=self.feedback_threshold)
         finally:
             self.gate.release()
-        if evaluate and clip.use_llm and result['feedback'].get('status') == 'advice':
+        if evaluate and clip.use_llm and result['feedback'].get('observations',{}).get('corrections'):
             key = os.environ.get('GROQ_API_KEY', '')
             model_id = os.environ.get('GROQ_MODEL', '')
             if key and model_id:
                 try:
                     from .groq_feedback import generate_feedback
-                    result['feedback']['message'] = generate_feedback(
+                    explanation = generate_feedback(
                         {'pose_feedback': result['feedback']['observations']}, {'api_key': key, 'model': model_id})
-                    result['feedback']['source'] = 'groq'
+                    if explanation.strip():
+                        result['feedback']['explanation'] = explanation.strip()
+                        result['feedback']['explanation_source'] = 'groq'
                 except ValueError:
                     result['feedback']['llm_status'] = 'fallback'
             else:
@@ -222,10 +250,14 @@ def startup():
 def health():
     return {'ready': runtime.model is not None, 'error': runtime.error,
             'classes': len(runtime.words), 'references': len(runtime.references),
+            'reference_variants': sum(len(v) for v in runtime.reference_banks.values()),
+            'temperature': runtime.ckpt.get('temperature',1.) if runtime.model is not None else None,
+            'mirror_ensemble': runtime.ckpt.get('mirror_ensemble',False) if runtime.model is not None else False,
             'input_schema': 'raw_mp_legacy_v1',
             'model_id': runtime.ckpt.get('model_id') if runtime.model is not None else None,
             'input_policy': runtime.ckpt.get('input_policy') if runtime.model is not None else None,
             'chapters': len(runtime.curriculum['chapters']) if runtime.curriculum else 0,
+            'feedback_similarity_threshold': runtime.feedback_threshold,
             'live_feedback': 'tracking_quality_only', 'completed_clip_feedback': 'reference_geometry'}
 
 @router.get('')
@@ -270,6 +302,8 @@ def word_detail(word_id: str):
         'max_video_bytes': 25*1024*1024, 'mirrored': False, 'both_hands_required': False,
         'shoulders_required': True, 'guidance': '양쪽 어깨와 동작에 사용하는 손을 보여 주세요. 쉬는 손은 내려놓아도 됩니다.'},
         'feedback': {'live': 'tracking_quality_only', 'completed_clip': 'reference_geometry',
+                     'similarity_threshold': runtime.feedback_threshold,
+                     'similarity_meaning': 'reference_geometry_heuristic_not_accuracy',
                      'score_meaning': 'classification_softmax_not_posture_accuracy'}}
 
 @router.post('/predict')

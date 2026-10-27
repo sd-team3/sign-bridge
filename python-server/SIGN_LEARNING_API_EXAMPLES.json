@@ -2,18 +2,22 @@
   "health": {
     "ready": true,
     "error": null,
-    "classes": 100,
-    "references": 100,
+    "classes": 70,
+    "references": 70,
+    "reference_variants": 210,
+    "temperature": 0.65,
+    "mirror_ensemble": true,
     "input_schema": "raw_mp_legacy_v1",
-    "model_id": "curriculum100_seated_active_v2",
+    "model_id": "curriculum70_seated_v3",
     "input_policy": "seated_active_v2",
-    "chapters": 10,
+    "chapters": 7,
+    "feedback_similarity_threshold": 70.0,
     "live_feedback": "tracking_quality_only",
     "completed_clip_feedback": "reference_geometry"
   },
   "chapters": {
-    "curriculum_version": "curriculum100-2026-10-13",
-    "total_words": 100,
+    "curriculum_version": "basic70-2026-10-28",
+    "total_words": 70,
     "chapters": [
       {
         "chapter_id": "chapter-01",
@@ -70,30 +74,6 @@
         "stage": "기본70",
         "word_count": 10,
         "detail_url": "/api/v1/signs/chapters/chapter-07"
-      },
-      {
-        "chapter_id": "chapter-08",
-        "order": 8,
-        "title": "감정을 더 세밀하게",
-        "stage": "확장1",
-        "word_count": 10,
-        "detail_url": "/api/v1/signs/chapters/chapter-08"
-      },
-      {
-        "chapter_id": "chapter-09",
-        "order": 9,
-        "title": "시간과 계획 나누기",
-        "stage": "확장2",
-        "word_count": 10,
-        "detail_url": "/api/v1/signs/chapters/chapter-09"
-      },
-      {
-        "chapter_id": "chapter-10",
-        "order": 10,
-        "title": "서로 돕고 관계 이어가기",
-        "stage": "확장3",
-        "word_count": 10,
-        "detail_url": "/api/v1/signs/chapters/chapter-10"
       }
     ]
   },
@@ -102,7 +82,7 @@
     "order": 4,
     "title": "함께 먹고 취향 나누기",
     "stage": "기본70",
-    "curriculum_version": "curriculum100-2026-10-13",
+    "curriculum_version": "basic70-2026-10-28",
     "words": [
       {
         "word_id": "WORD1534",
@@ -227,6 +207,8 @@
     "feedback": {
       "live": "tracking_quality_only",
       "completed_clip": "reference_geometry",
+      "similarity_threshold": 70.0,
+      "similarity_meaning": "reference_geometry_heuristic_not_accuracy",
       "score_meaning": "classification_softmax_not_posture_accuracy"
     }
   },
@@ -240,13 +222,27 @@
       "active_hand_frames": 0,
       "excluded_resting_slots": []
     },
-    "model_id": "curriculum100_seated_active_v2",
+    "model_id": "curriculum70_seated_v3",
     "target_word_id": "WORD0115",
     "input_policy": "seated_active_v2",
     "recognition": null,
     "feedback": {
       "status": "insufficient_tracking",
-      "message": "동작에 사용하는 손과 양쪽 어깨가 보이도록 전체 동작을 다시 촬영해 주세요. 쉬는 손은 내려놓아도 됩니다."
+      "feedback_required": true,
+      "reason": "insufficient_tracking",
+      "message": "동작에 사용하는 손을 충분히 확인하지 못했어요. 양쪽 어깨와 움직이는 손이 화면 안에 보이도록 처음부터 끝까지 다시 촬영해 주세요. 쉬는 손은 내려놓아도 괜찮아요.",
+      "actions": [
+        "양쪽 어깨와 동작에 사용하는 손이 화면 안에 들어오도록 맞춰 주세요.",
+        "준비 자세부터 동작이 끝날 때까지 2~10초 정도 촬영해 주세요."
+      ],
+      "similarity": {
+        "available": false,
+        "score": null,
+        "threshold": 70.0,
+        "below_threshold": null,
+        "method": "dtw_geometry_v1"
+      },
+      "source": "rules"
     }
   }
 }
