@@ -1,19 +1,27 @@
 {
-  "selected_epoch": 113,
-  "clean": 0.8500000238418579,
-  "synthetic_desk": {
-    "0.75": 0.7649999856948853,
-    "1.1": 0.824999988079071,
-    "1.5": 0.8299999833106995
+  "classes": 70,
+  "chapters": 7,
+  "selected_epoch": 98,
+  "temperature": 0.65,
+  "new_model": {
+    "clean": 0.9142857142857143,
+    "synthetic_desk": {
+      "0.75": 0.8571428656578064,
+      "1.1": 0.8928571343421936,
+      "1.5": 0.9214285612106323
+    },
+    "per_subject": {
+      "REAL07": 0.9428571428571428,
+      "REAL08": 0.8857142857142857
+    }
   },
-  "per_subject": {
-    "REAL07": 0.85,
-    "REAL08": 0.85
+  "previous100_restricted_to_same70": {
+    "clean": 0.8714285492897034,
+    "synthetic_desk": {
+      "0.75": 0.800000011920929,
+      "1.1": 0.8285714387893677,
+      "1.5": 0.8642857074737549
+    }
   },
-  "note": "Synthetic occlusion is not actual seated webcam accuracy. REAL07 was evaluated in earlier 50-word experiments; REAL08 is the new held-out signer.",
-  "resting_visibility_check": {
-    "clips": 56,
-    "identical": 56,
-    "predictions_identical": 56
-  }
+  "note": "Same 140 original clips and synthetic conditions. Repeated-project evaluation, not independent seated webcam accuracy."
 }

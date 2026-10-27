@@ -47,7 +47,7 @@ def main():
             uploaded.raise_for_status(); uploaded=uploaded.json()
             assert raw['status'] == uploaded['status'] == 'ok'
             assert uploaded['attempt_id'] == 'spring-upload-smoke'
-            assert uploaded['model_id'] == 'curriculum100_seated_active_v2'
+            assert uploaded['model_id'] == 'curriculum70_seated_v3'
             assert uploaded['feedback']['status'] != 'reference_unavailable'
             assert raw['recognition']['predicted_label'] == uploaded['recognition']['predicted_label']
 

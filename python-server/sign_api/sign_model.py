@@ -47,3 +47,14 @@ class SignLSTM(nn.Module):
             scores = scores.masked_fill(~mask.bool(), -1e4)
         weights = torch.softmax(scores, dim=1).unsqueeze(-1)
         return self.head((output * weights).sum(dim=1))
+
+
+def inference_logits(model, x, mask, checkpoint):
+    result = model(x, mask)
+    if checkpoint.get('mirror_ensemble'):
+        from .body_features import mirror
+        flipped = torch.from_numpy(np.array([mirror(a) for a in x.detach().cpu().numpy()])).to(device=x.device,dtype=x.dtype)
+        result = (result + model(flipped, mask)) * .5
+    temperature = float(checkpoint.get('temperature', 1.0))
+    if not np.isfinite(temperature) or temperature <= 0: raise ValueError('Invalid temperature')
+    return result / temperature

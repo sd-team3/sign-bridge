@@ -24,15 +24,24 @@ def reference(word_id: str):
         raise HTTPException(404, 'Reference video unavailable')
     return FileResponse(path, media_type='video/mp4')
 
+
+@video_router.get('/reference/{word_id}/{subject}')
+def reference_variant(word_id: str, subject: str):
+    runtime.ready()
+    code=word_id[4:] if word_id.startswith('WORD') else ''
+    entries=runtime.reference_banks.get(code,[])
+    if not any(r['subject']==subject for r in entries): raise HTTPException(404,'Unknown reference variant')
+    name=f'{code}.mp4' if subject=='REAL01' else f'{code}_{subject}.mp4'
+    path=ROOT/'assets/videos'/name
+    if not path.is_file(): raise HTTPException(404,'Reference video unavailable')
+    return FileResponse(path,media_type='video/mp4')
+
 def evaluate_file(path, word_id, use_llm, attempt_id=None):
     cap = cv2.VideoCapture(path)
     try:
         fps = cap.get(cv2.CAP_PROP_FPS)
         if not np.isfinite(fps) or not 1 <= fps <= 120:
             raise HTTPException(422, 'Cannot determine video frame rate')
-        count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-        if count > fps * 20 + 2:
-            raise HTTPException(422, 'Video must be at most 20 seconds')
         stride = max(1, round(fps/15))
         frames, aspect = [], None
         with Extractor() as extractor:
