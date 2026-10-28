@@ -31,6 +31,11 @@ def evaluate_feedback(reference, actual, target, predicted, target_score, ignore
         actions=([observation['summary']] if reason=='insufficient_tracking' else
                  ['모범 영상을 느리게 재생해 손의 시작 위치와 이동 경로를 확인해 주세요.',
                   '동작에 사용하는 손이 보이도록 처음부터 끝까지 다시 촬영해 주세요.'])
+    # A matching prediction with no actionable correction receives encouragement,
+    # including when geometry coverage is insufficient for a posture comparison.
+    if predicted == target and not corrections:
+        message = '잘하셨어요. 다음 단어를 연습해 볼까요?'
+        actions = [message]
     score=observation['similarity_score']
     return {'status':'advice' if required else 'no_reliable_correction', 'reference':selected,
             'feedback_required':bool(required),'reason':reason,'message':message,'actions':actions,

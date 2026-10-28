@@ -45,18 +45,39 @@ class FeedbackPolicyTests(unittest.TestCase):
         self.assertFalse(result['feedback_required'])
         self.assertEqual(result['observations']['corrections'],[])
 
-    def test_missing_tracking_returns_guidance_not_zero_score(self):
+    def test_matching_word_without_tracking_correction_receives_encouragement(self):
         a=self.sequence(); result=evaluate_feedback(a,np.full_like(a,np.nan),'밥','밥',.99)
         self.assertTrue(result['feedback_required'])
         self.assertIsNone(result['similarity']['score'])
         self.assertTrue(result['message']); self.assertTrue(result['actions'])
         self.assertEqual(result['observations']['corrections'],[])
+        self.assertEqual(result['message'],'잘하셨어요. 다음 단어를 연습해 볼까요?')
+
+    def test_wrong_word_without_tracking_correction_is_not_praised(self):
+        a=self.sequence()
+        result=evaluate_feedback(a,np.full_like(a,np.nan),'밥','영화',.01)
+        self.assertIn('영화',result['message'])
+        self.assertNotIn('잘하셨어요',result['message'])
 
     def test_wrong_label_even_when_confident_requires_guidance(self):
         a=self.sequence(); result=evaluate_feedback(a,a,'밥','영화',.001)
         self.assertTrue(result['feedback_required']); self.assertEqual(result['status'],'advice')
         self.assertIn('영화',result['message']); self.assertIn('밥',result['message'])
         self.assertNotIn('뚜렷한 차이가 보이지',result['message'])
+
+    def test_generic_encouragement_requires_matching_word(self):
+        ref=self.sequence(); actual=ref.copy()
+        actual[:,:,0]+=np.where(np.arange(30)%2==0,.4,-.4)[:,None]
+        for predicted in ('밥','영화'):
+            with self.subTest(predicted=predicted):
+                result=evaluate_feedback(ref,actual,'밥',predicted,.4)
+                if predicted == '밥':
+                    self.assertEqual(result['message'],'잘하셨어요. 다음 단어를 연습해 볼까요?')
+                else:
+                    self.assertIn('영화',result['message'])
+                    self.assertNotIn('잘하셨어요',result['message'])
+                    self.assertNotIn('잘하셨어요',' '.join(result['actions']))
+                    self.assertNotIn('잘하셨어요',result['observations']['summary'])
 
     def test_uncertain_correct_label_requires_guidance(self):
         a=self.sequence(); result=evaluate_feedback(a,a,'밥','밥',.4)
