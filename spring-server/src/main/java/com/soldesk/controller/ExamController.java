@@ -49,6 +49,12 @@ public class ExamController {
         if (getCurrentMemberId() == -1) {
             return "redirect:/member/login";
         }
+        return "exam/words";
+    }
+
+    @GetMapping("/legacy/setup")
+    public String legacySetup() {
+        if (getCurrentMemberId() == -1) return "redirect:/member/login";
         return "exam/setup";
     }
 

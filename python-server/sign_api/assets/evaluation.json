@@ -1,27 +1,204 @@
 {
-  "classes": 70,
-  "chapters": 7,
-  "selected_epoch": 98,
-  "temperature": 0.65,
-  "new_model": {
-    "clean": 0.9142857142857143,
-    "synthetic_desk": {
-      "0.75": 0.8571428656578064,
-      "1.1": 0.8928571343421936,
-      "1.5": 0.9214285612106323
+  "model_id": "curriculum70_tracking_v8_14signers",
+  "deployment_mode": "v8_user_requested_test",
+  "tracking_validation": {
+    "original_v5": {
+      "correct70": 137,
+      "correct100": 196,
+      "accepted70": 135,
+      "accepted_correct70": 134,
+      "wrong_accepted70": 1,
+      "outside_rejected": 60
     },
-    "per_subject": {
-      "REAL07": 0.9428571428571428,
-      "REAL08": 0.8857142857142857
+    "results": {
+      "clean": {
+        "v5_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 195,
+          "accepted70": 136,
+          "accepted_correct70": 134,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        },
+        "v8_on_fixed_input": {
+          "correct70": 139,
+          "correct100": 199,
+          "accepted70": 138,
+          "accepted_correct70": 137,
+          "wrong_accepted70": 1,
+          "outside_rejected": 60
+        }
+      },
+      "desk_0.75": {
+        "v5_on_fixed_input": {
+          "correct70": 135,
+          "correct100": 190,
+          "accepted70": 132,
+          "accepted_correct70": 130,
+          "wrong_accepted70": 2,
+          "outside_rejected": 57
+        },
+        "v8_on_fixed_input": {
+          "correct70": 135,
+          "correct100": 191,
+          "accepted70": 133,
+          "accepted_correct70": 131,
+          "wrong_accepted70": 2,
+          "outside_rejected": 58
+        }
+      },
+      "desk_1.1": {
+        "v5_on_fixed_input": {
+          "correct70": 135,
+          "correct100": 195,
+          "accepted70": 136,
+          "accepted_correct70": 134,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        },
+        "v8_on_fixed_input": {
+          "correct70": 138,
+          "correct100": 198,
+          "accepted70": 136,
+          "accepted_correct70": 135,
+          "wrong_accepted70": 1,
+          "outside_rejected": 60
+        }
+      },
+      "desk_1.5": {
+        "v5_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 195,
+          "accepted70": 137,
+          "accepted_correct70": 135,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        },
+        "v8_on_fixed_input": {
+          "correct70": 137,
+          "correct100": 197,
+          "accepted70": 138,
+          "accepted_correct70": 136,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        }
+      },
+      "augmented": {
+        "v5_on_fixed_input": {
+          "correct70": 135,
+          "correct100": 195,
+          "accepted70": 135,
+          "accepted_correct70": 133,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        },
+        "v8_on_fixed_input": {
+          "correct70": 138,
+          "correct100": 198,
+          "accepted70": 140,
+          "accepted_correct70": 138,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        }
+      },
+      "frames_16": {
+        "v5_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 196,
+          "accepted70": 136,
+          "accepted_correct70": 133,
+          "wrong_accepted70": 3,
+          "outside_rejected": 60
+        },
+        "v8_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 196,
+          "accepted70": 138,
+          "accepted_correct70": 135,
+          "wrong_accepted70": 3,
+          "outside_rejected": 60
+        }
+      },
+      "frames_24": {
+        "v5_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 195,
+          "accepted70": 135,
+          "accepted_correct70": 132,
+          "wrong_accepted70": 3,
+          "outside_rejected": 59
+        },
+        "v8_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 196,
+          "accepted70": 138,
+          "accepted_correct70": 135,
+          "wrong_accepted70": 3,
+          "outside_rejected": 60
+        }
+      },
+      "frames_32": {
+        "v5_on_fixed_input": {
+          "correct70": 136,
+          "correct100": 196,
+          "accepted70": 136,
+          "accepted_correct70": 134,
+          "wrong_accepted70": 2,
+          "outside_rejected": 60
+        },
+        "v8_on_fixed_input": {
+          "correct70": 137,
+          "correct100": 197,
+          "accepted70": 138,
+          "accepted_correct70": 135,
+          "wrong_accepted70": 3,
+          "outside_rejected": 60
+        }
+      }
+    },
+    "deployment_checks": {
+      "clean70_not_worse": true,
+      "clean100_not_worse": true,
+      "clean_false_accepts_not_worse": true,
+      "clean_accepted_correct_not_worse": true,
+      "outside_not_worse": true,
+      "desk_correct_not_worse": true,
+      "desk_false_accepts_not_worse": true,
+      "short_correct_not_worse": true,
+      "short_false_accepts_not_worse": false
+    },
+    "fixed_input_checks": {
+      "clean70_not_worse": false,
+      "clean100_not_worse": false,
+      "false_accepts_not_worse": false,
+      "outside_not_worse": true
+    },
+    "deploy": null,
+    "note": "V8 scratch training was launched after v7 regressed on the repeated REAL13/14 audit. Model/fusion/temperature selection used REAL12 only. REAL15 was newly extracted, excluded from training/selection, and evaluated once after model selection. No webcam target was treated as a verified label.",
+    "independent_REAL15": {
+      "original_v5": {
+        "correct70": 68,
+        "correct100": 97,
+        "accepted70": 68,
+        "accepted_correct70": 68,
+        "wrong_accepted70": 0,
+        "outside_rejected": 29
+      },
+      "v8": {
+        "correct70": 68,
+        "correct100": 98,
+        "accepted70": 68,
+        "accepted_correct70": 67,
+        "wrong_accepted70": 1,
+        "outside_rejected": 30
+      },
+      "checks": {
+        "correct70": true,
+        "correct100": true,
+        "accepted_correct70": false,
+        "outside_rejected": true,
+        "wrong_accepted_not_worse": false
+      }
     }
-  },
-  "previous100_restricted_to_same70": {
-    "clean": 0.8714285492897034,
-    "synthetic_desk": {
-      "0.75": 0.800000011920929,
-      "1.1": 0.8285714387893677,
-      "1.5": 0.8642857074737549
-    }
-  },
-  "note": "Same 140 original clips and synthetic conditions. Repeated-project evaluation, not independent seated webcam accuracy."
+  }
 }

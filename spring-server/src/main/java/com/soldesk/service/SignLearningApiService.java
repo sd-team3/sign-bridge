@@ -53,6 +53,8 @@ public class SignLearningApiService {
         });
     }
 
+    public JsonNode health() { return get("/health"); }
+
     public JsonNode chapters(String contextPath) {
         return publicUrls(get("/chapters"), contextPath);
     }
@@ -72,6 +74,14 @@ public class SignLearningApiService {
     }
 
     public JsonNode evaluate(String wordId, String attemptId, MultipartFile video) {
+        return evaluateRequest(wordId, attemptId, video, false);
+    }
+
+    public JsonNode evaluateWithComparison(String wordId, String attemptId, MultipartFile video) {
+        return evaluateRequest(wordId, attemptId, video, true);
+    }
+
+    private JsonNode evaluateRequest(String wordId, String attemptId, MultipartFile video, boolean comparison) {
         requireId(wordId, "WORD\\d{4}");
         requireId(attemptId, "[A-Za-z0-9_-]{1,80}");
         if (video == null || video.isEmpty()) throw new ApiException(422, "촬영한 영상이 없습니다. 다시 녹화해 주세요.");
@@ -95,6 +105,7 @@ public class SignLearningApiService {
         form.add("target_word_id", wordId);
         form.add("attempt_id", attemptId);
         form.add("use_llm", "false");
+        form.add("include_comparison", String.valueOf(comparison));
         form.add("video", new HttpEntity<>(video.getResource(), fileHeaders));
         HttpHeaders requestHeaders = headers();
         requestHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);

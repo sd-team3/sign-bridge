@@ -2,7 +2,7 @@ from .pose_feedback import compare
 from .reference_selection import choose
 
 
-def evaluate_feedback(reference, actual, target, predicted, target_score, ignore_resting=False, threshold=70.0):
+def _geometry_feedback(reference, actual, target, predicted, target_score, ignore_resting=False, threshold=70.0):
     reference,selected=choose(reference,actual,ignore_resting,threshold)
     if reference is None:
         return {'status':'reference_unavailable','feedback_required':True,'reason':'reference_unavailable',
@@ -11,6 +11,9 @@ def evaluate_feedback(reference, actual, target, predicted, target_score, ignore
                 'similarity':{'available':False,'score':None,'threshold':threshold,'below_threshold':None,
                               'method':'dtw_geometry_v1'},'source':'rules'}
     observation=compare(reference,actual,ignore_resting=ignore_resting,similarity_threshold=threshold)
+    if selected and selected.get('tracking_review'):
+        observation.update(similarity_available=False,similarity_score=None,corrections=[],feedback_required=True,
+            reason='reference_tracking',summary='모범 영상의 손을 충분히 확인하지 못한 구간이 있어 자세 차이를 충분히 비교하지 못했어요.')
     required=observation['feedback_required']
     reason=observation['reason']; message=observation['summary']
     corrections=observation['corrections']
@@ -33,7 +36,7 @@ def evaluate_feedback(reference, actual, target, predicted, target_score, ignore
                   '동작에 사용하는 손이 보이도록 처음부터 끝까지 다시 촬영해 주세요.'])
     # A matching prediction with no actionable correction receives encouragement,
     # including when geometry coverage is insufficient for a posture comparison.
-    if predicted == target and not corrections:
+    if predicted == target and not corrections and not (selected or {}).get('tracking_review'):
         message = '잘하셨어요. 다음 단어를 연습해 볼까요?'
         actions = [message]
     score=observation['similarity_score']
@@ -42,3 +45,11 @@ def evaluate_feedback(reference, actual, target, predicted, target_score, ignore
             'similarity':{'available':observation['similarity_available'],'score':score,
                           'threshold':float(threshold),'below_threshold':score <= threshold if score is not None else None,
                           'method':'dtw_geometry_v1'},'observations':observation,'source':'rules'}
+
+
+def evaluate_feedback(reference, actual, target, predicted, target_score, ignore_resting=False, threshold=70.0, policy='geometry_v1', recognition=None):
+    result = _geometry_feedback(reference, actual, target, predicted, target_score, ignore_resting, threshold)
+    if policy == 'semantic_v1':
+        from .semantic_feedback import interpret_feedback
+        return interpret_feedback(result, target, predicted, target_score, recognition)
+    return result

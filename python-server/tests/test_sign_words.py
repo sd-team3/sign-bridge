@@ -128,10 +128,13 @@ class ApiTests(unittest.TestCase):
         features=np.ones((30,154),np.float32)
         features[:,127]=-.2; features[:,129]=1.6
         shapes=np.full((30,2,6),np.nan,np.float32)
-        captured=[]; original=runtime.model
+        captured=[]
         def capture(xs,masks):
+            import torch
             captured.append(xs.numpy().copy())
-            return original(xs,masks)
+            logits=torch.zeros(len(xs),len(runtime.ckpt['labels']))
+            logits[:,runtime.ckpt['labels'].index('커피')]=20
+            return logits
         with patch('sign_api.api.encode_frames',return_value=(features,shapes)),patch.object(runtime,'model',capture):
             result=runtime.infer(Clip(**clip()))
         self.assertEqual(result['status'],'ok')
@@ -153,15 +156,15 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(result['quality']['active_hand_frames'],12)
         self.assertIsNone(result['recognition'])
 
-    def test_low_similarity_is_advice_even_without_specific_joint_correction(self):
+    def test_legacy_low_similarity_is_advice_even_without_specific_joint_correction(self):
         import torch
         ref=np.zeros((30,2,6),np.float32); ref[:,:,0]=[-.4,.4]; ref[:,:,1]=-.2; ref[:,:,2:]=170
         shapes=ref.copy(); shapes[:,:,0]+=np.where(np.arange(30)%2==0,.4,-.4)[:,None]
         features=np.ones((30,154),np.float32); features[:,127]=-.2; features[:,129]=-.2
         def predict(xs,masks):
-            logits=torch.zeros((len(xs),70)); logits[:,runtime.ckpt['labels'].index('커피')]=12
+            logits=torch.zeros((len(xs),len(runtime.ckpt['labels']))); logits[:,runtime.ckpt['labels'].index('커피')]=12
             return logits
-        with patch('sign_api.api.encode_frames',return_value=(features,shapes)), \
+        with patch.dict(runtime.ckpt,{'feedback_policy':'geometry_v1'}),patch('sign_api.api.encode_frames',return_value=(features,shapes)), \
              patch.dict(runtime.references,{'0115':ref}),patch.object(runtime,'reference_banks',{}),patch.object(runtime,'model',predict):
             response=self.client.post('/api/v1/signs/evaluate',json=clip())
         self.assertEqual(response.status_code,200)
@@ -178,10 +181,10 @@ class ApiTests(unittest.TestCase):
         shapes=ref.copy(); shapes[:,1,1]+=.3; shapes[:,1,2]-=40
         features=np.ones((30,154),np.float32); features[:,127]=-.2; features[:,129]=-.2
         def predict(xs,masks):
-            logits=torch.zeros((len(xs),70)); logits[:,runtime.ckpt['labels'].index('커피')]=12
+            logits=torch.zeros((len(xs),len(runtime.ckpt['labels']))); logits[:,runtime.ckpt['labels'].index('커피')]=12
             return logits
         for failure in (False,True):
-            with self.subTest(failure=failure),patch('sign_api.api.encode_frames',return_value=(features,shapes)), \
+            with self.subTest(failure=failure),patch.dict(runtime.ckpt,{'feedback_policy':'geometry_v1'}),patch('sign_api.api.encode_frames',return_value=(features,shapes)), \
                  patch.dict(runtime.references,{'0115':ref}),patch.object(runtime,'reference_banks',{}),patch.object(runtime,'model',predict), \
                  patch.dict(os.environ,{'GROQ_API_KEY':'test-only','GROQ_MODEL':'test-only'}), \
                  patch('sign_api.groq_feedback.generate_feedback',side_effect=ValueError('failed') if failure else None,return_value=''):

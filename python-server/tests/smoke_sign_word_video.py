@@ -11,9 +11,12 @@ PACKAGE = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(PACKAGE))
 from sign_api.api import runtime
 from sign_api.standalone import app
-from sign_api.body_features import Extractor
+from sign_api.body_features import Extractor,encode
+from sign_api.legacy_capture import configure,model_hands
 
 def main():
+    runtime.load()
+    runtime.ready()
     source=PACKAGE/'sign_api/assets/videos/0115.mp4'
     with tempfile.TemporaryDirectory() as directory:
         video=Path(directory)/'sample.mp4'
@@ -31,12 +34,15 @@ def main():
         features=[]; frames=[]
         cap=cv2.VideoCapture(str(video))
         with Extractor() as extractor:
+            legacy=configure(extractor,runtime.ckpt)
             while True:
                 ok,image=cap.read()
                 if not ok: break
-                features.append(extractor.process(image))
+                feature=extractor.process(image)
+                if legacy:feature=encode(model_hands(extractor),extractor.last_pose,16/9)
+                features.append(feature)
                 frames.append(dict(timestamp_ms=(len(features)-1)*1000/15,
-                    hands=[h.tolist() if np.any(h) else None for h in extractor.last_hands],
+                    hands=[h.tolist() if np.any(h) else None for h in model_hands(extractor)],
                     pose=extractor.last_pose.tolist() if extractor.last_pose is not None else None))
         cap.release()
         with TestClient(app) as client:
@@ -47,7 +53,7 @@ def main():
             uploaded.raise_for_status(); uploaded=uploaded.json()
             assert raw['status'] == uploaded['status'] == 'ok'
             assert uploaded['attempt_id'] == 'spring-upload-smoke'
-            assert uploaded['model_id'] == 'curriculum70_seated_v3'
+            assert uploaded['model_id'] == 'curriculum70_tracking_v8_14signers'
             assert uploaded['feedback']['status'] != 'reference_unavailable'
             assert raw['recognition']['predicted_label'] == uploaded['recognition']['predicted_label']
 

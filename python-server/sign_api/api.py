@@ -18,7 +18,7 @@ from starlette.concurrency import run_in_threadpool
 from .body_features import encode
 from .pose_feedback import geometry
 from .seated_features import prepare
-from .sign_model import SignLSTM, resample_sequence, inference_logits
+from .sign_model import SignLSTM, build_model, resample_sequence, inference_logits
 from .curriculum import load_catalog
 from .feedback_policy import evaluate_feedback
 
@@ -112,16 +112,32 @@ class Runtime:
             ckpt = torch.load(path, map_location='cpu', weights_only=True)
             if ckpt.get('feature_schema') != 'hands_body_v1':
                 raise ValueError('Expected hands_body_v1 model')
+            from .hand_tracking import VERSION
+            if ckpt.get('preprocessing_version',VERSION)!=VERSION:
+                raise ValueError('Checkpoint requires a different hand extractor')
+            if ckpt.get('extractor_code_id'):
+                from .preprocessing_identity import fingerprint
+                if ckpt['extractor_code_id']!=fingerprint():
+                    raise ValueError('Checkpoint and serving preprocessing code differ')
+            if ckpt.get('extractor_dependencies'):
+                import cv2
+                import mediapipe
+                installed={'opencv':cv2.__version__,'mediapipe':mediapipe.__version__,'numpy':np.__version__}
+                if installed!=ckpt['extractor_dependencies']:
+                    raise ValueError('Checkpoint and serving extraction dependencies differ')
             if ckpt.get('input_policy', 'original') not in ('original', 'seated_v1', 'seated_active_v2'):
                 raise ValueError('Unsupported input policy')
             self.words = json.loads((ROOT / 'assets' / 'labels.json').read_text(encoding='utf-8'))
-            if set(self.words.values()) != set(ckpt['labels']):
+            declared = ckpt.get('service_labels', ckpt['labels'])
+            if set(self.words.values()) != set(declared) or not set(declared).issubset(ckpt['labels']):
                 raise ValueError('Checkpoint and word manifest differ')
+            if len(ckpt['labels']) != len(declared) and ckpt.get('architecture') != 'context_fusion_v1':
+                raise ValueError('Auxiliary classes require the context model')
             catalog = ROOT / 'assets' / 'curriculum.json'
             if catalog.exists():
                 self.curriculum = load_catalog(catalog, self.words)
                 self.chapter_by_word = {w['word_id']: c['chapter_id'] for c in self.curriculum['chapters'] for w in c['words']}
-            model = SignLSTM(len(ckpt['labels']), **ckpt['model_config'])
+            model = build_model(ckpt)
             model.load_state_dict(ckpt['model'])
             model.eval()
             self.ckpt = ckpt
@@ -135,6 +151,10 @@ class Runtime:
             bank_path=ROOT/'assets/reference_bank.json'
             if bank_path.exists():
                 banks=json.loads(bank_path.read_text(encoding='utf-8'))
+                quality_path=ROOT/'assets/reference_quality.json'
+                reference_quality=json.loads(quality_path.read_text(encoding='utf-8')) if quality_path.exists() else None
+                if reference_quality is not None and set(reference_quality)!=set(self.words):
+                    raise ValueError('Reference tracking audit and vocabulary differ')
                 if set(banks)!=set(self.words): raise ValueError('Reference bank and vocabulary differ')
                 for code,entries in banks.items():
                     variants=[]
@@ -148,7 +168,8 @@ class Runtime:
                         video=entry['video']
                         if video not in (f'{code}.mp4',f'{code}_{subject}.mp4') or not (ROOT/'assets/videos'/video).is_file(): raise ValueError('Invalid reference video')
                         url=f'/api/v1/signs/reference/WORD{code}' if subject=='REAL01' else f'/api/v1/signs/reference/WORD{code}/{subject}'
-                        variants.append(dict(subject=subject,geometry=geometry,video_url=url))
+                        tracking_quality=reference_quality[code][subject] if reference_quality is not None else {}
+                        variants.append(dict(subject=subject,geometry=geometry,video_url=url,tracking_quality=tracking_quality))
                     self.reference_banks[code]=variants
             if self.curriculum and (len(self.references) != len(self.words) or
                     any(not (ROOT/'assets/videos'/f'{code}.mp4').is_file() for code in self.words)):
@@ -178,6 +199,8 @@ class Runtime:
             quality = {'hand_frames': int(np.any(features[:, :126], axis=1).sum()),
                        'shoulder_frames': int((features[:, 153] > .5).sum()),
                        'total_frames': len(features)}
+            from .tracking_quality import summarize
+            quality.update(summarize(clip.frames,clip.aspect))
             if self.ckpt.get('input_policy') == 'seated_active_v2':
                 from .seated_active_features import suppress_resting
                 active = suppress_resting(features)
@@ -203,8 +226,21 @@ class Runtime:
                 seq, mask = resample_sequence(features, self.ckpt['sequence_length'])
             with torch.inference_mode():
                 probs = inference_logits(self.model,torch.from_numpy(seq)[None],torch.from_numpy(mask)[None],self.ckpt).softmax(1)[0].numpy()
+            order = np.argsort(probs)[::-1]
+            semantic = self.ckpt.get('feedback_policy') == 'semantic_v1'
+            supported = set(self.words.values())
+            if semantic and self.ckpt['labels'][int(order[0])] not in supported:
+                return {'attempt_id': clip.attempt_id, 'status': 'retry', 'target_word_id': clip.target_word_id,
+                        'model_id': self.ckpt.get('model_id'), 'input_policy': self.ckpt.get('input_policy'),
+                        'quality': quality, 'recognition': None,
+                        'feedback': {'status': 'retry', 'feedback_required': True, 'reason': 'outside_curriculum', 'policy': 'semantic_v1',
+                            'message': '현재 학습 과정 밖의 단어에 더 가까운 동작으로 보여요. 목표 단어를 확인하고 다시 보여 주세요.',
+                            'actions': ['연습 중인 단어의 모범 영상을 확인한 뒤 다시 촬영해 주세요.'],
+                            'similarity': {'available': False, 'score': None, 'threshold': self.feedback_threshold,
+                                           'below_threshold': None, 'method': 'dtw_geometry_v1', 'role': 'optional_reference_comparison'}, 'source': 'rules'}}
             top = []
-            for i in np.argsort(probs)[-3:][::-1]:
+            indices = [i for i in order if self.ckpt['labels'][int(i)] in supported][:3] if semantic else order[:3]
+            for i in indices:
                 label = self.ckpt['labels'][int(i)]
                 top.append({'label': label, 'word_ids': ['WORD'+k for k,v in self.words.items() if v == label],
                             'score': float(probs[i])})
@@ -215,14 +251,20 @@ class Runtime:
                                       'target_score': float(probs[self.ckpt['labels'].index(self.words[code])]) if code else None,
                                       'target_matches_top1': top[0]['label'] == self.words[code] if code else None},
                       'feedback': None}
+            if semantic:
+                confidence = float(probs[int(order[0])])
+                margin = confidence-float(probs[int(order[1])])
+                result['recognition'].update(accepted=confidence >= self.ckpt.get('recognition_threshold', .7) and margin >= self.ckpt.get('recognition_margin', .15),
+                    confidence_threshold=self.ckpt.get('recognition_threshold', .7), margin=margin, method='relational_temporal_contrastive')
             if evaluate:
                 indices = np.linspace(0, len(shapes)-1, min(80,len(shapes))).round().astype(int)
                 result['feedback'] = evaluate_feedback(self.reference_banks.get(code,self.references.get(code)), shapes[indices],
                     self.words[code], top[0]['label'], result['recognition']['target_score'],
-                    ignore_resting=self.ckpt.get('input_policy')=='seated_active_v2', threshold=self.feedback_threshold)
+                    ignore_resting=self.ckpt.get('input_policy')=='seated_active_v2', threshold=self.feedback_threshold,
+                    policy=self.ckpt.get('feedback_policy','geometry_v1'), recognition=result['recognition'])
         finally:
             self.gate.release()
-        if evaluate and clip.use_llm and result['feedback'].get('observations',{}).get('corrections'):
+        if evaluate and clip.use_llm and result['feedback'].get('policy') != 'semantic_v1' and result['feedback'].get('observations',{}).get('corrections'):
             key = os.environ.get('GROQ_API_KEY', '')
             model_id = os.environ.get('GROQ_MODEL', '')
             if key and model_id:
@@ -250,15 +292,24 @@ def startup():
 def health():
     return {'ready': runtime.model is not None, 'error': runtime.error,
             'classes': len(runtime.words), 'references': len(runtime.references),
+            'model_output_classes': len(runtime.ckpt['labels']) if runtime.model is not None else None,
+            'architecture': runtime.ckpt.get('architecture','lstm') if runtime.model is not None else None,
+            'feedback_policy': runtime.ckpt.get('feedback_policy','geometry_v1') if runtime.model is not None else None,
             'reference_variants': sum(len(v) for v in runtime.reference_banks.values()),
             'temperature': runtime.ckpt.get('temperature',1.) if runtime.model is not None else None,
             'mirror_ensemble': runtime.ckpt.get('mirror_ensemble',False) if runtime.model is not None else False,
             'input_schema': 'raw_mp_legacy_v1',
+            'hand_extractor_version': 'hands_tracking_v2',
+            'model_preprocessing_version': runtime.ckpt.get('preprocessing_version','legacy_handedness_v1') if runtime.model is not None else None,
             'model_id': runtime.ckpt.get('model_id') if runtime.model is not None else None,
+            'dataset_subjects': runtime.ckpt.get('dataset_subjects') if runtime.model is not None else None,
+            'training_subjects': runtime.ckpt.get('training_subjects',[]) if runtime.model is not None else [],
+            'validation_subjects': runtime.ckpt.get('validation_subjects',[]) if runtime.model is not None else [],
+            'evaluation_subjects': runtime.ckpt.get('evaluation_subjects',[]) if runtime.model is not None else [],
             'input_policy': runtime.ckpt.get('input_policy') if runtime.model is not None else None,
             'chapters': len(runtime.curriculum['chapters']) if runtime.curriculum else 0,
             'feedback_similarity_threshold': runtime.feedback_threshold,
-            'live_feedback': 'tracking_quality_only', 'completed_clip_feedback': 'reference_geometry'}
+            'live_feedback': 'tracking_quality_only', 'completed_clip_feedback': 'learned_word_with_optional_geometry' if runtime.model is not None and runtime.ckpt.get('feedback_policy') == 'semantic_v1' else 'reference_geometry'}
 
 @router.get('')
 def words():
@@ -301,7 +352,9 @@ def word_detail(word_id: str):
     return word_info(word_id) | {'capture': {'max_duration_ms': 20000, 'min_frames': 16, 'max_frames': 300,
         'max_video_bytes': 25*1024*1024, 'mirrored': False, 'both_hands_required': False,
         'shoulders_required': True, 'guidance': '양쪽 어깨와 동작에 사용하는 손을 보여 주세요. 쉬는 손은 내려놓아도 됩니다.'},
-        'feedback': {'live': 'tracking_quality_only', 'completed_clip': 'reference_geometry',
+        'feedback': {'live': 'tracking_quality_only', 'completed_clip': 'learned_word_with_optional_geometry' if runtime.ckpt.get('feedback_policy') == 'semantic_v1' else 'reference_geometry',
+                     'policy': runtime.ckpt.get('feedback_policy','geometry_v1'),
+                     'similarity_role': 'optional_reference_comparison' if runtime.ckpt.get('feedback_policy') == 'semantic_v1' else 'guidance_threshold',
                      'similarity_threshold': runtime.feedback_threshold,
                      'similarity_meaning': 'reference_geometry_heuristic_not_accuracy',
                      'score_meaning': 'classification_softmax_not_posture_accuracy'}}

@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="/resources/images/icon-180.png">
 <title>SignBridge - 수어 사전</title>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/shared.css">
-<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/dict.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/dict.css?v=dictionary-layout-6">
 </head>
 <body>
 
@@ -107,46 +107,38 @@
       <button class="detail-modal-close" id="detailCloseBtn">✕</button>
     </div>
 
-    <!-- 이전/이후 단어 이동 버튼 - 히스토리 있을때만 -->
-    <button class="detail-nav-btn detail-nav-prev" id="detailPrevBtn">◀</button>
-    <button class="detail-nav-btn detail-nav-next" id="detailNextBtn">▶</button>
-
-    
-
-    <!-- 실제 스크롤 영역 -->
     <div class="detail-scroll-content">
-
-      <div class="detail-video-wrap">
-        <video id="detailVideo" autoplay loop muted playsinline></video>
+      <div class="detail-top-grid">
+        <section class="detail-demo-panel" aria-labelledby="detailDemoHeading">
+          <h3 class="detail-panel-heading" id="detailDemoHeading">시범 영상</h3>
+          <div class="detail-video-row">
+            <button class="detail-nav-btn detail-nav-prev" id="detailPrevBtn" aria-label="이전 단어">◀</button>
+            <div class="detail-video-wrap">
+              <video id="detailVideo" autoplay loop muted playsinline></video>
+            </div>
+            <button class="detail-nav-btn detail-nav-next" id="detailNextBtn" aria-label="다음 단어">▶</button>
+          </div>
+          <div class="detail-video-controls">
+            <div class="detail-speed-control">
+              <span class="detail-speed-label" id="detailSpeedLabel">1x</span>
+              <input type="range" id="detailSpeedSlider" class="detail-speed-slider" min="0" max="7" step="1" value="3" aria-label="영상 재생 속도">
+            </div>
+            <button class="detail-ctrl-btn" id="detailReplayBtn">↺ 다시보기</button>
+          </div>
+          <div class="detail-word-heading">
+            <div class="detail-word-name" id="detailWordName"></div>
+            <button type="button" class="fav-star detail-fav-star" id="detailFavStar" aria-label="즐겨찾기">☆</button>
+          </div>
+        </section>
+        <aside class="detail-related-panel" aria-labelledby="detailRelatedHeading">
+          <h3 class="detail-panel-heading" id="detailRelatedHeading">다른 단어 보기</h3>
+          <div class="detail-related-list" id="detailRelated"></div>
+        </aside>
       </div>
-
-      <!-- 컨트롤라인:재생속도/다시보기 -->
-      <div class="detail-video-controls">
-        <div class="detail-speed-control">
-          <span class="detail-speed-label" id="detailSpeedLabel">1x</span>
-          <input type="range" id="detailSpeedSlider" class="detail-speed-slider" min="0" max="7" step="1" value="3">
-        </div>
-        <button class="detail-ctrl-btn" id="detailReplayBtn">↺ 다시보기</button>
-      </div>
-
-      <div class="detail-word-name" id="detailWordName"></div>
-      <span class="fav-star detail-fav-star" id="detailFavStar">☆</span>
-      
-
-      <div class="detail-divider"></div>
-      <div class="detail-section-label">설명</div>
-      <div class="detail-description" id="detailDescription"></div>
-
-    </div>
-
-    <!-- 슬라이드업 드로어: 화살표 버튼 + 관련 단어 2개, 항상 하단 고정, 열리면 토글바 위로 리스트만 펼쳐짐 -->
-    <div class="detail-slide-drawer" id="detailSlideDrawer">
-      <button class="detail-slide-toggle" id="detailSlideToggle">
-        <span class="detail-slide-arrow">▲</span> 다른 단어 보기
-      </button>
-      <div class="detail-slide-content" id="detailSlideContent">
-        <div class="detail-related-list" id="detailRelated"></div>
-      </div>
+      <section class="detail-description-section" aria-labelledby="detailDescriptionHeading">
+        <h3 class="detail-panel-heading" id="detailDescriptionHeading">설명</h3>
+        <div class="detail-description" id="detailDescription"></div>
+      </section>
     </div>
 
   </div>
@@ -185,7 +177,7 @@
 <script>
 const CTX = "${pageContext.request.contextPath}";
 </script>
-<script src="${pageContext.request.contextPath}/resources/js/sign-word.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/sign-word.js?v=dictionary-layout-6"></script>
 
 <script>
 // 오답노트 등에서 word 파라미터로 진입 시 해당 단어 상세 모달 자동 오픈

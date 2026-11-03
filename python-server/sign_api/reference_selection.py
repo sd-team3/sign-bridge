@@ -10,11 +10,15 @@ def mirrored(rows):
 
 def choose(references,actual,ignore_resting,threshold):
     if not isinstance(references,list): return references,None
+    reliable=[r for r in references if not r.get('tracking_quality',{}).get('needs_review',False)]
+    if reliable:references=reliable
     best=None; best_cost=float('inf'); fallback=None
     sample=actual[np.linspace(0,len(actual)-1,min(48,len(actual))).round().astype(int)] if len(actual) else actual
     for entry in references:
         original=entry['geometry']
-        if fallback is None: fallback=(original,dict(subject=entry['subject'],video_url=entry['video_url'],mirrored=False))
+        metadata=dict(subject=entry['subject'],video_url=entry['video_url'],
+            tracking_review=bool(entry.get('tracking_quality',{}).get('needs_review',False)))
+        if fallback is None: fallback=(original,dict(**metadata,mirrored=False))
         for flip in (False,True):
             rows=mirrored(original) if flip else original
             subset=rows[np.linspace(0,len(rows)-1,min(48,len(rows))).round().astype(int)]
@@ -22,5 +26,5 @@ def choose(references,actual,ignore_resting,threshold):
             cost=result.get('alignment_cost')
             if result['similarity_available'] and cost is not None and cost<best_cost-1e-6:
                 best_cost=cost
-                best=(rows,dict(subject=entry['subject'],video_url=entry['video_url'],mirrored=flip))
+                best=(rows,dict(**metadata,mirrored=flip))
     return best or fallback or (None,None)

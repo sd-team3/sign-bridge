@@ -27,6 +27,9 @@ public class SignLearningAPIController {
     private final SignLearningApiService service;
     public SignLearningAPIController(SignLearningApiService service) { this.service = service; }
 
+    @GetMapping("/health")
+    public JsonNode health() { return service.health(); }
+
     @GetMapping("/chapters")
     public JsonNode chapters(HttpServletRequest request) { return service.chapters(request.getContextPath()); }
 
@@ -49,7 +52,7 @@ public class SignLearningAPIController {
     @PostMapping(value = "/evaluate-video", consumes = "multipart/form-data")
     public JsonNode evaluate(@RequestParam("target_word_id") String wordId,
             @RequestParam("attempt_id") String attemptId, @RequestParam("video") MultipartFile video) {
-        return service.evaluate(wordId, attemptId, video);
+        return service.evaluateWithComparison(wordId, attemptId, video);
     }
 
     @ExceptionHandler(ApiException.class)

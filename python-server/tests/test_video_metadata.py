@@ -29,6 +29,14 @@ class Extractor:
 
 
 class VideoMetadataTests(unittest.TestCase):
+    def test_24fps_uses_uniform_15fps_grid(self):
+        for fps in (24., 0.):
+            with self.subTest(fps=fps), patch('sign_api.video_api.cv2.VideoCapture',return_value=Capture(48,fps=fps,step_ms=1000/24)), patch('sign_api.video_api.Extractor',Extractor), patch('sign_api.video_api.runtime.infer',return_value={'status':'retry'}) as infer:
+                evaluate_file('unused','WORD0115',False,'fps24-test')
+                frames=infer.call_args.args[0].frames
+                self.assertEqual(len(frames),30)
+                self.assertTrue(all(b.timestamp_ms>a.timestamp_ms for a,b in zip(frames,frames[1:])))
+
     def test_missing_fps_uses_decoded_timestamps(self):
         for fps in (0.,float('nan'),1000.):
             with self.subTest(fps=fps), \

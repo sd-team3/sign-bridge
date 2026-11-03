@@ -311,6 +311,30 @@ function wordCard(w) {
 }
 
 // 모달
+function resizeDetailVideo() {
+  const modal = document.getElementById("detailModal");
+  if (!modal.open) return;
+  const content = modal.querySelector(".detail-scroll-content");
+  const panel = modal.querySelector(".detail-demo-panel");
+  const video = document.getElementById("detailVideo");
+  const ratio = video.videoWidth && video.videoHeight ? video.videoWidth / video.videoHeight : 4 / 3;
+  const style = getComputedStyle(panel);
+  const blocks = [...panel.children].filter(el => !el.classList.contains("detail-video-row") && getComputedStyle(el).position !== "absolute");
+  const extra = blocks.reduce((height, el) => height + el.getBoundingClientRect().height, 0) + blocks.length * parseFloat(style.rowGap);
+  const section = modal.querySelector(".detail-description-section");
+  const sectionStyle = getComputedStyle(section);
+  const descriptionSpace = parseFloat(sectionStyle.marginTop) + parseFloat(sectionStyle.paddingTop) + 1 + section.querySelector("h3").getBoundingClientRect().height + 12 + 90;
+  const available = content.clientHeight - parseFloat(getComputedStyle(content).paddingBottom);
+  const width = Math.min(panel.clientWidth, 420);
+  const height = Math.max(40, Math.min(width / ratio, available - descriptionSpace - extra));
+  modal.style.setProperty("--detail-top-height", `${height + extra}px`);
+  modal.style.setProperty("--detail-video-width", `${Math.min(width, height * ratio)}px`);
+}
+
+const detailVideoElement = document.getElementById("detailVideo");
+detailVideoElement.addEventListener("loadedmetadata", resizeDetailVideo);
+new ResizeObserver(resizeDetailVideo).observe(document.querySelector("#detailModal .detail-scroll-content"));
+
 // fromHistory=true면 이전/이후 버튼으로 이동한 경우라 히스토리에 새로 안쌓고 그대로 재생만 함
 function openDetailModal(word, fromHistory) {
   const modal = document.getElementById("detailModal");
@@ -355,11 +379,12 @@ function openDetailModal(word, fromHistory) {
   videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl); // 모달 열릴 때 로딩 시작
 
   modal.showModal();
+  modal.querySelector(".detail-scroll-content").scrollTop = 0;
   videoEl.play().catch(() => {});
 
-  // 관련 단어(같은 초성) 렌더링 + 슬라이드 드로어 초기화(닫힌 상태로)
+  // 다른 단어 목록 갱신
   renderRelatedWords(word);
-  closeSlideDrawer();
+  resizeDetailVideo();
 
   // 영상설명 최신정보 요청
   fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
@@ -480,14 +505,14 @@ function updateDetailNavButtons() {
   document.getElementById("detailNextBtn").style.display = detailHistoryIndex < detailHistory.length - 1 ? "flex" : "none";
 }
 
-// 같은 초성의 다른 단어 2개를 관련 단어로 추천 (유튜브 관련영상 리스트 스타일)
+// 현재 단어를 제외한 다른 단어 추천
 function renderRelatedWords(word) {
   const box = document.getElementById("detailRelated");
   box.innerHTML = "";
 
   // 초성 상관없이 전체 단어 풀에서 완전 랜덤 (자기 자신만 제외)
   const pool = ALL_WORDS.filter(w => w.signWordName !== word.signWordName);
-  const related = [...pool].sort(() => Math.random() - 0.5).slice(0, 2);
+  const related = [...pool].sort(() => Math.random() - 0.5).slice(0, 4);
 
   if (related.length === 0) {
     box.innerHTML = '<div class="cho-group-empty">더이상 단어가 없습니다</div>';
@@ -495,24 +520,28 @@ function renderRelatedWords(word) {
   }
 
   related.forEach(r => {
-    let thumbUrl = r.signWordThumbnail || '';
-    if (thumbUrl.startsWith("http://")) {
-      thumbUrl = thumbUrl.replace("http://", "https://");
-    }
-
-    const item = document.createElement("div");
+    const item = document.createElement("button");
+    item.type = "button";
     item.className = "related-item";
-    item.innerHTML =
-      '<div class="related-thumb">' +
-        (thumbUrl ? '<img src="' + thumbUrl + '" alt="">' : '') +
-      '</div>' +
-      '<div class="related-info">' +
-        '<div class="related-name"></div>' +
-        '<div class="related-desc"></div>' +
-      '</div>';
-
-    item.querySelector(".related-name").textContent = r.signWordName || '';
-    item.querySelector(".related-desc").textContent = r.description || '설명 없음';
+    item.title = r.signWordName || '';
+    const thumbnail = document.createElement("span");
+    thumbnail.className = "related-thumb";
+    thumbnail.setAttribute("aria-hidden", "true");
+    let thumbUrl = r.signWordThumbnail || '';
+    if (thumbUrl.startsWith("http://")) thumbUrl = thumbUrl.replace("http://", "https://");
+    if (thumbUrl) {
+      const image = document.createElement("img");
+      image.src = thumbUrl;
+      image.alt = '';
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.addEventListener("error", () => { image.remove(); thumbnail.classList.add("unavailable"); });
+      thumbnail.appendChild(image);
+    } else thumbnail.classList.add("unavailable");
+    const name = document.createElement("span");
+    name.className = "related-name";
+    name.textContent = r.signWordName || '';
+    item.append(thumbnail, name);
 
     item.addEventListener("click", () => {
       openDetailModal(r); // 관련 단어 클릭 시 그 단어 상세로 전환
@@ -532,36 +561,7 @@ document.getElementById("detailCloseBtn").addEventListener("click", () => {
   videoEl.pause();
   videoEl.removeAttribute("src"); // 로딩 중단
   videoEl.load();
-  closeSlideDrawer();
   modal.close();
-});
-
-// 슬라이드 드로어 열기 - 이제 CSS가 알아서 60%까지 슬라이드업 해주니까 높이 계산 로직 필요없어짐, 클래스 토글만
-function openSlideDrawer() {
-  const drawer = document.getElementById("detailSlideDrawer");
-  drawer.classList.add("open");
-
-  const toggleBtn = document.getElementById("detailSlideToggle");
-  toggleBtn.childNodes[toggleBtn.childNodes.length - 1].textContent = " 접기";
-}
-
-// 슬라이드 드로어 닫기
-function closeSlideDrawer() {
-  const drawer = document.getElementById("detailSlideDrawer");
-  drawer.classList.remove("open");
-
-  const toggleBtn = document.getElementById("detailSlideToggle");
-  toggleBtn.childNodes[toggleBtn.childNodes.length - 1].textContent = " 다른 단어 보기";
-}
-
-// 화살표 버튼 클릭 시 열림/닫힘 토글
-document.getElementById("detailSlideToggle").addEventListener("click", () => {
-  const drawer = document.getElementById("detailSlideDrawer");
-  if (drawer.classList.contains("open")) {
-    closeSlideDrawer();
-  } else {
-    openSlideDrawer();
-  }
 });
 
 // 카드, 페이지, 라벨 텍스트 정리. 

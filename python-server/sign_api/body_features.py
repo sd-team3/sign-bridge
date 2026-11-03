@@ -1,5 +1,7 @@
+"""Versioned hands + shoulder-relative upper-body features shared by train/inference."""
 import numpy as np
 from .sign_model import normalize_hands
+from .hand_tracking import HandTracker, candidates, recover_candidates, expected_missing, VERSION
 
 SCHEMA='hands_body_v1'
 SIZE=154
@@ -45,20 +47,37 @@ class Extractor:
         self.pose=mp.solutions.pose.Pose(static_image_mode=False,model_complexity=1,
                                        smooth_landmarks=True,enable_segmentation=False,
                                        min_detection_confidence=.5,min_tracking_confidence=.5)
-    def reset(self): self.hands.reset(); self.pose.reset()
+        self.recovery=mp.solutions.hands.Hands(True,2,1,.5,.5)
+        self.tracker=HandTracker()
+    def reset(self):
+        self.hands.reset(); self.pose.reset(); self.tracker.reset()
     def process(self,image):
         import cv2
+        original=image
         if image.shape[1]>640: image=cv2.resize(image,(640,round(image.shape[0]*640/image.shape[1])))
         rgb=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
         h=self.hands.process(rgb); p=self.pose.process(rgb)
-        hands=np.zeros((2,21,3),np.float32)
-        if h.multi_hand_landmarks and h.multi_handedness:
-            for lm,hd in zip(h.multi_hand_landmarks,h.multi_handedness):
-                hands[0 if hd.classification[0].label=='Left' else 1]=[[v.x,v.y,v.z] for v in lm.landmark]
         pose=np.array([[v.x,v.y,v.visibility] for v in p.pose_landmarks.landmark],np.float32) if p.pose_landmarks else None
+        detected=candidates(h)
+        labels=[d[1] for d in detected if d[1] is not None]
+        # A probe must not advance the persistent assignment state twice.
+        probe=HandTracker();probe.previous=self.tracker.previous.copy();probe.age=self.tracker.age.copy()
+        hands=probe.assign(detected,pose,image.shape[1]/image.shape[0])
+        recovered=0; attempted=False
+        if expected_missing(hands,pose,image.shape[1]/image.shape[0]):
+            attempted=True
+            if original.shape[1]>960: original=cv2.resize(original,(960,round(original.shape[0]*960/original.shape[1])))
+            result=self.recovery.process(cv2.cvtColor(original,cv2.COLOR_BGR2RGB))
+            detected,recovered=recover_candidates(detected,candidates(result),pose,image.shape[1]/image.shape[0])
+        hands=self.tracker.assign(detected,pose,image.shape[1]/image.shape[0])
         self.last_hands=hands
         self.last_pose=pose
+        self.last_tracking=dict(version=VERSION,detected=len(h.multi_hand_landmarks or []),
+            duplicate_labels=len(labels)!=len(set(labels)),recovery_attempted=attempted,recovered=recovered,
+            assigned=int(np.any(hands!=0,axis=(1,2)).sum()))
+        self.last_tracking['excess_candidates']=max(0,len(detected)-2)
+        if self.last_tracking['assigned'] != min(2,len(detected)):raise ValueError('Hand assignment lost a detection')
         return encode(hands,pose,image.shape[1]/image.shape[0])
-    def close(self): self.hands.close(); self.pose.close()
+    def close(self): self.hands.close(); self.pose.close(); self.recovery.close()
     def __enter__(self): return self
     def __exit__(self,*args): self.close()
