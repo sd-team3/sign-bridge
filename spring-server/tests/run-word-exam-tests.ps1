@@ -25,4 +25,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'UI tests failed' }
     & node "$PSScriptRoot/sign-auto-capture.cjs"
     if ($LASTEXITCODE -ne 0) { throw 'Automatic recording tests failed' }
+    & node "$PSScriptRoot/comparison-ui.cjs"
+    if ($LASTEXITCODE -ne 0) { throw 'Comparison UI tests failed' }
 } finally { $env:NODE_PATH = $previousNodePath }

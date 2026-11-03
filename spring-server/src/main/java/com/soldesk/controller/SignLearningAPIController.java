@@ -52,7 +52,7 @@ public class SignLearningAPIController {
     @PostMapping(value = "/evaluate-video", consumes = "multipart/form-data")
     public JsonNode evaluate(@RequestParam("target_word_id") String wordId,
             @RequestParam("attempt_id") String attemptId, @RequestParam("video") MultipartFile video) {
-        return service.evaluate(wordId, attemptId, video);
+        return service.evaluateWithComparison(wordId, attemptId, video);
     }
 
     @ExceptionHandler(ApiException.class)

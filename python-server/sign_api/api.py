@@ -112,6 +112,19 @@ class Runtime:
             ckpt = torch.load(path, map_location='cpu', weights_only=True)
             if ckpt.get('feature_schema') != 'hands_body_v1':
                 raise ValueError('Expected hands_body_v1 model')
+            from .hand_tracking import VERSION
+            if ckpt.get('preprocessing_version',VERSION)!=VERSION:
+                raise ValueError('Checkpoint requires a different hand extractor')
+            if ckpt.get('extractor_code_id'):
+                from .preprocessing_identity import fingerprint
+                if ckpt['extractor_code_id']!=fingerprint():
+                    raise ValueError('Checkpoint and serving preprocessing code differ')
+            if ckpt.get('extractor_dependencies'):
+                import cv2
+                import mediapipe
+                installed={'opencv':cv2.__version__,'mediapipe':mediapipe.__version__,'numpy':np.__version__}
+                if installed!=ckpt['extractor_dependencies']:
+                    raise ValueError('Checkpoint and serving extraction dependencies differ')
             if ckpt.get('input_policy', 'original') not in ('original', 'seated_v1', 'seated_active_v2'):
                 raise ValueError('Unsupported input policy')
             self.words = json.loads((ROOT / 'assets' / 'labels.json').read_text(encoding='utf-8'))
@@ -138,6 +151,10 @@ class Runtime:
             bank_path=ROOT/'assets/reference_bank.json'
             if bank_path.exists():
                 banks=json.loads(bank_path.read_text(encoding='utf-8'))
+                quality_path=ROOT/'assets/reference_quality.json'
+                reference_quality=json.loads(quality_path.read_text(encoding='utf-8')) if quality_path.exists() else None
+                if reference_quality is not None and set(reference_quality)!=set(self.words):
+                    raise ValueError('Reference tracking audit and vocabulary differ')
                 if set(banks)!=set(self.words): raise ValueError('Reference bank and vocabulary differ')
                 for code,entries in banks.items():
                     variants=[]
@@ -151,7 +168,8 @@ class Runtime:
                         video=entry['video']
                         if video not in (f'{code}.mp4',f'{code}_{subject}.mp4') or not (ROOT/'assets/videos'/video).is_file(): raise ValueError('Invalid reference video')
                         url=f'/api/v1/signs/reference/WORD{code}' if subject=='REAL01' else f'/api/v1/signs/reference/WORD{code}/{subject}'
-                        variants.append(dict(subject=subject,geometry=geometry,video_url=url))
+                        tracking_quality=reference_quality[code][subject] if reference_quality is not None else {}
+                        variants.append(dict(subject=subject,geometry=geometry,video_url=url,tracking_quality=tracking_quality))
                     self.reference_banks[code]=variants
             if self.curriculum and (len(self.references) != len(self.words) or
                     any(not (ROOT/'assets/videos'/f'{code}.mp4').is_file() for code in self.words)):
@@ -181,6 +199,8 @@ class Runtime:
             quality = {'hand_frames': int(np.any(features[:, :126], axis=1).sum()),
                        'shoulder_frames': int((features[:, 153] > .5).sum()),
                        'total_frames': len(features)}
+            from .tracking_quality import summarize
+            quality.update(summarize(clip.frames,clip.aspect))
             if self.ckpt.get('input_policy') == 'seated_active_v2':
                 from .seated_active_features import suppress_resting
                 active = suppress_resting(features)
@@ -279,6 +299,8 @@ def health():
             'temperature': runtime.ckpt.get('temperature',1.) if runtime.model is not None else None,
             'mirror_ensemble': runtime.ckpt.get('mirror_ensemble',False) if runtime.model is not None else False,
             'input_schema': 'raw_mp_legacy_v1',
+            'hand_extractor_version': 'hands_tracking_v2',
+            'model_preprocessing_version': runtime.ckpt.get('preprocessing_version','legacy_handedness_v1') if runtime.model is not None else None,
             'model_id': runtime.ckpt.get('model_id') if runtime.model is not None else None,
             'dataset_subjects': runtime.ckpt.get('dataset_subjects') if runtime.model is not None else None,
             'training_subjects': runtime.ckpt.get('training_subjects',[]) if runtime.model is not None else [],

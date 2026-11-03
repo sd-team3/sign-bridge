@@ -1,9 +1,9 @@
 {
-  "model_id": "curriculum70_context_v5_14signers",
+  "model_id": "curriculum70_tracking_v8_14signers",
   "input_policy": "seated_active_v2",
   "classes": 70,
   "chapters": 7,
-  "sha256": "c8798e149ff82641eaf34315b3d06bb4519bd3fa27c774e6dfbbd98bcb3d3aa1",
+  "sha256": "6a5d6520f34ad3271d4172318ba1541bb4879ba4116412753c90d65117b8c6c8",
   "reference_variants": 210,
   "reference_policy": "training REAL01-03 only; nearest comparable original or mirrored demonstration",
   "references": [
@@ -379,16 +379,30 @@
     "REAL13",
     "REAL14"
   ],
-  "temperature": 0.75,
+  "temperature": 0.8,
   "training_clips": 1100,
   "validation_clips": 100,
   "evaluation_clips": 200,
   "architecture": "context_fusion_v1",
   "model_output_classes": 100,
   "feedback_policy": "semantic_v1",
-  "fusion_weight": 0.5,
+  "fusion_weight": 0,
   "service_evaluation_clips": 140,
   "auxiliary_evaluation_clips": 60,
   "recognition_threshold": 0.7,
-  "recognition_margin": 0.15
+  "recognition_margin": 0.15,
+  "mirror_ensemble": true,
+  "hand_extractor_version": "hands_tracking_v2",
+  "reference_tracking_audit": "reference_quality.json",
+  "preprocessing_audit": "D:/sign-lang/data/curriculum100_tracking_v2/audit.json",
+  "activation_decision": "v8_user_requested_test",
+  "model_weights_retrained": true,
+  "preprocessing_version": "hands_tracking_v2",
+  "extractor_dependencies": {
+    "opencv": "4.14.0",
+    "mediapipe": "0.10.14",
+    "numpy": "2.4.6"
+  },
+  "extractor_code_id": "ba451460ec368fc4f58a37dac3b4fcc8b9ce9b8e4d209cbdcadc978fafd13fac",
+  "authorization": "User explicitly requested v8 activation for personal testing; prior failed automatic evaluation gates retained."
 }

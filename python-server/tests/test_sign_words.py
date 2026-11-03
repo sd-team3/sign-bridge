@@ -128,10 +128,13 @@ class ApiTests(unittest.TestCase):
         features=np.ones((30,154),np.float32)
         features[:,127]=-.2; features[:,129]=1.6
         shapes=np.full((30,2,6),np.nan,np.float32)
-        captured=[]; original=runtime.model
+        captured=[]
         def capture(xs,masks):
+            import torch
             captured.append(xs.numpy().copy())
-            return original(xs,masks)
+            logits=torch.zeros(len(xs),len(runtime.ckpt['labels']))
+            logits[:,runtime.ckpt['labels'].index('커피')]=20
+            return logits
         with patch('sign_api.api.encode_frames',return_value=(features,shapes)),patch.object(runtime,'model',capture):
             result=runtime.infer(Clip(**clip()))
         self.assertEqual(result['status'],'ok')

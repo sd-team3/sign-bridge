@@ -11,6 +11,9 @@ def _geometry_feedback(reference, actual, target, predicted, target_score, ignor
                 'similarity':{'available':False,'score':None,'threshold':threshold,'below_threshold':None,
                               'method':'dtw_geometry_v1'},'source':'rules'}
     observation=compare(reference,actual,ignore_resting=ignore_resting,similarity_threshold=threshold)
+    if selected and selected.get('tracking_review'):
+        observation.update(similarity_available=False,similarity_score=None,corrections=[],feedback_required=True,
+            reason='reference_tracking',summary='모범 영상의 손을 충분히 확인하지 못한 구간이 있어 자세 차이를 충분히 비교하지 못했어요.')
     required=observation['feedback_required']
     reason=observation['reason']; message=observation['summary']
     corrections=observation['corrections']
@@ -33,7 +36,7 @@ def _geometry_feedback(reference, actual, target, predicted, target_score, ignor
                   '동작에 사용하는 손이 보이도록 처음부터 끝까지 다시 촬영해 주세요.'])
     # A matching prediction with no actionable correction receives encouragement,
     # including when geometry coverage is insufficient for a posture comparison.
-    if predicted == target and not corrections:
+    if predicted == target and not corrections and not (selected or {}).get('tracking_review'):
         message = '잘하셨어요. 다음 단어를 연습해 볼까요?'
         actions = [message]
     score=observation['similarity_score']

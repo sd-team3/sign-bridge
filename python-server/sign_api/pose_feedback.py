@@ -51,9 +51,10 @@ def extract_geometry(images):
         return np.empty((0, 2, 6), np.float32)
     indices = np.linspace(0, len(images) - 1, min(80, len(images))).round().astype(int)
     with Extractor() as extractor:
-        for i in indices:
-            image = images[i]
+        selected=set(indices.tolist())
+        for i,image in enumerate(images):
             extractor.process(image)
+            if i not in selected:continue
             rows.append(geometry(extractor.last_hands, extractor.last_pose,
                                  image.shape[1] / image.shape[0]))
     return np.asarray(rows)

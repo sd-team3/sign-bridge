@@ -44,3 +44,6 @@ Thumbs.db
 *.log
 *.tmp
 .env
+python-server/data/practice_diagnostics/
+python-server/data/comparison_cache/
+python-server/sign_api/__pycache__/

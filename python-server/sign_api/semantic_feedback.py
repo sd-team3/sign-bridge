@@ -10,6 +10,8 @@ def interpret_feedback(geometry, target, predicted, target_score, recognition=No
     result['policy'] = 'semantic_v1'
     result['similarity']['role'] = 'optional_reference_comparison'
     result['reference_notes'] = []
+    if (result.get('reference') or {}).get('tracking_review'):
+        result['reference_notes'].append('모범 영상의 손을 충분히 확인하지 못한 구간이 있어 세부 자세 비교는 생략했어요.')
     measures = {c.get('measure') for c in result.get('observations', {}).get('corrections', [])}
     if '어깨 너비에 대한 손 높이 차이' in measures:
         result['reference_notes'].append('모범 영상과 손의 높이가 다르게 측정됐어요. 이 차이만으로 틀린 동작이라고 판단하지 않아요.')
@@ -20,7 +22,7 @@ def interpret_feedback(geometry, target, predicted, target_score, recognition=No
     if accepted and predicted == target:
         result.update(status='recognized', feedback_required=False, reason='recognized_variation',
             message=f'‘{target}’ 동작으로 인식됐어요. 모범 영상과 위치나 동작 크기가 조금 달라도 같은 단어로 인식할 수 있어요.', actions=[])
-        if not result['similarity'].get('available'):
+        if not result['similarity'].get('available') and not (result.get('reference') or {}).get('tracking_review'):
             result['reference_notes'].append('단어는 인식됐지만 이번 촬영의 자세 비교는 충분히 확인하지 못했어요.')
     elif accepted:
         result.update(status='advice', feedback_required=True, reason='target_mismatch',

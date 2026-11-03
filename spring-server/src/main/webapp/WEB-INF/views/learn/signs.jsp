@@ -53,6 +53,7 @@
             <div class="sl-video-tools"><button id="sl-start-camera" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button><button id="sl-stop-camera" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button></div>
             <p id="sl-auto-state" class="sl-hint" role="status">손을 보여주면 자동으로 녹화하고, 양손을 화면 밖으로 내리면 평가해요.</p>
             <p class="sl-hint">미리보기는 거울처럼 보입니다. 음성은 녹음하지 않아요.</p>
+            <p class="sl-hint">인식 개선을 위해 동작 좌표와 결과를 기록해요. 촬영 영상은 분석 후 삭제해요.</p>
           </section>
         </div>
         <p id="sl-guidance" class="sl-guidance">양쪽 어깨와 동작에 사용하는 손이 보이도록 촬영해 주세요.</p>
@@ -71,7 +72,7 @@
   <noscript><p class="sl-alert">단어 목록과 웹캠 피드백을 이용하려면 JavaScript를 켜 주세요.</p></noscript>
 </main>
 <jsp:include page="../includes/footer.jsp" />
-<script src="<c:url value='/resources/js/sign-coaching.js'/>" defer></script>
+<script src="<c:url value='/resources/js/sign-coaching.js'/>?v=highlight-notes-2" defer></script>
 <script src="<c:url value='/resources/js/sign-auto-capture.js'/>" defer></script>
 <script src="<c:url value='/resources/js/sign-learning.js'/>" defer></script>
 </body>

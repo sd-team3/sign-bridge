@@ -78,7 +78,7 @@ class Basic70Tests(unittest.TestCase):
             self.assertEqual(health['dataset_subjects'],14)
             self.assertEqual(health['model_output_classes'],100)
             self.assertEqual(health['feedback_policy'],'semantic_v1')
-            self.assertEqual(health['model_id'],'curriculum70_context_v5_14signers')
+            self.assertEqual(health['model_id'],'curriculum70_tracking_v8_14signers')
             self.assertTrue(set(health['training_subjects']).isdisjoint(health['evaluation_subjects']))
             self.assertEqual(health['reference_variants'],210)
             self.assertTrue(health['mirror_ensemble'])

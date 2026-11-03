@@ -43,6 +43,6 @@
   <noscript>시험을 이용하려면 JavaScript를 켜 주세요.</noscript>
 </main>
 <jsp:include page="../includes/footer.jsp" />
-<script src="<c:url value='/resources/js/sign-coaching.js'/>" defer></script>
+<script src="<c:url value='/resources/js/sign-coaching.js'/>?v=highlight-notes-2" defer></script>
 <script src="<c:url value='/resources/js/word-exam.js'/>" defer></script>
 </body></html>

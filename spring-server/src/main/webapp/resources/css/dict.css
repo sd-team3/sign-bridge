@@ -171,9 +171,8 @@
   .report-status-inner .btn { width:100%; justify-content:center; }
  
   /* 단어 상세 모달 (강의식) */
-  /* 드로어 열려도 모달 자체 크기 안변하게 max-height 말고 height로 고정 (여기가 이번 수정 핵심) */
   .detail-modal {
-    border:none; border-radius:24px; padding:0; max-width:520px; width:92vw; height:88vh;
+    border:none; border-radius:24px; padding:0; max-width:920px; width:calc(100vw - 32px); height:min(92vh, 940px); max-height:calc(100vh - 24px); overflow:hidden;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -181,20 +180,19 @@
     margin: 0;
   }
 .detail-modal::backdrop { background:rgba(0,0,0,.65); }
-/* 토글바가 스크롤 내려야 보이는 문제 있어서 구조 바꿈: modal-inner 자체는 더이상 스크롤 안하고(overflow:hidden),
-   내용은 밑에 detail-scroll-content가 스크롤 담당, 드로어는 그 아래 항상 고정으로 붙어있게 함 */
 .detail-modal-inner { padding:0; position:relative; height:100%; overflow:hidden; display:flex; flex-direction:column; align-items:stretch; }
 
-/* 영상/이름/설명 담는 스크롤 영역 - 여기서만 스크롤됨, 드로어는 이 영역 밖이라 항상 보임 */
-.detail-scroll-content { flex:1; min-height:0; overflow:hidden; width:100%; display:flex; flex-direction:column; align-items:center; padding:48px 32px 14px; }
+/* 상세 모달 본문 */
+.detail-scroll-content { flex:1; min-height:0; overflow:hidden; width:100%; display:flex; flex-direction:column; align-items:stretch; margin-top:48px; padding:0 28px 28px; }
+.detail-scroll-content > * { flex-shrink:0; }
+.detail-video-row { position:relative; width:100%; display:flex; justify-content:center; flex:1; min-height:0; }
 .detail-modal-close { border:none; background:none; font-size:22px; cursor:pointer; line-height:1; color:var(--text-sub); }
-/* 영상 작아보인다길래 440->520으로 키움 */
-.detail-video-wrap { width:100%; max-width:400px; aspect-ratio:4/3; border-radius:16px; overflow:hidden; background:#000; box-shadow:0 8px 24px rgba(0,0,0,.15); flex-shrink:0; }
+.detail-video-wrap { width:var(--detail-video-width, 100%); height:100%; max-width:420px; aspect-ratio:auto; border-radius:16px; overflow:hidden; background:#000; box-shadow:0 8px 24px rgba(0,0,0,.15); flex-shrink:0; }
 .detail-word-name { font-size:20px; font-weight:900; letter-spacing:-0.5px; margin-top:8px; text-align:center; flex-shrink:0; }
 .detail-divider { width:48px; height:3px; background:var(--brand,#1e8e5a); border-radius:2px; margin:10px 0 6px; flex-shrink:0; }
 .detail-section-label { font-size:13px; font-weight:800; color:var(--brand,#1e8e5a); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; text-align:center; }
 .detail-video-wrap video { width:100%; height:100%; object-fit:contain; display:block; }
-.detail-description { font-size:15px; line-height:1.6; color:#333; text-align:center; max-width:480px; width:100%; flex:1; min-height:0; overflow-y:auto; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:16px 20px; box-sizing:border-box; }
+.detail-description { font-size:16px; line-height:1.8; color:#333; text-align:left; max-width:100%; width:100%; flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:16px 20px; box-sizing:border-box; }
  .page-dots { color:var(--text-sub); font-weight:700; }
 
   /* 오류신고 왼쪽위로 뺐음, 닫기랑 분리 */
@@ -208,10 +206,10 @@
 
 .detail-top-actions { position:absolute; top:14px; right:16px; display:flex; align-items:center; gap:8px; z-index:5; }
 
-/* 이전/이후 단어 이동 버튼 - 모달 중간라인 양옆에 배치, 히스토리 없으면 JS로 숨김 */
+/* 영상 양옆의 이전/다음 단어 버튼 */
 .detail-nav-btn {
   position: absolute;
-  top: 198px; /* 영상(detail-video-wrap) 세로 중앙에 맞춤: 스크롤영역 패딩 48px + 영상높이(최대 400px*3/4=300px) 절반 */
+  top: 50%;
   transform: translateY(-50%);
   width: 40px;
   height: 40px;
@@ -230,8 +228,8 @@
   color: #333;
   transform: translateY(-50%) scale(1.15);
 }
-.detail-nav-prev { left: 12px; }
-.detail-nav-next { right: 12px; }
+.detail-nav-prev { left: 0; }
+.detail-nav-next { right: 0; }
 
 .detail-modal-close { width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; color:var(--text-sub); padding:0; border-radius:8px; transition:background 0.15s ease, color 0.15s ease; }
 .detail-modal-close:hover { background:#f2f2f2; color:#333; }
@@ -320,122 +318,41 @@
   text-align: left;
 }
 
-/* 슬라이드업 드로어 */
-/* 전에는 드로어 자체를 모달 전체높이 기준 absolute로 띄웠더니, 스크롤영역이 모달 전체라서
-   토글바 보려면 맨밑까지 스크롤 내려야하는 문제 생김.
-   그래서 토글바는 detail-scroll-content 밖(즉 flex 흐름 맨아래)에 고정으로 두고 항상 보이게 하고,
-   실제 관련단어 리스트(detail-slide-content)만 토글바 바로 위에서 absolute로 펼쳐지게 분리함 */
-.detail-slide-drawer {
-  position: relative;
-  flex-shrink: 0;
-  width: 100%;
-  background: #fff;
-  border-top: 1px solid #eee;
-  z-index: 10;
-}
-
-.detail-slide-toggle {
-  width: 100%;
-  flex-shrink: 0;
-  border: none;
-  background: #fafafa;
-  padding: 10px 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-sub);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.detail-slide-toggle:hover {
-  background: #f2f8f5;
-  color: var(--brand, #1e8e5a);
-}
-
-.detail-slide-arrow {
-  display: inline-block;
-  transition: transform 0.25s ease;
-  font-size: 11px;
-}
-.detail-slide-drawer.open .detail-slide-arrow {
-  transform: rotate(180deg);
-}
-
-/* 관련단어 리스트 - 토글바 바로 위(bottom:100%)에서 위로 펼쳐짐. 모달크기/스크롤영역 안건드림 */
-.detail-slide-content {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-  max-height: 0;
-  overflow: hidden;
-  background: #fff;
-  border-radius: 16px 16px 0 0;
-  box-shadow: 0 -6px 20px rgba(0,0,0,.08);
-  transition: max-height 0.28s ease;
-}
-.detail-slide-drawer.open .detail-slide-content {
-  max-height: min(50vh, 320px);
-  overflow-y: auto;
-}
-
-/* 관련 단어 리스트 (유튜브 관련영상 스타일 - 썸네일+제목 카드형) */
 .detail-related-list {
-  padding: 14px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:repeat(4,minmax(0,1fr));
+  align-content:stretch;
+  flex:1;
+  gap:8px 16px;
+  margin-top:12px;
+  min-height:0;
+  overflow-y:auto;
 }
-
 .related-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 10px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:0;
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:0;
+  text-align:left;
+  font:inherit;
+  font-size:16px;
+  font-weight:600;
+  line-height:1.5;
+  color:var(--text-main,#333);
+  overflow-wrap:anywhere;
+  cursor:pointer;
 }
-.related-item:hover {
-  background: #f2f8f5;
-}
-
-.related-thumb {
-  width: 88px;
-  aspect-ratio: 4/3;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #000;
-  flex-shrink: 0;
-}
-.related-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.related-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.related-name {
-  font-weight: 800;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.related-desc {
-  font-size: 12px;
-  color: var(--text-sub);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+.related-thumb { display:flex; align-items:center; justify-content:center; width:88px; max-width:42%; aspect-ratio:4/3; max-height:100%; flex-shrink:0; border-radius:6px; overflow:hidden; }
+.related-thumb img { display:block; width:100%; height:100%; object-fit:contain; }
+.related-thumb.unavailable::after { content:'▶'; color:#9ca3a0; font-size:18px; }
+.related-name { min-width:0; overflow-wrap:anywhere; }
+.related-item:hover { color:var(--brand,#1e8e5a); text-decoration:underline; text-underline-offset:4px; }
+.related-item:focus-visible { outline:2px solid var(--brand,#1e8e5a); outline-offset:3px; border-radius:4px; }
 
 .cam-status {
   text-align: center;
@@ -532,4 +449,51 @@
   0% { transform: scale(1); }
   40% { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(45, 155, 111, 0.2); }
   100% { transform: scale(1); }
+}
+
+@supports (height: 1dvh) {
+  .detail-modal { height:min(92dvh, 940px); max-height:calc(100dvh - 24px); }
+}
+.detail-top-grid { display:grid; grid-template-columns:minmax(0, 1.3fr) minmax(0, 1fr); gap:24px; width:100%; align-items:stretch; flex:0 0 var(--detail-top-height, 60%); min-height:0; }
+.detail-demo-panel { display:flex; flex-direction:column; align-items:center; gap:8px; min-width:0; min-height:0; }
+.detail-panel-heading { flex-shrink:0; align-self:stretch; font-size:14px; font-weight:800; color:var(--brand,#1e8e5a); margin:0; text-align:left; }
+.detail-video-controls { max-width:100%; margin:0; flex-wrap:wrap; }
+.detail-word-heading { flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:8px; }
+.detail-word-heading .detail-word-name { margin:0; overflow-wrap:anywhere; }
+.detail-word-heading .detail-fav-star { position:static; margin:0; flex-shrink:0; }
+.detail-related-panel { display:flex; flex-direction:column; min-width:0; min-height:0; overflow:hidden; }
+.detail-related-panel > .detail-panel-heading { padding:0; }
+.detail-description-section { display:flex; flex-direction:column; flex:1; min-height:0; width:100%; margin-top:20px; padding-top:16px; border-top:1px solid #e6efe9; }
+.detail-description-section > .detail-panel-heading { margin-bottom:12px; }
+.detail-nav-btn { background:rgba(255,255,255,.88); border-radius:50%; }
+@media (max-width: 760px) {
+  .detail-modal { width:calc(100vw - 24px); border-radius:20px; }
+  .detail-scroll-content { padding:0 16px 20px; }
+  .detail-top-grid { grid-template-columns:minmax(0,1.8fr) minmax(0,1fr); gap:16px; }
+  .detail-related-list { grid-template-columns:minmax(0,1fr); gap:4px; }
+  .related-item { padding:0; gap:6px; font-size:14px; }
+  .detail-related-panel > .detail-panel-heading { font-size:13px; }
+  .detail-description { padding:16px; }
+  .detail-video-controls { gap:8px; }
+  .detail-speed-slider { width:52px; }
+  .detail-speed-label { min-width:24px; }
+  .detail-speed-control { padding:0 6px; gap:4px; }
+  .detail-ctrl-btn { padding:6px 8px; font-size:12px; }
+}
+
+@media (max-height: 540px) {
+  .detail-scroll-content { margin-top:40px; padding-bottom:12px; }
+  .detail-report-btn { top:8px; }
+  .detail-top-actions { top:4px; }
+  .detail-demo-panel { gap:4px; }
+  .detail-panel-heading { font-size:12px; }
+  .detail-word-heading { position:absolute; top:6px; left:50%; transform:translateX(-50%); }
+  .detail-word-heading .detail-word-name { font-size:16px; }
+  .detail-speed-control { height:26px; }
+  .detail-ctrl-btn { padding:4px 8px; font-size:12px; }
+  .detail-related-list { gap:0; margin-top:6px; }
+  .related-item { padding:0; gap:8px; font-size:13px; }
+  .detail-description-section { margin-top:10px; padding-top:8px; }
+  .detail-description-section > .detail-panel-heading { margin-bottom:8px; }
+  .detail-description { padding:12px; font-size:14px; line-height:1.6; }
 }
