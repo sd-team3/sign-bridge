@@ -1,3 +1,5 @@
+> 최신 모델·코칭 정책은 [CONTEXT_MODEL_UPDATE.md](CONTEXT_MODEL_UPDATE.md)를 참고하세요. 아래는 이전 모델의 기록입니다.
+
 # 14명 자료를 반영한 기본70 모델
 
 적용일: 2026-11-03. 모델 ID: `curriculum70_seated_v4_14signers`.

@@ -1,3 +1,5 @@
+> 최신 모델·코칭 정책은 [CONTEXT_MODEL_UPDATE.md](CONTEXT_MODEL_UPDATE.md)를 참고하세요. 아래는 이전 모델의 기록입니다.
+
 > 현재 모델은 14명 자료로 갱신되었습니다. 최신 결과는 [MODEL14_UPDATE.md](MODEL14_UPDATE.md)를 참고하세요. 아래는 이전 모델의 적용 기록입니다.
 
 # 기본 70단어 모델·코칭·Spring 반영 결과

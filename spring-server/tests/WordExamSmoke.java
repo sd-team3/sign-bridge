@@ -113,6 +113,9 @@ public class WordExamSmoke {
             check(learning.calls==callsBefore+1,"concurrent requests evaluate only once");
             check(JSON.readTree(mapper.find(concurrentId,10)).path("questions").get(0).path("attempts").asInt()==1,"concurrent answers saved once");
         } finally { pool.shutdownNow(); }
+        ObjectNode uncertain=evaluation(true,.95,"uncertain_recognition");
+        ((ObjectNode)uncertain.path("recognition")).put("accepted",false);
+        check(WordExamService.motionVerdict(uncertain).equals("pending"),"semantic uncertainty overrides confident top1");
         System.out.println("WORD_EXAM_OK checks="+checks);
     }
 }

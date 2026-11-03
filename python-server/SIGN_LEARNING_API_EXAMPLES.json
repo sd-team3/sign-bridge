@@ -4,16 +4,14 @@
     "error": null,
     "classes": 70,
     "references": 70,
+    "model_output_classes": 100,
+    "architecture": "context_fusion_v1",
+    "feedback_policy": "semantic_v1",
     "reference_variants": 210,
-    "temperature": 0.65,
+    "temperature": 0.75,
     "mirror_ensemble": true,
     "input_schema": "raw_mp_legacy_v1",
-    "model_id": "curriculum70_seated_v4_14signers",
-    "input_policy": "seated_active_v2",
-    "chapters": 7,
-    "feedback_similarity_threshold": 70.0,
-    "live_feedback": "tracking_quality_only",
-    "completed_clip_feedback": "reference_geometry",
+    "model_id": "curriculum70_context_v5_14signers",
     "dataset_subjects": 14,
     "training_subjects": [
       "REAL01",
@@ -34,7 +32,12 @@
     "evaluation_subjects": [
       "REAL13",
       "REAL14"
-    ]
+    ],
+    "input_policy": "seated_active_v2",
+    "chapters": 7,
+    "feedback_similarity_threshold": 70.0,
+    "live_feedback": "tracking_quality_only",
+    "completed_clip_feedback": "learned_word_with_optional_geometry"
   },
   "chapters": {
     "curriculum_version": "basic70-2026-10-28",
@@ -227,10 +230,12 @@
     },
     "feedback": {
       "live": "tracking_quality_only",
-      "completed_clip": "reference_geometry",
+      "completed_clip": "learned_word_with_optional_geometry",
       "similarity_threshold": 70.0,
       "similarity_meaning": "reference_geometry_heuristic_not_accuracy",
-      "score_meaning": "classification_softmax_not_posture_accuracy"
+      "score_meaning": "classification_softmax_not_posture_accuracy",
+      "policy": "semantic_v1",
+      "similarity_role": "optional_reference_comparison"
     }
   },
   "retry": {
@@ -243,7 +248,7 @@
       "active_hand_frames": 0,
       "excluded_resting_slots": []
     },
-    "model_id": "curriculum70_seated_v4_14signers",
+    "model_id": "curriculum70_context_v5_14signers",
     "target_word_id": "WORD0115",
     "input_policy": "seated_active_v2",
     "recognition": null,
@@ -262,6 +267,42 @@
         "threshold": 70.0,
         "below_threshold": null,
         "method": "dtw_geometry_v1"
+      },
+      "source": "rules"
+    }
+  },
+  "outside_curriculum_retry": {
+    "attempt_id": "outside-live-smoke",
+    "status": "retry",
+    "target_word_id": "WORD0115",
+    "model_id": "curriculum70_context_v5_14signers",
+    "input_policy": "seated_active_v2",
+    "quality": {
+      "hand_frames": 62,
+      "shoulder_frames": 62,
+      "total_frames": 62,
+      "active_hand_frames": 56,
+      "excluded_resting_slots": [
+        1
+      ]
+    },
+    "recognition": null,
+    "feedback": {
+      "status": "retry",
+      "feedback_required": true,
+      "reason": "outside_curriculum",
+      "policy": "semantic_v1",
+      "message": "현재 학습 과정 밖의 단어에 더 가까운 동작으로 보여요. 목표 단어를 확인하고 다시 보여 주세요.",
+      "actions": [
+        "연습 중인 단어의 모범 영상을 확인한 뒤 다시 촬영해 주세요."
+      ],
+      "similarity": {
+        "available": false,
+        "score": null,
+        "threshold": 70,
+        "below_threshold": null,
+        "method": "dtw_geometry_v1",
+        "role": "optional_reference_comparison"
       },
       "source": "rules"
     }

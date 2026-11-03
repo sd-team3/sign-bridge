@@ -1,34 +1,77 @@
 {
-  "classes": 70,
-  "chapters": 7,
-  "dataset_subjects": 14,
-  "split_counts": {
-    "train": 770,
-    "val": 70,
-    "test": 140
+  "model_id": "curriculum70_context_v5_14signers",
+  "selected_epoch": 59,
+  "validation_selection": {
+    "fusion_weight": 0.5,
+    "temperature": 0.75,
+    "val_score": 0.09702904522418976
   },
-  "selected_epoch": 70,
-  "temperature": 0.65,
-  "new_model": {
-    "clean": 0.9571428571428572,
-    "synthetic_desk": {
-      "0.75": 0.9214285612106323,
-      "1.1": 0.9571428298950195,
-      "1.5": 0.9642857313156128
+  "results": {
+    "None": {
+      "context70_accuracy": 0.9785714149475098,
+      "baseline70_accuracy": 0.9571428298950195,
+      "all100_accuracy": 0.9800000190734863,
+      "known_outside30_rejection": 1.0,
+      "accepted70": 135,
+      "wrong_accepted70": 1,
+      "baseline_wrong_accepted70": 4,
+      "accepted_correct70": 134,
+      "baseline_accepted70": 135,
+      "baseline_accepted_correct70": 131,
+      "baseline_wrong_accepted_same_margin70": 4
     },
-    "per_subject": {
-      "REAL13": 0.9571428571428572,
-      "REAL14": 0.9571428571428572
+    "0.75": {
+      "context70_accuracy": 0.949999988079071,
+      "baseline70_accuracy": 0.9214285612106323,
+      "all100_accuracy": 0.9399999976158142,
+      "known_outside30_rejection": 0.949999988079071,
+      "accepted70": 127,
+      "wrong_accepted70": 2,
+      "baseline_wrong_accepted70": 6,
+      "accepted_correct70": 125,
+      "baseline_accepted70": 133,
+      "baseline_accepted_correct70": 127,
+      "baseline_wrong_accepted_same_margin70": 6
+    },
+    "1.1": {
+      "context70_accuracy": 0.9857142567634583,
+      "baseline70_accuracy": 0.9571428298950195,
+      "all100_accuracy": 0.9800000190734863,
+      "known_outside30_rejection": 1.0,
+      "accepted70": 135,
+      "wrong_accepted70": 1,
+      "baseline_wrong_accepted70": 4,
+      "accepted_correct70": 134,
+      "baseline_accepted70": 138,
+      "baseline_accepted_correct70": 134,
+      "baseline_wrong_accepted_same_margin70": 4
+    },
+    "1.5": {
+      "context70_accuracy": 0.9857142567634583,
+      "baseline70_accuracy": 0.9642857313156128,
+      "all100_accuracy": 0.9850000143051147,
+      "known_outside30_rejection": 1.0,
+      "accepted70": 135,
+      "wrong_accepted70": 1,
+      "baseline_wrong_accepted70": 3,
+      "accepted_correct70": 134,
+      "baseline_accepted70": 137,
+      "baseline_accepted_correct70": 134,
+      "baseline_wrong_accepted_same_margin70": 3
+    },
+    "augmented": {
+      "context70_accuracy": 0.9714285731315613,
+      "baseline70_accuracy": 0.9428571462631226,
+      "all100_accuracy": 0.9750000238418579,
+      "known_outside30_rejection": 1.0,
+      "accepted70": 135,
+      "wrong_accepted70": 1,
+      "baseline_wrong_accepted70": 3,
+      "accepted_correct70": 134,
+      "baseline_accepted70": 134,
+      "baseline_accepted_correct70": 131,
+      "baseline_wrong_accepted_same_margin70": 3
     }
   },
-  "previous70_on_same_heldout": {
-    "clean": 0.9642857313156128,
-    "synthetic_desk": {
-      "0.75": 0.9142857193946838,
-      "1.1": 0.9428571462631226,
-      "1.5": 0.9571428298950195
-    },
-    "model_id": "curriculum70_seated_v3"
-  },
-  "note": "Same 140 held-out REAL13/14 frontal clips and synthetic conditions. No test-driven tuning. Not independent seated webcam accuracy."
+  "note": "REAL13/14 repeated-project evaluation. Unsupported30 are trained named classes, not arbitrary unseen non-signs. Synthetic robustness is not real webcam accuracy."
 }

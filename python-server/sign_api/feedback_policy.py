@@ -2,7 +2,7 @@ from .pose_feedback import compare
 from .reference_selection import choose
 
 
-def evaluate_feedback(reference, actual, target, predicted, target_score, ignore_resting=False, threshold=70.0):
+def _geometry_feedback(reference, actual, target, predicted, target_score, ignore_resting=False, threshold=70.0):
     reference,selected=choose(reference,actual,ignore_resting,threshold)
     if reference is None:
         return {'status':'reference_unavailable','feedback_required':True,'reason':'reference_unavailable',
@@ -42,3 +42,11 @@ def evaluate_feedback(reference, actual, target, predicted, target_score, ignore
             'similarity':{'available':observation['similarity_available'],'score':score,
                           'threshold':float(threshold),'below_threshold':score <= threshold if score is not None else None,
                           'method':'dtw_geometry_v1'},'observations':observation,'source':'rules'}
+
+
+def evaluate_feedback(reference, actual, target, predicted, target_score, ignore_resting=False, threshold=70.0, policy='geometry_v1', recognition=None):
+    result = _geometry_feedback(reference, actual, target, predicted, target_score, ignore_resting, threshold)
+    if policy == 'semantic_v1':
+        from .semantic_feedback import interpret_feedback
+        return interpret_feedback(result, target, predicted, target_score, recognition)
+    return result

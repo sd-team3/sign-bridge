@@ -160,6 +160,7 @@ public class WordExamService {
         String reason = result.path("feedback").path("reason").asText();
         if (!result.path("status").asText().equals("ok") || !r.isObject()
                 || Set.of("insufficient_tracking", "insufficient_comparison", "reference_unavailable").contains(reason)) return "pending";
+        if (r.has("accepted") && !r.path("accepted").asBoolean()) return "pending";
         JsonNode top = r.path("top3");
         double confidence = top.isArray() && !top.isEmpty() ? top.get(0).path("score").asDouble(-1) : -1;
         if (!Double.isFinite(confidence) || confidence < .7 || confidence > 1 || !r.path("target_matches_top1").isBoolean()) return "pending";

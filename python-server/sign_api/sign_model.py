@@ -58,3 +58,14 @@ def inference_logits(model, x, mask, checkpoint):
     temperature = float(checkpoint.get('temperature', 1.0))
     if not np.isfinite(temperature) or temperature <= 0: raise ValueError('Invalid temperature')
     return result / temperature
+
+
+def build_model(checkpoint):
+    architecture = checkpoint.get('architecture', 'lstm')
+    if architecture == 'context_fusion_v1':
+        from .context_model import ContextFusion
+        return ContextFusion(len(checkpoint['labels']), checkpoint['model_config'], checkpoint['legacy_model_config'],
+                             checkpoint['supported_indices'], checkpoint['fusion_weight'], checkpoint['legacy_temperature'])
+    if architecture != 'lstm':
+        raise ValueError('Unsupported model architecture')
+    return SignLSTM(len(checkpoint['labels']), **checkpoint['model_config'])

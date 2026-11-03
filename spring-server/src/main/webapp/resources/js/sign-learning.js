@@ -361,12 +361,14 @@
   }
   function renderResult(result) {
     if (result.status === 'retry') {
-      el('recognition').textContent = '손과 어깨가 잘 보이도록 다시 촬영해 주세요';
-      el('prediction').textContent = '동작을 충분히 확인하지 못했어요. 오답으로 처리하지 않습니다.';
+      const outside = result.feedback?.reason === 'outside_curriculum';
+      el('recognition').textContent = outside ? '목표 단어를 다시 확인해 주세요' : '손과 어깨가 잘 보이도록 다시 촬영해 주세요';
+      el('prediction').textContent = outside ? '현재 학습 과정 밖의 단어에 더 가까운 동작으로 보여요.' : '동작을 충분히 확인하지 못했어요. 오답으로 처리하지 않습니다.';
     } else if (result.status === 'ok' && result.recognition) {
       const matches = result.recognition.target_matches_top1 === true;
-      el('recognition').textContent = matches ? '목표 단어로 인식됐어요!' : '다른 단어로 인식됐어요';
-      el('prediction').textContent = '인식한 단어: ' + result.recognition.predicted_label;
+      const uncertain = result.recognition.accepted === false;
+      el('recognition').textContent = uncertain ? '단어를 한 번 더 확인할게요' : matches ? '목표 단어로 인식됐어요!' : '다른 단어로 인식됐어요';
+      el('prediction').textContent = uncertain ? '‘' + result.recognition.predicted_label + '’에 가깝지만 아직 확신하기 어려워요.' : '인식한 단어: ' + result.recognition.predicted_label;
       sessionResults.set(current.word.word_id, result.feedback?.feedback_required ? '다시 연습' : matches ? '인식됨' : '연습함');
     } else throw new Error('평가 결과 형식을 확인할 수 없습니다. 다시 시도해 주세요.');
     window.SignCoaching.render(el('feedback-message'), result.feedback);
