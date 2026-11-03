@@ -53,6 +53,8 @@ public class SignLearningApiService {
         });
     }
 
+    public JsonNode health() { return get("/health"); }
+
     public JsonNode chapters(String contextPath) {
         return publicUrls(get("/chapters"), contextPath);
     }

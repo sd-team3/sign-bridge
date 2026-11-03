@@ -18,6 +18,9 @@
 .sl-video-wrap{position:relative;background:#12221b;border-radius:12px;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}.sl-video-wrap video{width:100%;height:100%;object-fit:contain}
 #sl-camera{transform:scaleX(-1)}#sl-camera-placeholder{position:absolute;color:#d9e9e1;text-align:center;font-size:13px;padding:24px}#sl-recording-badge{position:absolute;top:12px;left:12px;background:#b93232;color:white;padding:4px 9px;border-radius:6px;font-size:12px}
 #sl-timer{font-variant-numeric:tabular-nums;color:var(--text-sub);font-weight:500}.sl-video-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 0}.sl-video-tools label{font-size:12px;color:var(--text-sub)}.sl-video-tools select{font:inherit;padding:5px;border-radius:6px;background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.sl-camera-wrap{outline:3px solid transparent;outline-offset:2px;transition:outline-color .2s,box-shadow .2s}.sl-camera-wrap.sl-is-recording{outline-color:#28b878;box-shadow:0 0 0 7px #28b87826,0 0 24px #28b87860;animation:sl-recording-glow 1.6s ease-in-out infinite}#sl-recording-badge{background:#16784d}
+@keyframes sl-recording-glow{50%{box-shadow:0 0 0 8px #28b87838,0 0 30px #28b87880}}
+@media(prefers-reduced-motion:reduce){.sl-camera-wrap.sl-is-recording{animation:none}}
 .sl-hint{font-size:12px;line-height:1.7;color:var(--text-sub)}.sl-guidance{padding:14px 16px;background:var(--surface2);border-radius:10px;font-size:13px;margin:20px 0}
 .sl-actions{display:flex;gap:10px;flex-wrap:wrap}.sl-status{font-size:13px;color:var(--text-sub);margin:14px 0;min-height:24px}.sl-status[data-error="true"]{color:var(--danger)}
 .sl-alert{padding:15px 18px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;font-size:14px}.sl-alert a{text-decoration:underline;color:var(--primary);font-weight:700}.sl-alert .btn{margin-top:10px}

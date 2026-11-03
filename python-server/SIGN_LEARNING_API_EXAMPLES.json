@@ -8,12 +8,33 @@
     "temperature": 0.65,
     "mirror_ensemble": true,
     "input_schema": "raw_mp_legacy_v1",
-    "model_id": "curriculum70_seated_v3",
+    "model_id": "curriculum70_seated_v4_14signers",
     "input_policy": "seated_active_v2",
     "chapters": 7,
     "feedback_similarity_threshold": 70.0,
     "live_feedback": "tracking_quality_only",
-    "completed_clip_feedback": "reference_geometry"
+    "completed_clip_feedback": "reference_geometry",
+    "dataset_subjects": 14,
+    "training_subjects": [
+      "REAL01",
+      "REAL02",
+      "REAL03",
+      "REAL04",
+      "REAL05",
+      "REAL06",
+      "REAL07",
+      "REAL08",
+      "REAL09",
+      "REAL10",
+      "REAL11"
+    ],
+    "validation_subjects": [
+      "REAL12"
+    ],
+    "evaluation_subjects": [
+      "REAL13",
+      "REAL14"
+    ]
   },
   "chapters": {
     "curriculum_version": "basic70-2026-10-28",
@@ -222,7 +243,7 @@
       "active_hand_frames": 0,
       "excluded_resting_slots": []
     },
-    "model_id": "curriculum70_seated_v3",
+    "model_id": "curriculum70_seated_v4_14signers",
     "target_word_id": "WORD0115",
     "input_policy": "seated_active_v2",
     "recognition": null,

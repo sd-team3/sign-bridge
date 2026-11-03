@@ -27,6 +27,9 @@ public class SignLearningAPIController {
     private final SignLearningApiService service;
     public SignLearningAPIController(SignLearningApiService service) { this.service = service; }
 
+    @GetMapping("/health")
+    public JsonNode health() { return service.health(); }
+
     @GetMapping("/chapters")
     public JsonNode chapters(HttpServletRequest request) { return service.chapters(request.getContextPath()); }
 

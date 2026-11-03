@@ -19,7 +19,13 @@
         <a href="${ctx}/learn/dict">수어 사전 <small>궁금한 단어 찾아보기</small></a>
       </div>
     </details>
-    <a class="sb-link" data-section="exam" href="${ctx}/exam/setup">시험</a>
+    <details class="sb-menu" data-section="exam">
+      <summary>시험 <span aria-hidden="true">⌄</span></summary>
+      <div class="sb-dropdown">
+        <a href="${ctx}/exam/legacy/setup">지문자 시험 <small>기본 손모양과 지문자 실력 확인하기</small></a>
+        <a href="${ctx}/exam/words">수어 단어 시험 <small>영상 이해와 동작 표현 확인하기</small></a>
+      </div>
+    </details>
     <details class="sb-menu" data-section="playzone">
       <summary>플레이존 <span aria-hidden="true">⌄</span></summary>
       <div class="sb-dropdown">

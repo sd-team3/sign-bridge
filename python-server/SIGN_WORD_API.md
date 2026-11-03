@@ -2,7 +2,7 @@
 
 페이지 구현 순서는 [수어 학습 페이지 구현 도움집](SIGN_LEARNING_PAGE_GUIDE.md)을 참고하세요.
 
-적용 모델: `curriculum70_seated_v3`, 입력 정책 `seated_active_v2`.
+적용 모델: `curriculum70_seated_v4_14signers`, 입력 정책 `seated_active_v2`.
 기본 과정 7챕터 70단어를 제공한다. 확장 30단어는 현재 과정과 분류 대상에서 제외한다.
 챕터는 기존 2026-10-13 선정 목록의 단원 구성을 사용한다.
 기존 지문자 `/predict`, `/coach`, `/health`는 유지한다. 이 브랜치에는 Python 모델·코칭·API만 반영하며 Spring 소스는 변경하지 않는다.
@@ -229,7 +229,7 @@ Swagger는 `/docs`. 기존 requirements와 main.py는 변경하지 않는다.
 ## 2026-10-28 기본70 적용 사항
 
 - 현재 과정은 7챕터·70단어다. 확장 단어/챕터 요청은 404 또는 422로 거절한다.
-- 모델은 `curriculum70_seated_v3`, 좌우 반전 예측 결합과 검증셋 온도 보정을 적용한다.
+- 모델은 `curriculum70_seated_v4_14signers`, 좌우 반전 예측 결합과 검증셋 온도 보정을 적용한다.
 - 단어당 학습 인물 REAL01/02/03 시범 3개 중 비교 가능한 시범·좌우 반전 상태를 선택한다.
 - `feedback.reference`에는 `subject`, `video_url`, `mirrored`가 있다. 새로운 영상 경로는
   `/api/v1/signs/reference/{word_id}/{subject}`이며 subject는 REAL01~03만 허용한다.

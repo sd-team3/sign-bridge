@@ -11,6 +11,7 @@
   <title>챕터별 수어 학습 · SignBridge</title>
   <link rel="stylesheet" href="<c:url value='/resources/css/shared.css'/>">
   <link rel="stylesheet" href="<c:url value='/resources/css/sign-learning.css'/>">
+  <link rel="stylesheet" href="<c:url value='/resources/css/sign-coaching.css'/>">
 </head>
 <body>
 <jsp:include page="../includes/header.jsp" />
@@ -48,18 +49,19 @@
           </section>
           <section class="sl-video-card">
             <h3>2. 웹캠으로 따라 하기 <span id="sl-timer">00:00</span></h3>
-            <div class="sl-video-wrap sl-camera-wrap"><video id="sl-camera" autoplay playsinline muted aria-label="내 카메라 미리보기"></video><p id="sl-camera-placeholder">카메라를 켜고 동작을 따라 해보세요.</p><span id="sl-recording-badge" hidden>● 녹화 중</span></div>
+            <div id="sl-camera-frame" class="sl-video-wrap sl-camera-wrap"><video id="sl-camera" autoplay playsinline muted aria-label="내 카메라 미리보기"></video><p id="sl-camera-placeholder">카메라를 켜고 동작을 따라 해보세요.</p><span id="sl-recording-badge" hidden>● 녹화 중</span></div>
             <div class="sl-video-tools"><button id="sl-start-camera" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button><button id="sl-stop-camera" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button></div>
+            <p id="sl-auto-state" class="sl-hint" role="status">손을 보여주면 자동으로 녹화하고, 양손을 화면 밖으로 내리면 평가해요.</p>
             <p class="sl-hint">미리보기는 거울처럼 보입니다. 음성은 녹음하지 않아요.</p>
           </section>
         </div>
         <p id="sl-guidance" class="sl-guidance">양쪽 어깨와 동작에 사용하는 손이 보이도록 촬영해 주세요.</p>
         <div id="sl-login-notice" class="sl-alert" <c:if test="${signedIn}">hidden</c:if>>모범 영상은 바로 볼 수 있어요. 웹캠 피드백은 <a href="<c:url value='/member/login'/>">로그인</a> 후 이용해 주세요.</div>
-        <div class="sl-actions"><button id="sl-record" type="button" class="btn btn-primary" disabled>녹화 시작</button><button id="sl-finish" type="button" class="btn btn-danger" disabled>종료 후 평가</button><button id="sl-resubmit" type="button" class="btn btn-ghost" hidden>같은 영상 다시 평가</button></div>
-        <p id="sl-status" class="sl-status" role="status" aria-live="polite">2~10초 동안 동작 전체를 촬영해 주세요. 최대 19초에 자동 종료됩니다.</p>
+        <div class="sl-actions"><button id="sl-resubmit" type="button" class="btn btn-ghost" hidden>같은 영상 다시 평가</button></div>
+        <p id="sl-status" class="sl-status" role="status" aria-live="polite">카메라를 켠 뒤 손을 보여 주세요. 초록 테두리가 켜지면 녹화 중이에요.</p>
         <section id="sl-result" class="sl-result" aria-live="polite" hidden>
           <p class="sl-eyebrow">이번 연습 결과</p><h3 id="sl-recognition"></h3><p id="sl-prediction"></p>
-          <div class="sl-feedback"><h4>자세 피드백</h4><p id="sl-feedback-message"></p></div>
+          <div id="sl-feedback-message" class="sl-feedback"></div>
           <p class="sl-hint">단어 인식과 자세 피드백은 별개예요. 학습 완료나 자세 정확도 점수를 의미하지 않습니다.</p>
         </section>
         <div class="sl-word-nav"><button id="sl-prev" type="button" class="btn btn-ghost">← 이전 단어</button><span id="sl-session-note">결과는 현재 페이지에서 확인할 수 있어요.</span><button id="sl-next" type="button" class="btn btn-ghost">다음 단어 →</button></div>
@@ -69,6 +71,8 @@
   <noscript><p class="sl-alert">단어 목록과 웹캠 피드백을 이용하려면 JavaScript를 켜 주세요.</p></noscript>
 </main>
 <jsp:include page="../includes/footer.jsp" />
+<script src="<c:url value='/resources/js/sign-coaching.js'/>" defer></script>
+<script src="<c:url value='/resources/js/sign-auto-capture.js'/>" defer></script>
 <script src="<c:url value='/resources/js/sign-learning.js'/>" defer></script>
 </body>
 </html>

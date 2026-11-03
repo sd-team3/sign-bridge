@@ -13,6 +13,18 @@
   let revision = 0, timer = null, startedAt = 0, requestAbort = null, disposed = false;
   let wordAbort = null, failedRecording = false, durationLimit = 19000;
   const maxBytes = 25 * 1024 * 1024;
+  const autoGate = new window.SignAutoCapture.Gate();
+  const presence = new window.SignAutoCapture.Presence(ctx + '/resources/js/hand-presence-worker.js', (count, now) => {
+    const ready = !!current && !!stream && referenceReady && signedIn && !cameraPending && !disposed && !document.hidden;
+    const action = autoGate.update(count, now, phase, ready);
+    if (action === 'start') startRecording();
+    else if (action === 'finish') finishRecording();
+  }, error => {
+    failedRecording = true;
+    if (phase === 'recording') finishRecording();
+    stopCamera();
+    status(error.message, true);
+  });
   const locked = () => ['recording', 'finalizing', 'evaluating'].includes(phase);
   const status = (message, error = false) => {
     el('status').textContent = message;
@@ -20,14 +32,17 @@
   };
   function updateControls() {
     const busy = locked();
-    el('record').disabled = busy || !current || !stream || !referenceReady || !signedIn || cameraPending;
-    el('finish').disabled = phase !== 'recording' || performance.now() - startedAt < 2000;
     el('start-camera').disabled = busy || cameraPending || !!stream || !signedIn || !current;
     el('stop-camera').disabled = busy || !stream;
     el('resubmit').hidden = !recording || phase !== 'error';
     el('resubmit').disabled = busy || !signedIn;
-    el('record').textContent = recording || phase === 'result' ? '다시 촬영' : '녹화 시작';
     el('recording-badge').hidden = phase !== 'recording';
+    el('camera-frame').classList.toggle('sl-is-recording', phase === 'recording');
+    el('auto-state').textContent = phase === 'recording' ? '녹화 중 · 동작을 마치면 양손을 화면 밖으로 내려 주세요.'
+      : phase === 'evaluating' || phase === 'finalizing' ? '촬영한 동작을 확인하고 있어요.'
+      : phase === 'error' ? '평가를 마치지 못했어요. 같은 영상으로 다시 평가해 주세요.'
+      : cameraPending ? '자동 손 감지를 준비하고 있어요…'
+      : stream ? '자동 녹화 대기 · 손을 내렸다 보여주면 시작해요.' : '카메라를 켜면 손을 감지해 자동으로 녹화해요.';
     const index = current ? current.chapter.words.findIndex(w => w.word_id === current.word.word_id) : -1;
     el('prev').disabled = busy || !current || index <= 0;
     el('next').disabled = busy || !current || index >= current.chapter.words.length - 1;
@@ -139,6 +154,7 @@
     referenceReady = false;
     recording = null;
     phase = 'idle';
+    autoGate.reset(!!stream);
     el('workspace').hidden = false;
     el('empty').hidden = true;
     el('result').hidden = true;
@@ -163,7 +179,7 @@
       el('guidance').textContent = detail.capture?.guidance || '양쪽 어깨와 동작에 사용하는 손이 보이도록 촬영해 주세요.';
       el('reference').src = api + '/reference/' + encodeURIComponent(word.word_id);
       el('reference').playbackRate = 1;
-      status('2~10초 동안 동작 전체를 촬영해 주세요. 최대 19초에 자동 종료됩니다.');
+      status('손을 보여주면 자동 녹화를 시작해요. 동작을 마친 뒤 양손을 화면 밖으로 내려 주세요. 최대 19초에 자동 종료돼요.');
       history.replaceState(null, '', ctx + '/learn/signs?chapter=' + encodeURIComponent(chapter.chapter_id) + '&word=' + encodeURIComponent(word.word_id));
       if (scroll && window.matchMedia('(max-width: 700px)').matches) el('workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (error) {
@@ -193,6 +209,8 @@
     el('reference').play().catch(() => {});
   });
   function stopCamera() {
+    presence.stop();
+    autoGate.reset();
     if (stream) stream.getTracks().forEach(track => track.stop());
     stream = null;
     el('camera').srcObject = null;
@@ -227,7 +245,11 @@
         stopCamera();
         status('카메라 연결이 끊겼습니다. 다시 켜 주세요.', true);
       });
-      status('카메라가 준비됐어요. 양쪽 어깨와 동작에 사용하는 손을 화면 안에 맞춰 주세요.');
+      status('자동 손 감지를 준비하고 있어요…');
+      await presence.start(el('camera'));
+      if (disposed) return;
+      autoGate.reset();
+      status('카메라가 준비됐어요. 손을 보여주면 초록 테두리와 함께 자동 녹화가 시작돼요.');
     } catch (error) {
       stopCamera();
       const messages = { NotAllowedError: '카메라 권한이 차단되었습니다. 브라우저 설정에서 카메라를 허용해 주세요.', NotFoundError: '연결된 카메라를 찾을 수 없습니다.', NotReadableError: '다른 앱이 카메라를 사용 중입니다. 카메라 사용을 종료한 뒤 다시 시도해 주세요.', OverconstrainedError: '카메라가 요청한 해상도를 지원하지 않습니다. 다른 카메라를 이용해 주세요.' };
@@ -280,7 +302,7 @@
         const blob = new Blob(chunks, { type: activeRecorder.mimeType });
         if (failedRecording || !blob.size || blob.size > maxBytes || performance.now() - startedAt < 1800) {
           phase = 'idle';
-          status('영상이 너무 짧거나 녹화를 완료하지 못했습니다. 2~10초 동안 다시 촬영해 주세요.', true);
+          status('동작을 충분히 담지 못했어요. 손을 내렸다 다시 보여주고 2초 이상 동작해 주세요.', true);
           updateControls();
           return;
         }
@@ -292,7 +314,7 @@
       startedAt = performance.now();
       phase = 'recording';
       el('timer').textContent = '00:00';
-      status('녹화 중이에요. 동작을 끝낸 뒤 ‘종료 후 평가’를 눌러 주세요.');
+      status('녹화 중이에요. 동작을 끝낸 뒤 양손을 화면 밖으로 내려 주세요.');
       timer = setInterval(() => {
         const elapsed = performance.now() - startedAt;
         el('timer').textContent = '00:' + String(Math.floor(elapsed / 1000)).padStart(2, '0');
@@ -345,9 +367,9 @@
       const matches = result.recognition.target_matches_top1 === true;
       el('recognition').textContent = matches ? '목표 단어로 인식됐어요!' : '다른 단어로 인식됐어요';
       el('prediction').textContent = '인식한 단어: ' + result.recognition.predicted_label;
-      sessionResults.set(current.word.word_id, matches ? '인식됨' : '연습함');
+      sessionResults.set(current.word.word_id, result.feedback?.feedback_required ? '다시 연습' : matches ? '인식됨' : '연습함');
     } else throw new Error('평가 결과 형식을 확인할 수 없습니다. 다시 시도해 주세요.');
-    el('feedback-message').textContent = result.feedback?.message || '이번 동작의 자세 피드백을 제공할 수 없습니다.';
+    window.SignCoaching.render(el('feedback-message'), result.feedback);
     el('result').hidden = false;
     refreshWordMarks();
   }
@@ -370,14 +392,13 @@
   el('reload').addEventListener('click', loadCatalog);
   el('start-camera').addEventListener('click', startCamera);
   el('stop-camera').addEventListener('click', stopCamera);
-  el('record').addEventListener('click', startRecording);
-  el('finish').addEventListener('click', finishRecording);
   el('resubmit').addEventListener('click', submitRecording);
   el('prev').addEventListener('click', () => navigate(-1));
   el('next').addEventListener('click', () => navigate(1));
   window.addEventListener('pagehide', cleanup);
   window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
   document.addEventListener('visibilitychange', () => {
+    if (document.hidden) autoGate.reset(true);
     if (document.hidden && phase === 'recording') {
       failedRecording = true;
       finishRecording();

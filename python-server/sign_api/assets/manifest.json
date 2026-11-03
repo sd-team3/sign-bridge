@@ -1,9 +1,9 @@
 {
-  "model_id": "curriculum70_seated_v3",
+  "model_id": "curriculum70_seated_v4_14signers",
   "input_policy": "seated_active_v2",
   "classes": 70,
   "chapters": 7,
-  "sha256": "5a7ecec0f33badcdcb28d23e312f79d772a5bdc8c9a7cacf635be452c51ddc24",
+  "sha256": "ee73516eb6c66d089117366952106326f74d24ae4b63740fce663f12c7bd2031",
   "reference_variants": 210,
   "reference_policy": "training REAL01-03 only; nearest comparable original or mirrored demonstration",
   "references": [
@@ -357,5 +357,30 @@
       "video": "videos/1248.mp4",
       "subject": "REAL01"
     }
-  ]
+  ],
+  "dataset_subjects": 14,
+  "training_subjects": [
+    "REAL01",
+    "REAL02",
+    "REAL03",
+    "REAL04",
+    "REAL05",
+    "REAL06",
+    "REAL07",
+    "REAL08",
+    "REAL09",
+    "REAL10",
+    "REAL11"
+  ],
+  "validation_subjects": [
+    "REAL12"
+  ],
+  "evaluation_subjects": [
+    "REAL13",
+    "REAL14"
+  ],
+  "temperature": 0.65,
+  "training_clips": 770,
+  "validation_clips": 70,
+  "evaluation_clips": 140
 }

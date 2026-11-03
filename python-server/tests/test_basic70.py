@@ -75,6 +75,9 @@ class Basic70Tests(unittest.TestCase):
         with TestClient(app) as client:
             health=client.get('/api/v1/signs/health').json()
             self.assertEqual(health['classes'],70); self.assertEqual(health['chapters'],7)
+            self.assertEqual(health['dataset_subjects'],14)
+            self.assertEqual(health['model_id'],'curriculum70_seated_v4_14signers')
+            self.assertTrue(set(health['training_subjects']).isdisjoint(health['evaluation_subjects']))
             self.assertEqual(health['reference_variants'],210)
             self.assertTrue(health['mirror_ensemble'])
             self.assertEqual(client.get('/api/v1/signs/chapters/chapter-08').status_code,404)

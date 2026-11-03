@@ -13,6 +13,20 @@
   menus.forEach(menu => menu.addEventListener('toggle', () => {
     if (menu.open) menus.filter(other => other !== menu).forEach(other => other.open = false);
   }));
+  menus.forEach(menu => {
+    let closeTimer;
+    menu.addEventListener('pointerenter', event => {
+      if (event.pointerType !== 'mouse' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      clearTimeout(closeTimer);
+      menu.open = true;
+    });
+    menu.addEventListener('pointerleave', event => {
+      if (event.pointerType !== 'mouse') return;
+      closeTimer = setTimeout(() => {
+        if (!menu.contains(document.activeElement)) menu.open = false;
+      }, 200);
+    });
+  });
   document.addEventListener('click', event => {
     menus.filter(menu => !menu.contains(event.target)).forEach(menu => menu.open = false);
   });
