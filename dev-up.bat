@@ -1,12 +1,9 @@
 @echo off
-
+setlocal
 cd /d "%~dp0"
-
-docker compose -f docker-compose.dev.yml up -d
-
-if %errorlevel% neq 0 (
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Start-SignBridge.ps1" %*
+if errorlevel 1 (
     pause
-    exit /b %errorlevel%
+    exit /b 1
 )
-
-pause
+start "" "http://localhost:8080/"
