@@ -6,7 +6,7 @@ FINGERS = [('검지', (5, 6, 7, 8)), ('중지', (9, 10, 11, 12)),
 
 
 def geometry(hands, pose, aspect):
-    # Anatomical sides come from Pose wrists, not Hands' selfie handedness.
+
     row = np.full((2, 6), np.nan, dtype=np.float32)
     if pose is None or min(pose[11, 2], pose[12, 2]) < .7:
         return row
@@ -22,7 +22,7 @@ def geometry(hands, pose, aspect):
         distances = [np.linalg.norm(wrist - xy[p]) / width
                      if pose[p, 2] >= .7 else np.inf for p in (15, 16)]
         side = int(np.argmin(distances))
-        # Close/crossed wrists and unreliable pose wrists are left unassigned.
+
         if distances[side] > .35 or abs(distances[0] - distances[1]) < .15:
             continue
         if side in assigned:
@@ -63,7 +63,7 @@ def extract_geometry(images):
 
 
 def trim(rows):
-    # Remove standing/resting lead-in and tail when hands hang below the torso.
+
     active = np.flatnonzero(np.any(np.isfinite(rows[:, :, 1]) & (rows[:, :, 1] < .9), axis=1))
     return rows[max(0, active[0]-2):active[-1]+3] if len(active) else rows
 
@@ -106,7 +106,7 @@ def compare(reference, actual):
     if not pairs or cost > .85:
         result['summary']='동작 시점이나 손 위치를 안정적으로 맞추지 못해 자세 교정을 보류했습니다. 모범 동작을 처음부터 끝까지 따라 해 주세요.'
         return result
-    # Each actual frame counts once even when DTW repeats it.
+
     grouped = {}
     for i,j in pairs: grouped.setdefault(j,[]).append(reference[i])
     refs=[]; users=[]

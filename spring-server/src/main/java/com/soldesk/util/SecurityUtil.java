@@ -14,7 +14,7 @@ public class SecurityUtil {
     @Autowired
     private MemberService memberService;
 
-    // 현재 로그인한 사용자의 MemberId, 비로그인이면 null 반환
+
     public Integer getCurrentMemberId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
@@ -24,7 +24,7 @@ public class SecurityUtil {
         return member != null ? member.getMemberId() : null;
     }
 
-    // 현재 로그인한 사용자가 어드민인지 확인
+
     public boolean isAdmin() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return false;

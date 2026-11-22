@@ -47,7 +47,7 @@ DB_CONFIG = {
     "charset": "utf8mb4",
 }
 
-# 커넥션 재사용 + 자동 재시도(타임아웃/5xx 시 최대 2회, 점점 대기시간 늘려가며) 세션
+
 session = requests.Session()
 session.headers.update({"User-Agent": "Mozilla/5.0"})
 retry = Retry(total=2, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
@@ -66,7 +66,7 @@ def main():
     fixed = 0
     skipped = 0
     failed = 0
-    timeout_words = []   # 재시도까지 다 실패한 단어 목록
+    timeout_words = []
 
     try:
         with conn.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -90,9 +90,9 @@ def main():
                     continue
 
                 try:
-                    # 이 서버가 HEAD 요청을 제대로 처리하지 못해서 GET(stream)으로 확인
+
                     res = session.get(guessed_video, timeout=(5, 10), stream=True)
-                    res.close()  # 본문은 안 받고 상태코드만 확인 후 바로 연결 종료
+                    res.close()
                     if res.status_code == 200:
                         new_thumb = row["sign_word_thumbnail"] or broken_url
                         cursor.execute("""
@@ -111,7 +111,7 @@ def main():
                     timeout_words.append(row["sign_word_name"])
 
                 if idx % 50 == 0:
-                    conn.commit()  # 중간중간 커밋해서 도중에 죽어도 결과 보존
+                    conn.commit()
 
             conn.commit()
 

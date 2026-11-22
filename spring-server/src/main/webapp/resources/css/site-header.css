@@ -1,4 +1,4 @@
-/* Scoped shared navigation: independent of individual page layouts. */
+
 body header.sb-header{height:auto;min-height:74px;padding:14px max(24px,calc((100% - 1200px)/2));gap:24px;display:flex;flex-wrap:wrap;position:sticky;top:0;z-index:100;background:var(--surface);border-bottom:1px solid var(--border);font-family:'Noto Sans KR',sans-serif;line-height:1.5}
 .sb-header .sb-brand{display:flex;align-items:center;gap:10px;color:var(--primary-dark);font-size:23px;font-weight:900;letter-spacing:-.7px;white-space:nowrap;text-decoration:none}
 .sb-brand img{width:32px;height:32px;border-radius:8px}

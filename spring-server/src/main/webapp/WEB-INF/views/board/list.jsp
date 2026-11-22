@@ -25,7 +25,7 @@
     </div>
 
     <div class="board-layout">
-      <!-- 메인 -->
+
       <div>
         <jsp:include page="./includes/search.jsp" />
 

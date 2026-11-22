@@ -41,10 +41,10 @@ class StrictModel(BaseModel):
 
 class Frame(StrictModel):
     timestamp_ms: float = Field(ge=0, le=20000)
-    # Slots are MediaPipe Hands labels Left/Right on UNMIRRORED input.
-    # These are not anatomical sides; geometry() resolves sides using Pose.
+
+
     hands: list[list[list[float]] | None] = Field(min_length=2, max_length=2)
-    # Each Pose row is [x, y, visibility], NOT [x, y, z].
+
     pose: list[list[float]] | None = None
 
     @model_validator(mode='after')
@@ -101,7 +101,7 @@ class Runtime:
     def load(self):
         try:
             torch.set_num_threads(2)
-            # Only a trusted, operator-installed checkpoint is loaded.
+
             path = Path(os.environ.get('SIGN_MODEL_PATH', ROOT / 'assets' / 'best.pt'))
             ckpt = torch.load(path, map_location='cpu', weights_only=True)
             if ckpt.get('feature_schema') != 'hands_body_v1':
@@ -249,7 +249,7 @@ async def practice(ws: WebSocket):
                     if settings is not None:
                         raise ValueError('Finish/reset current attempt first')
                     settings = {k:v for k,v in msg.items() if k != 'type'}
-                    # Validate metadata using synthetic empty tracking frames, without inference.
+
                     Clip(**settings, frames=[{'timestamp_ms': i, 'hands': [None,None]} for i in range(16)])
                     if not settings.get('target_word_id') or settings['target_word_id'][4:] not in runtime.words:
                         settings = None

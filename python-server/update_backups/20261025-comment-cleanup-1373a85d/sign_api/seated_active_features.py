@@ -14,8 +14,8 @@ def suppress_resting(frames):
     a = np.asarray(frames, dtype=np.float32).copy()
     if len(a) == 0:
         return a
-    # Distal pose landmarks can reveal a hidden/resting arm even after hand
-    # suppression. Active wrist position is already encoded at 126:130.
+
+
     a[:, 139:151] = 0
     idle = []
     raised = []

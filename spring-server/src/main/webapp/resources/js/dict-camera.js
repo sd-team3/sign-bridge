@@ -1,13 +1,29 @@
-// dict-camera.js
-// dict.jsp의 수어 인식 모달(카메라로 손모양 인식해서 단어 검색) 로직
-import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
+
+
+import { HandCameraWidget, cameraErrorMessage } from "/api/sign/assets/js/hand-camera.js?v=20261113cpu";
 import { SignInputSession } from "./sign-input.js";
 
 export function initDictCamera({ ctx, onSearch }) {
-  // 카메라 일시정지 여부 (영상 클릭시 토글)
-  let camPaused = false;
 
-  // 자,모 조합 알고리즘
+  let camPaused = false;
+  let cameraPending = false;
+  function showCameraError(error) {
+    document.getElementById("camStatus").textContent = cameraErrorMessage(error);
+    document.getElementById("camStatus").className = "cam-status";
+  }
+  async function startCamera() {
+    if (cameraPending) return;
+    cameraPending = true;
+    try {
+      await cam.start();
+      camPaused = false;
+      document.getElementById("camPauseOverlay").classList.remove("visible");
+    } catch (error) {
+      if (error.name !== "AbortError") showCameraError(error);
+    } finally { cameraPending = false; }
+  }
+
+
   const signInput = new SignInputSession({
     apiBase: ctx,
     onUpdate: function (data) {
@@ -16,14 +32,14 @@ export function initDictCamera({ ctx, onSearch }) {
       var pct = (data.holdProgress || 0) * 100;
       document.getElementById("progressFill").style.width = pct + "%";
 
-      // 확신도 게이지 갱신
+
       var conf = (data.rawConfidence || 0) * 100;
       var gaugeFill = document.getElementById("camGaugeFill");
       var gaugeLabel = document.getElementById("camGaugeLabel");
       gaugeFill.style.strokeDashoffset = String(100 - conf);
       gaugeLabel.textContent = Math.round(conf) + "%";
 
-      // 조합된 글자가 생기면 검색 버튼 활성화 + 펄스 애니메이션
+
       var searchBtn = document.getElementById("camSearchBtn");
       var hasText = composed && composed.trim() !== "";
       if (hasText && searchBtn.disabled) {
@@ -36,10 +52,11 @@ export function initDictCamera({ ctx, onSearch }) {
     },
   });
 
-  // 카메라 손 추출
+
   const cam = new HandCameraWidget({
     videoEl: document.getElementById("video-word"),
     canvasEl: document.getElementById("canvas-word"),
+    onError: showCameraError,
     onFrame: function (landmarks) {
       const statusEl = document.getElementById("camStatus");
       const hasHand = landmarks && landmarks.length > 0;
@@ -50,7 +67,7 @@ export function initDictCamera({ ctx, onSearch }) {
         statusEl.textContent = "손을 카메라에 비춰주세요";
         statusEl.className = "cam-status not-detected";
 
-        // 손 없으면 게이지 0으로
+
         document.getElementById("camGaugeFill").style.strokeDashoffset = "100";
         document.getElementById("camGaugeLabel").textContent = "0%";
         document.getElementById("progressFill").style.width = "0%";
@@ -59,7 +76,7 @@ export function initDictCamera({ ctx, onSearch }) {
     },
   });
 
-  // 캠 클릭시 이전세션 초기화 후 카메라 인식 시작
+
   document.getElementById("camToggleBtn").addEventListener("click", async () => {
     document.getElementById("result-word").textContent = "-";
     document.getElementById("progressFill").style.width = "0%";
@@ -69,41 +86,39 @@ export function initDictCamera({ ctx, onSearch }) {
     document.getElementById("camGaugeFill").style.strokeDashoffset = "100";
     document.getElementById("camGaugeLabel").textContent = "0%";
 
-    // 검색 버튼도 다시 비활성화
+
     document.getElementById("camSearchBtn").disabled = true;
     document.getElementById("camSearchBtn").classList.remove("cam-search-ready");
 
     try { await signInput.reset(); } catch (e) { console.error(e); }
     document.getElementById("camModal").showModal();
-    await cam.start();
-    camPaused = false;
-    document.getElementById("camPauseOverlay").classList.remove("visible");
+    await startCamera();
   });
 
-  // 닫기 ... 카메라 스트림 정지
+
   document.getElementById("camCloseBtn").addEventListener("click", () => {
     document.getElementById("camModal").close();
-    cam.stop();
-    // 일시정지 상태였다면 다음에 다시 열 때 정상적으로 보이도록 초기화
+    cam.stopCamera();
+
     camPaused = false;
     document.getElementById("camPauseOverlay").classList.remove("visible");
   });
 
-  // 세션만 리셋(카메라 그대로)
+
   document.getElementById("camResetBtn").addEventListener("click", async () => {
     try { await signInput.reset(); } catch (e) { console.error(e); }
   });
 
-  // 일반검색과 로직동일
+
   document.getElementById("camSearchBtn").addEventListener("click", () => {
     const word = document.getElementById("result-word").textContent.trim();
     if (!word || word === "-") return;
     document.getElementById("camModal").close();
-    cam.stop();
+    cam.stopCamera();
     onSearch(word);
   });
 
-  // 카메라 영상 클릭시 정지/재개 토글
+
   document.getElementById("camWrap").addEventListener("click", async () => {
     const overlay = document.getElementById("camPauseOverlay");
     if (!camPaused) {
@@ -116,9 +131,21 @@ export function initDictCamera({ ctx, onSearch }) {
       camPaused = false;
       overlay.classList.remove("visible");
       document.getElementById("camStatus").textContent = "카메라를 준비하는 중...";
-      await cam.start();
+      await startCamera();
     }
   });
 
+  const tools = document.createElement("div");
+  tools.style.cssText = "display:flex;gap:8px;margin:12px 0";
+  const on = document.createElement("button"), off = document.createElement("button");
+  for (const button of [on, off]) { button.type = "button"; button.className = "btn btn-ghost btn-sm"; }
+  on.textContent = "카메라 켜기";
+  off.textContent = "카메라 끄기";
+  on.addEventListener("click", startCamera);
+  off.addEventListener("click", () => { cam.stopCamera(); document.getElementById("camStatus").textContent = "카메라가 꺼졌습니다."; });
+  tools.append(on, off);
+  document.getElementById("camWrap").before(tools);
+  document.getElementById("camModal").addEventListener("close", () => cam.stopCamera());
+  window.addEventListener("pagehide", () => cam.stopCamera());
   return { cam, signInput };
 }

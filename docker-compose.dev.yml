@@ -28,9 +28,9 @@ services:
     networks:
       - app-network
 
-  # Java/pom.xml 변경을 감시해서 자동으로 mvn compile + 의존성 복사를 수행.
-  # Tomcat 컨테이너와는 host 폴더(spring-server/target)를 통해서만 연결되고
-  # 컨테이너끼리 직접 연결되진 않는다 (host 파일시스템이 중간 매개체 역할).
+
+
+
   spring-compiler:
     build:
       context: ./spring-server
@@ -51,9 +51,9 @@ services:
     environment:
       - JAVA_OPTS=-Dpython.server.url=http://python-server:8000
     volumes:
-      # JSP/HTML/CSS/JS - 저장하면 새로고침만으로 즉시 반영
+
       - ./spring-server/src/main/webapp:/usr/local/tomcat/webapps/ROOT
-      # spring-compiler가 계속 갱신해주는 컴파일 결과물 / 의존성
+
       - ./spring-server/target/classes:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes
       - ./spring-server/target/dependency:/usr/local/tomcat/webapps/ROOT/WEB-INF/lib
     networks:

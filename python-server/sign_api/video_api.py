@@ -40,7 +40,7 @@ def reference_variant(word_id: str, subject: str):
     if not path.is_file(): raise HTTPException(404,'Reference video unavailable')
     return FileResponse(path,media_type='video/mp4')
 
-def evaluate_file(path, word_id, use_llm, attempt_id=None, include_comparison=False):
+def evaluate_file(path, word_id, use_llm=False, attempt_id=None, include_comparison=False):
     cap = cv2.VideoCapture(path)
     try:
         if not cap.isOpened():
@@ -54,8 +54,8 @@ def evaluate_file(path, word_id, use_llm, attempt_id=None, include_comparison=Fa
         tracking_stats = {'sampled_frames': 0, 'duplicate_label_frames': 0, 'recovered_hands': 0, 'recovery_attempts': 0, 'excess_candidate_frames': 0}
         with Extractor() as extractor:
             legacy_input=configure(extractor,getattr(runtime,'ckpt',{}))
-            # Browser recordings may omit FPS metadata. In that case use decoded
-            # presentation times, never an assumed FPS that changes motion speed.
+
+
             for index in range(int(fps*20)+2 if valid_fps else 2402):
                 ok = cap.grab()
                 if not ok:
@@ -105,11 +105,11 @@ def evaluate_file(path, word_id, use_llm, attempt_id=None, include_comparison=Fa
             frames=[frames[i] for i in selected]
             corrected_frames=[corrected_frames[i] for i in selected]
         result = runtime.infer(Clip(attempt_id=attempt_id or 'video-'+os.urandom(8).hex(), aspect=aspect,
-                                   target_word_id=word_id, frames=frames, use_llm=use_llm), True)
+                                   target_word_id=word_id, frames=frames), True)
         result['preprocessing'] = {'version': 'legacy_handedness_v1' if legacy_input else VERSION,
             'comparison_version': VERSION,'sampling_fps': 15,'tracking': tracking_stats}
         recognition=result.get('recognition') or {}
-        if legacy_input and not use_llm and result.get('status')=='ok' and isinstance(recognition.get('target_score'),(int,float)):
+        if legacy_input and result.get('status')=='ok' and isinstance(recognition.get('target_score'),(int,float)):
             from .api import encode_frames
             from .feedback_policy import evaluate_feedback
             _,shapes=encode_frames(corrected_frames,aspect)
@@ -144,7 +144,7 @@ def evaluate_file(path, word_id, use_llm, attempt_id=None, include_comparison=Fa
         cap.release()
 
 @video_router.post('/evaluate-video')
-async def evaluate_video(target_word_id: str = Form(...), use_llm: bool = Form(False), video: UploadFile = File(...), include_comparison: bool = Form(False),
+async def evaluate_video(target_word_id: str = Form(...), video: UploadFile = File(...), include_comparison: bool = Form(False),
                          attempt_id: str | None = Form(None, min_length=1, max_length=80, pattern=r'^[A-Za-z0-9_-]+$')):
     runtime.ready()
     if target_word_id not in {'WORD'+k for k in runtime.words}:
@@ -161,7 +161,7 @@ async def evaluate_video(target_word_id: str = Form(...), use_llm: bool = Form(F
                 if size > 25*1024*1024:
                     raise HTTPException(413, 'Maximum video size is 25 MiB')
                 tmp.write(chunk)
-        return await run_in_threadpool(evaluate_file, path, target_word_id, use_llm, attempt_id, include_comparison)
+        return await run_in_threadpool(evaluate_file, path, target_word_id, False, attempt_id, include_comparison)
     finally:
         await video.close()
         if path:

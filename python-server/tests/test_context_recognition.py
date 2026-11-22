@@ -41,15 +41,16 @@ class ContextRecognitionTests(unittest.TestCase):
     def test_confident_semantic_match_keeps_geometry_optional(self):
         _,geometry=self.encoded();actual=geometry.copy();actual[:,0,1]+=.35
         result=evaluate_feedback(geometry,actual,'커피','커피',.98,policy='semantic_v1',recognition=dict(accepted=True))
-        self.assertFalse(result['feedback_required']);self.assertEqual(result['actions'],[])
+        self.assertFalse(result['feedback_required'])
+        self.assertEqual(result['actions'],[result['observations']['corrections'][0]['text']])
         self.assertEqual(result['similarity']['role'],'optional_reference_comparison')
-        self.assertTrue(result['reference_notes']);self.assertTrue(result['observations']['corrections'])
+        self.assertTrue(result['observations']['corrections'])
 
     def test_recognition_does_not_claim_posture_when_comparison_missing(self):
         _,geometry=self.encoded()
         result=evaluate_feedback(geometry,np.full_like(geometry,np.nan),'커피','커피',.98,policy='semantic_v1',recognition=dict(accepted=True))
         self.assertFalse(result['feedback_required']);self.assertIsNone(result['similarity']['score'])
-        self.assertTrue(any('자세 비교' in note for note in result['reference_notes']))
+        self.assertTrue(any('자세를 비교' in note for note in result['reference_notes']))
 
 
 if __name__=='__main__':unittest.main()

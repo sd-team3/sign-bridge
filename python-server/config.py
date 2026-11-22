@@ -33,8 +33,3 @@ MIN_TRACKING_CONFIDENCE = 0.5
 
 COACH_REFERENCE_PATH = os.path.join(MODEL_DIR, "coach_reference.csv")
 COACH_Z_THRESHOLD = 1.3
-
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
-GROQ_TIMEOUT_SEC = 4

@@ -8,7 +8,7 @@ public class BoardFileVO {
     private String origName;
     private String savedName;
     private String filePath;
-    private String fileType; // IMAGE / VIDEO
+    private String fileType;
     private Long fileSize;
     private LocalDateTime regDate;
 

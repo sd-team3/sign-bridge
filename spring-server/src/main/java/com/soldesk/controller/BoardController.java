@@ -57,7 +57,7 @@ public class BoardController {
     @Autowired
     private FileUploadUtil fileUploadUtil;
 
-    // 게시글 목록 페이지
+
     @GetMapping("/list")
     public String listBoard(@RequestParam(required = false) String category, @RequestParam(defaultValue = "1") int page,
             Model model) {
@@ -71,7 +71,7 @@ public class BoardController {
             model.addAttribute("category", category);
         model.addAttribute("pageBean", pageBean);
 
-        // 게시글 현황 출력용
+
         Map<String, Object> boardState = boardService.getBoardState();
         if (boardState != null)
             model.addAllAttributes(boardState);
@@ -79,14 +79,14 @@ public class BoardController {
         return "board/list";
     }
 
-    // 게시글 쓰기 페이지
+
     @GetMapping("/write")
     public String writeBoard(Model model) {
         model.addAttribute("isAdmin", securityUtil.isAdmin());
         return "board/write";
     }
     
-    // REPORT 카테고리면 board 등록 후 inquiry에도 같이 넣어줌
+
     @PostMapping("/write")
     public String writeSubmit(@ModelAttribute BoardVO board, 
         @RequestParam(required = false) String errorType,
@@ -101,9 +101,9 @@ public class BoardController {
         }
         board.setMemberId(member.getMemberId());
         board.setNoticeYn(isNotice ? "N" : "Y");
-        boardService.writeBoard(board); // 여기서 board.getBoardId()에 새 id 채워짐
+        boardService.writeBoard(board);
 
-        // 첨부파일 저장
+
         if (files != null) {
             for (MultipartFile file : files) {
                 if (file.isEmpty()) continue;
@@ -123,7 +123,7 @@ public class BoardController {
             }
         }
 
-        // 오류신고 게시글이면 관리자 페이지에서도 확인할 수 있게 inquiry 같이 생성
+
         if ("REPORT".equals(board.getCategoryIdx())) {
             adminService.createInquiry(
                     (long) member.getMemberId(),
@@ -137,7 +137,7 @@ public class BoardController {
         return board.getCategoryIdx() != null ? redirectUrl + "?category=" + board.getCategoryIdx() : redirectUrl;
     }
 
-    // 게시글 상세 페이지
+
     @GetMapping("/info")
     public String infoBoard(@RequestParam int boardId, Model model, HttpServletRequest request,
             HttpServletResponse response) {
@@ -148,7 +148,7 @@ public class BoardController {
         String cookieName = "viewed_" + boardId;
         boolean alreadyViewed = false;
 
-        // 쿠키 생성
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie c : cookies) {
@@ -163,7 +163,7 @@ public class BoardController {
             boardService.increaseViewCount(boardId);
 
             Cookie newCookie = new Cookie(cookieName, "true");
-            newCookie.setMaxAge(60 * 60 * 24); // 쿠키 만료 시간: 24시간
+            newCookie.setMaxAge(60 * 60 * 24);
             newCookie.setPath("/");
             response.addCookie(newCookie);
         }
@@ -173,7 +173,7 @@ public class BoardController {
         model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId));
         model.addAttribute("currentMemberId", securityUtil.getCurrentMemberId());
 
-        // REPORT 카테고리이면 오류 유형 출력
+
         if ("REPORT".equals(board.getCategoryIdx())) {
             model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
         }
@@ -181,14 +181,14 @@ public class BoardController {
         return "board/info";
     }
 
-    // 게시글 수정 페이지
+
     @GetMapping("/update")
     public String updateBoard(@RequestParam int boardId, Model model) {
         BoardVO board = boardService.getBoardByBoardId(boardId);
         model.addAttribute("board", board);
         model.addAttribute("boardFiles", boardFileMapper.selectFilesByBoardId(boardId));
 
-        // REPORT 카테고리이면 오류 유형 출력
+
         if ("REPORT".equals(board.getCategoryIdx())) {
             model.addAttribute("errorType", adminService.getInquiryCategoryByBoardId(boardId));
         }
@@ -196,7 +196,7 @@ public class BoardController {
         return "board/update";
     }
 
-    // 게시글 수정 처리
+
     @PostMapping("/update")
     public String updateSubmit(@ModelAttribute BoardVO board,
         @RequestParam(required = false) String errorType,    
@@ -213,7 +213,7 @@ public class BoardController {
         board.setMemberId(original.getMemberId());
         boardService.updateBoard(board);
 
-        // 삭제 체크된 기존 첨부파일 처리
+
         if (deleteFileIds != null) {
             for (Long fileId : deleteFileIds) {
                 BoardFileVO target = boardFileMapper.selectFileById(fileId);
@@ -223,7 +223,7 @@ public class BoardController {
                 }
             }
         }
-        // 새로 첨부된 파일 저장
+
         if (files != null) {
             for (MultipartFile file : files) {
                 if (file.isEmpty()) continue;
@@ -243,7 +243,7 @@ public class BoardController {
             }
         }
 
-        // REPORT 카테고리이면 오류 유형 출력
+
         if ("REPORT".equals(board.getCategoryIdx())) {
             adminService.syncInquiryContentByBoard(
                 board.getBoardId(), errorType, board.getBoardTitle(), board.getBoardContent());
@@ -252,13 +252,13 @@ public class BoardController {
         return "redirect:/board/info?boardId=" + board.getBoardId();
     }
 
-    // 게시글 삭제 처리
+
     @PostMapping("/delete")
     public String deleteBoard(@RequestParam int boardId) {
         Integer currentMemberId = securityUtil.getCurrentMemberId();
         BoardVO original = boardService.getBoardByBoardId(boardId);
 
-        // 게시글 작성자인지 확인
+
         boolean isOwner = currentMemberId != null && original != null
                 && currentMemberId.equals(original.getMemberId());
 
@@ -266,7 +266,7 @@ public class BoardController {
             throw new AccessDeniedException("삭제 권한이 없습니다.");
         }
 
-        // board 삭제 전에 첨부파일 목록 미리 조회
+
         List<BoardFileVO> boardFiles = boardFileMapper.selectFilesByBoardId(boardId);
         for (BoardFileVO f : boardFiles) {
             fileUploadUtil.delete(f.getFilePath());
@@ -277,7 +277,7 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    // 게시글 검색 처리
+
     @GetMapping("/search")
     public String searchBoard(
             @RequestParam(required = false) String keyword,

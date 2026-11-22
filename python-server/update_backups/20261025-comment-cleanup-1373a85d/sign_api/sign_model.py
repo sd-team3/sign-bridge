@@ -17,7 +17,7 @@ def normalize_hands(frame: np.ndarray) -> np.ndarray:
             continue
         wrist = hand[0].copy()
         hand -= wrist
-        # 손목-중지 MCP 거리는 카메라와 피사체 거리 변화에 비교적 안정적이다.
+
         scale = np.linalg.norm(hand[9, :2])
         if scale > 1e-5:
             hand /= scale

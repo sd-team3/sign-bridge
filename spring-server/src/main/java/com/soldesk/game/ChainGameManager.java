@@ -44,8 +44,8 @@ public class ChainGameManager implements DisposableBean {
 
     private static final long HOLD_THRESHOLD_MS = 1200;
     private static final double CONFIDENCE_THRESHOLD = 0.6;
-    private static final long EXTEND_PER_JAMO_MS = 2000; // 요구사항 7: 자모 하나 확정마다 +2초
-    private static final int WINNER_BONUS_SCORE = 100;   // 요구사항 6: 최후 1인 우승 보너스 점수
+    private static final long EXTEND_PER_JAMO_MS = 2000;
+    private static final int WINNER_BONUS_SCORE = 100;
 
     @Value("${python.server.url}")
     private String pythonServerUrl;

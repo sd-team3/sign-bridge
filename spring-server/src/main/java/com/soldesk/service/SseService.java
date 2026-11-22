@@ -12,18 +12,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class SseService {
-    private Map<Integer, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>(); // id 별 emitter 보관
+    private Map<Integer, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     
     public SseEmitter subscribe(int id) {
         long timeout = 60L * 1000 * 60;
         SseEmitter sseEmitter = new SseEmitter(timeout);
         sseEmitterMap.put(id, sseEmitter);
-        // 연결 완료되면 삭제
+
         sseEmitter.onCompletion(() -> sseEmitterMap.remove(id));
-        // 타임아웃 발생하면 complete 실행
+
         sseEmitter.onTimeout(() -> sseEmitter.complete());
-        // 에러
+
         sseEmitter.onError(error -> sseEmitter.complete());
 
         sendToClient(id, "connect", "sse Connect");

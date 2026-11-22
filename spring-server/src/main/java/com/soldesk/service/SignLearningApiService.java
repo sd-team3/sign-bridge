@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-/** The word-learning API has a different contract from the single-frame jamo API. */
+
 @Service
 public class SignLearningApiService {
     public static final long MAX_VIDEO_BYTES = 25L * 1024 * 1024;
@@ -46,7 +46,7 @@ public class SignLearningApiService {
         factory.setReadTimeout(readTimeout);
         factory.setBufferRequestBody(false);
         client = new RestTemplate(factory);
-        // Inspect upstream statuses ourselves, including video Range responses (416).
+
         client.setErrorHandler(new DefaultResponseErrorHandler() {
             @Override
             public boolean hasError(ClientHttpResponse response) { return false; }
@@ -104,7 +104,6 @@ public class SignLearningApiService {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("target_word_id", wordId);
         form.add("attempt_id", attemptId);
-        form.add("use_llm", "false");
         form.add("include_comparison", String.valueOf(comparison));
         form.add("video", new HttpEntity<>(video.getResource(), fileHeaders));
         HttpHeaders requestHeaders = headers();
@@ -132,7 +131,7 @@ public class SignLearningApiService {
                     String value = upstream.getHeaders().getFirst(name);
                     if (value != null) response.setHeader(name, value);
                 }
-                // Copy while the upstream response is open; never retain its InputStream.
+
                 upstream.getBody().transferTo(response.getOutputStream());
                 return null;
             });
@@ -147,7 +146,7 @@ public class SignLearningApiService {
 
     private JsonNode exchange(String path, HttpMethod method, HttpEntity<?> request) {
         try {
-            // Read errors as text too: upstream validation detail may be a string or an array.
+
             ResponseEntity<String> response = client.exchange(baseUrl + path, method, request, String.class);
             if (!response.getStatusCode().is2xxSuccessful()) {
                 throw upstreamError(response.getStatusCodeValue(), response.getBody());
@@ -175,7 +174,7 @@ public class SignLearningApiService {
             if (object.has("reference_video_url")) object.put("reference_video_url", prefix + "/reference/" + object.path("word_id").asText());
             if (object.has("detail_url")) object.put("detail_url", prefix + "/chapters/" + object.path("chapter_id").asText());
             if (object.has("video_evaluation_url")) object.put("video_evaluation_url", prefix + "/evaluate-video");
-            object.remove("evaluation_url"); // Coordinate evaluation is not exposed by this screen.
+            object.remove("evaluation_url");
         }
         if (node.isContainerNode()) node.forEach(child -> publicUrls(child, contextPath));
         return node;
@@ -199,7 +198,7 @@ public class SignLearningApiService {
             try {
                 JsonNode body = new com.fasterxml.jackson.databind.ObjectMapper().readTree(responseBody);
                 String detail = body == null ? "" : body.path("detail").asText("");
-                // Only translate known errors; never expose arbitrary upstream response content.
+
                 switch (detail) {
                     case "Cannot determine video frame rate":
                         return new ApiException(422, "녹화 영상의 프레임 속도 정보를 읽지 못했습니다. 카메라를 껐다 켜고 다시 촬영해 주세요. (VIDEO_FRAME_RATE)");
@@ -218,7 +217,7 @@ public class SignLearningApiService {
                         break;
                 }
             } catch (IOException ignored) {
-                // Preserve the HTTP error even if the upstream body is not valid JSON.
+
             }
         }
         return upstreamError(status);

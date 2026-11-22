@@ -7,32 +7,32 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 public class MemberVO {
-    private int memberId; // 회원 고유번호
+    private int memberId;
 
     @NotBlank(message = "이메일을 입력해주세요")
     @Email(message = "이메일 형식이 올바르지 않습니다")
-    private String memberEmail; // 로그인 아이디
+    private String memberEmail;
 
     @NotBlank(message = "비밀번호를 입력해주세요")
     @Pattern(regexp = "^$|^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$", message = "영문, 숫자, 특수문자 조합 8자 이상 입력해주세요")
-    private String memberPassword; // 비밀번호(암호화 저장)
+    private String memberPassword;
     @NotBlank(message = "비밀번호를 다시 입력해주세요")
-    private String memberPasswordConfirm; // 비밀번호 확인
+    private String memberPasswordConfirm;
 
     @NotBlank(message = "이름을 입력해주세요")
     @Pattern(regexp = "^$|^[가-힣]{2,10}$", message = "한글 이름만 가입이 가능합니다.") 
-    private String memberName; // 이름
+    private String memberName;
 
-    private String memberProfileImage; // 프로필 이미지 URL
+    private String memberProfileImage;
 
-    private String role; // 권한 (enum: MemberRole, USER/ADMIN)
+    private String role;
 
-    private String status; // 상태 (enum: MemberStatus, ACTIVE/DORMANT/WITHDRAWN)
-    private LocalDateTime suspendEndDate; // 정지 종료 일 
-    private LocalDateTime regDate; // 가입일시
-    private int point; // 누적 점수
+    private String status;
+    private LocalDateTime suspendEndDate;
+    private LocalDateTime regDate;
+    private int point;
 
-    // oAuth용
+
     private String provider;
     private String providerId;
 

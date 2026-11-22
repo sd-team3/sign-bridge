@@ -44,14 +44,13 @@
       container.append(make('p', '동작에서 큰 차이를 찾지 못했어요.'));
     } else {
       let message = '이 구간의 개선 부위 정보를 확인하지 못했어요. 다시 촬영해 주세요.';
-      if (!comparison) message = '이번 결과에는 비교 이미지가 포함되지 않아 표시된 부위를 확인할 수 없어요.';
-      else if (comparison.available === false) message = comparison.notice || '이번 촬영은 모범 동작과 비교하기 어려워요.';
+      if (comparison.available === false) message = comparison.notice || '이번 촬영은 모범 동작과 비교하기 어려워요.';
       else if (frame?.comparison_status === 'unavailable') message = comparison.alignment === 'relative_time' && comparison.notice
         ? comparison.notice : '이 구간은 손의 위치나 동작 시점을 충분히 확인하지 못해 개선 부위를 안내하기 어려워요.';
       container.append(make('p', message));
     }
   }
-  function renderComparison(container, feedback, onSelect) {
+  function renderComparison(container, feedback, onSelect, openComparison) {
     const comparison = feedback?.comparison;
     if (!comparison) return;
     if (!comparison.available) {
@@ -61,7 +60,7 @@
     const frames = (comparison.frames || []).filter(frame => typeof frame.image === 'string' && frame.image.startsWith('data:image/svg+xml;base64,') && frame.image.length < 300000);
     if (!frames.length) return;
     const details = make('details', undefined, 'sc-avatar');
-    details.open = feedback.feedback_required === true;
+    details.open = openComparison || feedback.feedback_required === true;
     details.append(make('summary', '모범 · 내 동작을 아바타로 비교하기'));
     details.append(make('p', comparison.notice, 'sc-score'));
     const tools = make('div', undefined, 'sc-avatar-tools');
@@ -97,7 +96,7 @@
     details.append(make('p','측정 좌표에 두께를 더해 그린 아바타예요. 양쪽을 정면 영상 방향으로 맞췄으며, 거울처럼 보이는 카메라 미리보기와는 방향이 다를 수 있어요. 작은 화면에서는 이미지를 옆으로 밀어 보세요.','sc-score'));
     container.append(details);choose(selected);
   }
-  function render(container, feedback) {
+  function render(container, feedback, { openComparison = false } = {}) {
     const previous = comparisonDialogs.get(container);
     if (previous) { previous.close(); previous.remove(); comparisonDialogs.delete(container); }
     const data = model(feedback);
@@ -106,20 +105,24 @@
     container.append(make('p', data.semantic ? '단어 인식 피드백' : data.required ? '다음 연습 포인트' : '자세 코칭', 'sc-eyebrow'), make('h4', data.title), make('p', data.primary, 'sc-primary'));
     const highlightNotes = make('div', undefined, 'sc-highlight-notes');
     highlightNotes.setAttribute('aria-live', 'polite');
-    renderHighlightNotes(highlightNotes, null, feedback?.comparison);
-    renderComparison(container, feedback, (frame, comparison) => renderHighlightNotes(highlightNotes, frame, comparison));
+    if (feedback?.comparison) renderHighlightNotes(highlightNotes, null, feedback.comparison);
+    renderComparison(container, feedback, (frame, comparison) => renderHighlightNotes(highlightNotes, frame, comparison), openComparison);
     if (data.rest.length) {
       const details = make('details');
+      details.open = true;
       details.append(make('summary', data.semantic ? '다음 촬영에서 확인할 점' : '추가 연습 포인트 ' + data.rest.length + '개'));
       const list = make('ul');
       data.rest.forEach(text => list.append(make('li', text)));
       details.append(list); container.append(details);
     }
+    if (feedback?.reason === 'recognized_variation') {
+      data.notes.forEach(text => container.append(make('p', text, 'sc-score')));
+    }
     const note = data.score === null ? '이번 촬영에서는 동작 비교 점수를 계산하지 못했어요.' : '모범 영상과 좌표 비교 ' + data.score.toFixed(1) + ' / 100';
     if (data.semantic || feedback?.comparison) {
       if (feedback?.comparison || data.notes.length || data.score !== null) {
         const details = make('details'); details.append(make('summary', '모범 영상과 비교해 보기 · 참고'));
-        details.append(highlightNotes);
+        if (feedback?.comparison) details.append(highlightNotes);
         details.append(make('p', note + ' · 정답 여부나 수어 정확도를 뜻하지 않아요.', 'sc-score'));
         container.append(details);
       }

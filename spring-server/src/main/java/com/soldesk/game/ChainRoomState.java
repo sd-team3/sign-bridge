@@ -22,7 +22,7 @@ public class ChainRoomState {
     private volatile int currentTurnIndex = 0;
 
     private volatile long turnDeadlineEpochMillis;
-    private volatile String requiredFirstChar = null; // null = 이번 판 첫 턴(아무 단어나 가능)
+    private volatile String requiredFirstChar = null;
 
     private final Set<Integer> eliminated = ConcurrentHashMap.newKeySet();
     private final List<Integer> eliminationOrder = new CopyOnWriteArrayList<>();
@@ -115,7 +115,7 @@ public class ChainRoomState {
 
     public ReentrantLock getTurnLock() { return turnLock; }
 
-    /** 아직 탈락하지 않은 참가자 수 */
+
     public long aliveCount() {
         return turnOrder.stream().distinct().filter(id -> !eliminated.contains(id)).count();
     }

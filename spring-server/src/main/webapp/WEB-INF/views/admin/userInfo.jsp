@@ -90,7 +90,7 @@
   </div>
 </div>
 
-<!-- 정지 모달 -->
+
 <div class="modal-overlay" id="modal-stop">
   <div class="modal">
     <form method="post" action="${pageContext.request.contextPath}/admin/user/stop">
@@ -117,7 +117,7 @@
   </div>
 </div>
 
-<!-- 강퇴 모달 -->
+
 <div class="modal-overlay" id="modal-delete">
   <div class="modal">
     <form method="post" action="${pageContext.request.contextPath}/admin/user/delete">
@@ -139,7 +139,7 @@
 <jsp:include page="includes/footer.jsp" />
 
 <script>
-  // 정지 모달 열고 닫기
+
   function openModal(id) {
     document.getElementById(id).classList.add('open');
   }

@@ -21,18 +21,18 @@ import com.soldesk.vo.ChainRoomVO;
 @Service
 public class ChainRoomService implements InitializingBean {
 
-    private static final int MAX_CAPACITY = 4; // 요구사항 1
+    private static final int MAX_CAPACITY = 4;
 
     @Autowired private ChainRoomMapper chainRoomMapper;
     @Autowired private com.soldesk.mapper.ChainWordLogMapper chainWordLogMapper;
     @Autowired private ChainGameManager chainGameManager;
     @Autowired private ChainWordValidationService chainWordValidationService;
 
-    /**
-     * 서버가 비정상 종료됐다가 재시작된 경우, PLAYING 상태로 남아있는 방은
-     * 메모리 상태(ChainGameManager)가 전부 유실된 상태라 진행이 불가능하다.
-     * 복구를 시도하는 대신 아예 무효 처리(삭제)해서 별도 복구 로직을 두지 않는다.
-     */
+
+
+
+
+
     @Override
     public void afterPropertiesSet() {
         List<Long> stuckRoomIds = chainRoomMapper.findRoomIdsByStatus(ChainRoomVO.STATUS_PLAYING);
@@ -77,7 +77,7 @@ public class ChainRoomService implements InitializingBean {
             throw new IllegalStateException("이미 시작되었거나 종료된 방입니다.");
         }
         if (chainRoomMapper.findRoomMember(roomId, memberId) != null) {
-            return; // 이미 참여 중
+            return;
         }
         int count = chainRoomMapper.countRoomMembers(roomId);
         if (count >= room.getChainRoomCapacity()) {
@@ -178,7 +178,7 @@ public class ChainRoomService implements InitializingBean {
         return result;
     }
 
-    /** REST 조회 / WS 최초 접속 시 스냅샷 응답용 */
+
     public ChainRoomStateDto buildStateDto(long roomId) {
         ChainRoomVO room = requireRoom(roomId);
         List<ChainRoomMemberVO> members = chainRoomMapper.findMembersByRoom(roomId);

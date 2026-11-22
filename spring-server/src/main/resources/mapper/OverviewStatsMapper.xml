@@ -61,8 +61,10 @@
             and tsd.is_correct = 'Y'
         ) learned on learned.sign_word_id = sw.sign_word_id
         group by coalesce(nullif(sw.choseong, ''), '기타')
-        order by field(coalesce(nullif(sw.choseong, ''), '기타'),
+        order by field(min(coalesce(nullif(sw.choseong, ''), '기타')),
             'ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ','기타')
     </select>
 
 </mapper>
+
+

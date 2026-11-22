@@ -31,7 +31,7 @@ import com.soldesk.vo.MemberVO;
 
 @Service
 public class OAuthService {
-    // google OAuth
+
     @Value("${google.client-id:dummy}")
     private String googleClientId;
     @Value("${google.client-secret:dummy}")
@@ -39,7 +39,7 @@ public class OAuthService {
     @Value("${google.redirect-uri:http://localhost:8080/oauth/google/callback}")
     private String googleRedirectUri;
 
-    // naver OAuth
+
     @Value("${naver.client-id:dummy}")
     private String naverClientId;
     @Value("${naver.client-secret:dummy}")
@@ -47,7 +47,7 @@ public class OAuthService {
     @Value("${naver.redirect-uri:http://localhost:8080/oauth/naver/callback}")
     private String naverRedirectUri;
 
-    // kakao OAuth
+
     @Value("${kakao.client-id:dummy}")
     private String kakaoClientId;
     @Value("${kakao.client-secret:dummy}")
@@ -72,17 +72,17 @@ public class OAuthService {
                 + "&response_type=code"
                 + "&scope=" + URLEncoder.encode("email profile", StandardCharsets.UTF_8)
                 + "&access_type=online";
-    }// 구글 로그인 URL
+    }
 
     public String getNaverAuthUrl(HttpSession session) {
-        String state = UUID.randomUUID().toString(); // CSRF 방지용 state 값
+        String state = UUID.randomUUID().toString();
         session.setAttribute("naverState", state);
         return "https://nid.naver.com/oauth2.0/authorize"
                 + "?client_id=" + naverClientId
                 + "&redirect_uri=" + URLEncoder.encode(naverRedirectUri, StandardCharsets.UTF_8)
                 + "&response_type=code"
-                + "&state=" + state; // CSRF 위조 방지 파라미터
-    }// 네이버 로그인 URL
+                + "&state=" + state;
+    }
 
     public String getKakaoAuthUrl() {
         return "https://kauth.kakao.com/oauth/authorize"
@@ -129,13 +129,13 @@ public class OAuthService {
 
     public void processNaver(String code, String state, HttpServletRequest request, HttpServletResponse response)
             throws IOException, InterruptedException {
-        String savedState = (String) request.getSession().getAttribute("naverState"); // 비교할 state
+        String savedState = (String) request.getSession().getAttribute("naverState");
 
-        // state 값 비교(위조 가능성 배제)
+
         if (!state.equals(savedState))
-            throw new IllegalStateException("state 값이 불일치합니다."); // state (파라미터)
+            throw new IllegalStateException("state 값이 불일치합니다.");
 
-        Map<String, String> tokenParams = Map.of( // 차이 파라미터
+        Map<String, String> tokenParams = Map.of(
                 "code", code,
                 "client_id", naverClientId,
                 "client_secret", naverClientSecret,
@@ -151,7 +151,7 @@ public class OAuthService {
                     .append(URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8));
         }
         HttpRequest tokenReq = HttpRequest.newBuilder()
-                .uri(URI.create("https://nid.naver.com/oauth2.0/token")) // 차이 1
+                .uri(URI.create("https://nid.naver.com/oauth2.0/token"))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(tokenReqBody.toString()))
                 .build();
@@ -159,7 +159,7 @@ public class OAuthService {
         JsonNode tokenJson = objectMapper.readTree(tokenBody);
         String accessToken = tokenJson.get("access_token").asText();
         HttpRequest userReq = HttpRequest.newBuilder()
-                .uri(URI.create("https://openapi.naver.com/v1/nid/me")) // 차이 2
+                .uri(URI.create("https://openapi.naver.com/v1/nid/me"))
                 .header("Authorization", "Bearer " + accessToken)
                 .GET().build();
         JsonNode userJson = objectMapper.readTree(
@@ -168,13 +168,13 @@ public class OAuthService {
         JsonNode userInfo = userJson.get("response");
         String providerId = userInfo.get("id").asText();
         String email = userInfo.get("email").asText();
-        String name = userInfo.has("name") ? userInfo.get("name").asText() : "네이버회원"; // 차이 3
-        loginOrJoin("NAVER", providerId, email, name, request, response); // 차이 4
+        String name = userInfo.has("name") ? userInfo.get("name").asText() : "네이버회원";
+        loginOrJoin("NAVER", providerId, email, name, request, response);
     }
 
     public void processKakao(String code, HttpServletRequest request, HttpServletResponse response)
             throws IOException, InterruptedException {
-        Map<String, String> tokenParams = Map.of( // 차이 파라미터
+        Map<String, String> tokenParams = Map.of(
                 "code", code,
                 "client_id", kakaoClientId,
                 "client_secret", kakaoClientSecret,
@@ -189,7 +189,7 @@ public class OAuthService {
                     .append(URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8));
         }
         HttpRequest tokenReq = HttpRequest.newBuilder()
-                .uri(URI.create("https://kauth.kakao.com/oauth/token")) // 차이 1
+                .uri(URI.create("https://kauth.kakao.com/oauth/token"))
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .POST(HttpRequest.BodyPublishers.ofString(tokenReqBody.toString()))
                 .build();
@@ -197,7 +197,7 @@ public class OAuthService {
         JsonNode tokenJson = objectMapper.readTree(tokenBody);
         String accessToken = tokenJson.get("access_token").asText();
         HttpRequest userReq = HttpRequest.newBuilder()
-                .uri(URI.create("https://kapi.kakao.com/v2/user/me")) // 차이 2
+                .uri(URI.create("https://kapi.kakao.com/v2/user/me"))
                 .header("Authorization", "Bearer " + accessToken)
                 .GET().build();
         JsonNode userJson = objectMapper.readTree(
@@ -206,7 +206,7 @@ public class OAuthService {
 
         JsonNode account = userJson.get("kakao_account");
 
-        // 이메일 제공 동의하지 않을 시 예외
+
         if (account == null || !account.has("email")) {
             throw new IllegalStateException("이메일 제공 동의가 필요합니다.");
         }
@@ -214,14 +214,14 @@ public class OAuthService {
         String email = account.get("email").asText();
         String name = account.has("profile") && account.get("profile").has("nickname")
                 ? account.get("profile").get("nickname").asText()
-                : "카카오회원"; // 차이 3
-        loginOrJoin("KAKAO", providerId, email, name, request, response); // 차이 4
+                : "카카오회원";
+        loginOrJoin("KAKAO", providerId, email, name, request, response);
     }
 
     private void loginOrJoin(String provider, String providerId, String email, String name,
             HttpServletRequest request, HttpServletResponse response) {
         MemberVO member = memberMapper.findByProviderAndProviderId(provider, providerId);
-        // 로컬로 가입된 회원인지 검사
+
         if (member == null)
             member = memberMapper.findByEmail(email);
         if (member == null) {

@@ -13,7 +13,7 @@ def configure(extractor, checkpoint):
     def capture(rgb):
         result=process(rgb)
         hands=np.zeros((2,21,3),np.float32)
-        # Preserve old checkpoint inputs; corrected hands remain separate.
+
         for landmark,label in zip(result.multi_hand_landmarks or [],result.multi_handedness or []):
             slot=0 if label.classification[0].label=='Left' else 1
             hands[slot]=[[p.x,p.y,p.z] for p in landmark.landmark]

@@ -1,4 +1,4 @@
-import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
+import { HandCameraWidget, cameraErrorMessage } from "/api/sign/assets/js/hand-camera.js?v=20261113cpu";
 import { ChainSignInputSession } from "/resources/js/chain-sign-input.js";
 
 const ctx = window.CHAIN_CTX || "";
@@ -67,7 +67,7 @@ function render() {
   const isMyTurn = playing && state.currentTurnMemberId === myMemberId;
   document.getElementById("btnComplete").disabled = !isMyTurn;
   if (signInput) signInput.active = isMyTurn;
-  if (isMyTurn && !cam) startCamera();
+  if (ended && cam) stopCamera();
 }
 
 function startTimer(deadlineEpochMillis) {
@@ -93,7 +93,21 @@ function escapeHtml(s) {
   return (s || "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
+let cameraPending = false;
+function cameraStatus(message) { document.getElementById("chain-camera-status").textContent = message; }
+function stopCamera() {
+  cam?.stopCamera();
+  if (signInput) signInput.active = false;
+  document.getElementById("chain-camera-on").disabled = false;
+  document.getElementById("chain-camera-off").disabled = true;
+  cameraStatus("카메라가 꺼졌습니다.");
+}
 async function startCamera() {
+  if (cameraPending) return;
+  cameraPending = true;
+  document.getElementById("chain-camera-on").disabled = true;
+  document.getElementById("chain-camera-off").disabled = false;
+  cameraStatus("카메라와 손 인식을 준비하고 있어요…");
   signInput = new ChainSignInputSession({
     roomId,
     onUpdate: (data) => {
@@ -101,18 +115,21 @@ async function startCamera() {
       document.getElementById("progressFill").style.width = `${(data.holdProgress || 0) * 100}%`;
     },
   });
-  signInput.active = true;
+  signInput.active = state?.status === "PLAYING" && state.currentTurnMemberId === myMemberId;
 
   cam = new HandCameraWidget({
     videoEl: document.getElementById("video"),
     canvasEl: document.getElementById("canvas"),
+    onError: error => { stopCamera(); cameraStatus(cameraErrorMessage(error)); },
     onFrame: (landmarks) => signInput && signInput.submitFrame(landmarks),
   });
   try {
     await cam.start();
-  } catch (e) {
-    console.error("카메라 시작 실패", e);
-  }
+    cameraStatus("카메라가 준비됐어요. 내 차례에 손을 화면에 보여 주세요.");
+  } catch (error) {
+    if (error.name !== "AbortError") { stopCamera(); cameraStatus(cameraErrorMessage(error)); }
+  } finally { cameraPending = false; }
+
 }
 
 function connectWs() {
@@ -147,7 +164,7 @@ function connectWs() {
         break;
       case "PROGRESS":
         if (payload.memberId !== myMemberId) {
-          // 다른 사람 턴 진행 상황은 로그 영역에 실시간 표시만
+
         }
         if (payload.deadlineEpochMillis) startTimer(payload.deadlineEpochMillis);
         break;
@@ -212,3 +229,7 @@ document.getElementById("btnComplete").addEventListener("click", () => {
   }
   connectWs();
 })();
+
+document.getElementById("chain-camera-on").addEventListener("click", startCamera);
+document.getElementById("chain-camera-off").addEventListener("click", stopCamera);
+window.addEventListener("pagehide", stopCamera);

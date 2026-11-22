@@ -34,13 +34,13 @@ public class SecurityConfig {
             .requestMatchers(
                 new AntPathRequestMatcher("/ws/**")
             ).permitAll()
-            .requestMatchers( // 어드민 접근 영역
+            .requestMatchers(
                 new AntPathRequestMatcher("/admin/**")
             ).hasRole("ADMIN")
             .requestMatchers(
                 new AntPathRequestMatcher("/comment/list")
             ).permitAll()
-            .requestMatchers( // 로그인 시 접근 영역
+            .requestMatchers(
                 new AntPathRequestMatcher("/member/info"),
                 new AntPathRequestMatcher("/member/update"),
                 new AntPathRequestMatcher("/member/delete"),
@@ -79,7 +79,7 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    } // 비밀번호 암호화
+    }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider(PasswordEncoder passwordEncoder) {
@@ -87,6 +87,6 @@ public class SecurityConfig {
         provider.setUserDetailsService(memberUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         return provider;
-    } // 사용자 인증을 처리
+    }
     
 }

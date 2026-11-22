@@ -51,7 +51,7 @@
           AND status = #{status}
     </select>
 
-    <!-- 오류신고 세부코드(ACTION_RECOGNITION 등) 여러개를 한번에 조회 (ERROR_REPORT 통합 필터용) -->
+
     <select id="selectByCategoryListAndStatus" resultMap="inquiryResultMap">
         <include refid="inquiryBaseSelect"/>
         WHERE i.category IN
@@ -90,7 +90,7 @@
         WHERE inquiry_id = #{inquiryId}
     </update>
 
-    <!-- 어류신고 -->
+
     <insert id="insertInquiry">
         INSERT INTO inquiry (member_id, category, title, content, status, reg_date, board_id)
         VALUES (#{memberId}, #{category}, #{title}, #{content}, 'WAIT', NOW(), #{boardId})
@@ -104,7 +104,7 @@
         UPDATE inquiry SET category = #{category}, title = #{title}, content = #{content} WHERE board_id = #{boardId}
     </update>
     
-    <!-- 오류 신고 미처리 개수 -->
+
     <select id="getErrorCount" resultType="int">
         select count(*)
         from inquiry

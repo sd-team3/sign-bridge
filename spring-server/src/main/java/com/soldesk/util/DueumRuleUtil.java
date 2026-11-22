@@ -9,9 +9,9 @@ public final class DueumRuleUtil {
     private static final int JUNG_COUNT = 21;
     private static final int JONG_COUNT = 28;
 
-    private static final int CHO_NIEUN = 2;  // ㄴ
-    private static final int CHO_RIEUL = 5;  // ㄹ
-    private static final int CHO_IEUNG = 11; // ㅇ
+    private static final int CHO_NIEUN = 2;
+    private static final int CHO_RIEUL = 5;
+    private static final int CHO_IEUNG = 11;
 
     private static final boolean[] PALATAL = new boolean[JUNG_COUNT];
     static {

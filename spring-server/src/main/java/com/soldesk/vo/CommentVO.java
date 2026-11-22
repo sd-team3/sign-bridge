@@ -73,7 +73,7 @@ public class CommentVO {
 
    private String boardTitle;
 
-   // 자식 댓글 개수 저장용
+
    private String replyCnt;
 
    public String getReplyCnt() {

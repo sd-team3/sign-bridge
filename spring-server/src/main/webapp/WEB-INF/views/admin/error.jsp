@@ -18,7 +18,7 @@
 
 <jsp:include page="includes/header.jsp" />
 
-  <!-- ══════════ PAGE: 문의 확인 ══════════ -->
+
   <div class="content page active" id="page-question-error">
     <div class="page-header">
       <div>
@@ -42,7 +42,7 @@
       </div>
     </div>
 
-    <!-- 상태 탭: 서버사이드 필터링 (category, status 파라미터로 재조회) -->
+
     <div class="tabs">
       <a href="?category=${currentCategory}&status=WAIT" class="tab ${currentStatus == 'WAIT' ? 'active' : ''}">
         대기 <span class="pill pill-red" style="margin-left:4px;padding:1px 7px">${waitCount}</span>
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-<!-- ═══════════ ANSWER MODAL ═══════════ -->
+
 <div class="modal-backdrop" id="answer-modal">
   <div class="modal-box">
     <h3>문의 답변</h3>
@@ -113,7 +113,7 @@
   </div>
 </div>
 
-<!-- TOAST CONTAINER -->
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <jsp:include page="includes/footer.jsp" />
@@ -121,7 +121,7 @@
 <script>
 let targetInquiryId = null;
 
-// ═══════════ TOAST ═══════════
+
 function showToast(msg,color='#2d9b6f'){
   const wrap=document.getElementById('toast-wrap');
   const t=document.createElement('div');
@@ -132,7 +132,7 @@ function showToast(msg,color='#2d9b6f'){
   setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350)},2800);
 }
 
-// ═══════════ MODAL ═══════════
+
 function openAnswerModal(btn){
   targetInquiryId = btn.dataset.id;
   document.getElementById('answer-target-title').textContent = btn.dataset.title;
@@ -146,7 +146,7 @@ function closeAnswerModal(){
   document.getElementById('answer-modal').classList.remove('show');
 }
 
-// ═══════════ 답변 등록 ═══════════
+
 async function submitAnswer(){
   const content = document.getElementById('answer-content').value.trim();
   if (!content) {
@@ -173,7 +173,7 @@ async function submitAnswer(){
     showToast('답변 등록에 실패했습니다', '#c0392b');
   }
 }
-// ═══════════ EVENT LISTENERS ═══════════
+
 document.getElementById('error-list').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-action="answer"]');
   if (!btn) return;

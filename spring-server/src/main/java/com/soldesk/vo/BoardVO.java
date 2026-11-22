@@ -11,7 +11,7 @@ public class BoardVO {
     private Integer memberId;	
     private String boardTitle;
     private String boardContent;
-    private String categoryIdx; // 게시판 유형 (enum: BoardType, NOTICE/FREE/INFO/QNA/REPORT) - 조회 시 이 값으로 필터링
+    private String categoryIdx;
     private int viewCount;
     private String noticeYn;
     private LocalDateTime regDate;
@@ -20,8 +20,8 @@ public class BoardVO {
     private int commentCnt;
     private String memberName;
 
-    private String errorType;   // 오류 유형 (enum 관리: ACTION_RECOGNITION 등)
-    private String relatedWord; // 오류 관련 단어 / 기능
+    private String errorType;
+    private String relatedWord;
 
     public String getErrorType() {
         return errorType;

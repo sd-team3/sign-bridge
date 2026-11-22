@@ -42,7 +42,14 @@ app.add_middleware(
 )
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+class BrowserStaticFiles(StaticFiles):
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
+app.mount("/static", BrowserStaticFiles(directory=STATIC_DIR), name="static")
 _state = {"model": None, "encoder": None}
 
 def _load_model():

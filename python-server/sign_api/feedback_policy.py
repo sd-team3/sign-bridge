@@ -34,9 +34,9 @@ def _geometry_feedback(reference, actual, target, predicted, target_score, ignor
         actions=([observation['summary']] if reason=='insufficient_tracking' else
                  ['모범 영상을 느리게 재생해 손의 시작 위치와 이동 경로를 확인해 주세요.',
                   '동작에 사용하는 손이 보이도록 처음부터 끝까지 다시 촬영해 주세요.'])
-    # A matching prediction with no actionable correction receives encouragement,
-    # including when geometry coverage is insufficient for a posture comparison.
-    if predicted == target and not corrections and not (selected or {}).get('tracking_review'):
+
+
+    if predicted == target and not required:
         message = '잘하셨어요. 다음 단어를 연습해 볼까요?'
         actions = [message]
     score=observation['similarity_score']

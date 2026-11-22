@@ -19,7 +19,7 @@ def desk_occlude(frames,cutoff):
     return a
 
 def prepare(frames,length=64):
-    # Remove only hand-free leading/trailing padding, not interior gesture gaps.
+
     seen=np.flatnonzero(np.any(frames[:,:126]!=0,axis=1))
     if len(seen): frames=frames[max(0,seen[0]-2):min(len(frames),seen[-1]+3)]
     seq,_=resample_sequence(frames,length)
@@ -30,9 +30,9 @@ def augment(frames,rng):
     a=frames.copy()
     if rng.random()<.65:
         cropped=desk_occlude(a,rng.uniform(.65,1.65))
-        # Keep a substantial amount of actual hand evidence; never teach all-hidden clips.
+
         if np.any(cropped[:,:126]!=0,axis=1).sum()>=max(16,len(a)*.4): a=cropped
-    # Brief per-hand tracking gaps, rather than erasing an arbitrary hand for a whole sign.
+
     if rng.random()<.35:
         slot=int(rng.integers(2)); start=int(rng.integers(max(1,len(a)-5)))
         end=min(len(a),start+int(rng.integers(2,9)))

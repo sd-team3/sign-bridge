@@ -65,6 +65,11 @@
     <div id="gameArea" style="display:none;">
       <div class="cam-main-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
         <div>
+          <div style="display:flex;gap:8px;margin:12px 0;">
+            <button id="chain-camera-on" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button>
+            <button id="chain-camera-off" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button>
+          </div>
+          <p id="chain-camera-status" role="status">카메라를 켜면 손을 인식합니다.</p>
           <div class="chain-cam-wrap">
             <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas"></canvas>

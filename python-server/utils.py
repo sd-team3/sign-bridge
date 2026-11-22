@@ -4,18 +4,18 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
-NUM_LANDMARKS = 21  # MediaPipe Hands 기준 landmark 개수
+NUM_LANDMARKS = 21
 
 
 def csv_header():
     return ["label"] + [f"f{i}" for i in range(63)]
 
-# ── 한글 폰트 로딩 (cv2.putText는 한글을 그리지 못하므로 PIL로 대체) ──
+
 _FONT_CANDIDATES = [
-    "C:/Windows/Fonts/malgun.ttf",       # Windows (맑은 고딕)
+    "C:/Windows/Fonts/malgun.ttf",
     "C:/Windows/Fonts/malgunbd.ttf",
-    "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",  # Linux
-    "/System/Library/Fonts/AppleSDGothicNeo.ttc",       # macOS
+    "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+    "/System/Library/Fonts/AppleSDGothicNeo.ttc",
 ]
 _font_cache = {}
 
@@ -62,13 +62,13 @@ def mirror_landmarks(coords):
 def normalize_landmarks(coords):
     coords = coords.copy()
     wrist = coords[0].copy()
-    coords -= wrist  # 손목 기준 평행이동
+    coords -= wrist
 
     scale = np.linalg.norm(coords, axis=1).max()
     if scale > 1e-6:
         coords /= scale
 
-    return coords.flatten()  # (21, 3) -> (63,)
+    return coords.flatten()
 
 
 def extract_feature_vector(hand_landmarks, mirror=False):

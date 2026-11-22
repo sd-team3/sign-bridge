@@ -2,10 +2,10 @@ package com.soldesk.vo;
 
 import java.time.LocalDateTime;
 
-/** chain_room 테이블 매핑. 끝말잇기 게임방. */
+
 public class ChainRoomVO {
 
-    // 방 상태값 (status 컬럼)
+
     public static final String STATUS_WAITING = "WAITING";
     public static final String STATUS_PLAYING = "PLAYING";
     public static final String STATUS_ENDED = "ENDED";

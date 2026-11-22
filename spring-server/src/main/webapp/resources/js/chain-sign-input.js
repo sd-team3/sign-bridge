@@ -1,4 +1,4 @@
-// chain 프레임 전송 클라이언트
+
 const FRAME_INTERVAL_MS = 150;
 
 export class ChainSignInputSession {

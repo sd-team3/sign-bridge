@@ -93,7 +93,7 @@ public class ExamService {
             List<SignWordVO> words = signWordMapper.findRandomList(count);
             httpSession.setAttribute("exam_" + sessionId + "_motion", buildMotionQuestions(words));
 
-        } else { // choice
+        } else {
             List<SignWordVO> words = signWordMapper.findRandomList(count);
             httpSession.setAttribute("exam_" + sessionId + "_choice", buildQuizQuestions(words));
         }
@@ -108,7 +108,7 @@ public class ExamService {
         return (List<ExamQuestionVO>) stored;
     }
 
-    /** 문제 하나 답안 저장 */
+
     public void submitAnswer(Long testSessionId, Long signWordId, int questionNo, String userAnswer, boolean isCorrect) {
         TestSessionDetailVO detail = new TestSessionDetailVO();
         detail.setTestSessionId(testSessionId);

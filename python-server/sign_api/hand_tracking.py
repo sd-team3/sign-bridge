@@ -47,7 +47,7 @@ class HandTracker:
             for slot in (0, 1):
                 if label in ('Left', 'Right'):
                     cost[index, slot] += .3*confidence*(slot != (0 if label == 'Left' else 1))
-                # Preserve the existing unmirrored MediaPipe slot convention.
+
                 pose_id = (16, 15)[slot]
                 if scale is not None and scale > .06 and pose[pose_id, 2] >= .7:
                     distance = np.linalg.norm((hand[0, :2]-pose[pose_id, :2])*[aspect, 1])/scale

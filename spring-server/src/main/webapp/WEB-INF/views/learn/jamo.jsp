@@ -29,7 +29,7 @@
       <button class="jamo-tab" data-target="vowel">모음 (${fn:length(vowels)})</button>
     </div>
 
-    <!-- 선택된 지문자 상세 -->
+
     <div class="jamo-detail" id="jamoDetail">
       <div class="jd-panel">
         <div class="jd-header"><span>지문자 정보</span><span class="jd-close" id="jdClose">✕ 닫기</span></div>
@@ -54,18 +54,23 @@
       </div>
       <div class="jd-panel">
         <div class="jd-header"><span>내 동작 인식</span></div>
+        <div style="display:flex; gap:8px; padding:12px 16px;">
+          <button id="jd-camera-on" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button>
+          <button id="jd-camera-off" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button>
+        </div>
+        <p id="jd-camera-status" role="status" style="padding:0 16px;">카메라를 켜면 손을 인식합니다.</p>
         <div class="jd-cam" id="jdCam">
           <div class="cam-wrap">
             <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas"></canvas>
           </div>
-          <div id="result" style="font-size: large; cursor: pointer;">클릭해서 시작</div>
+          <div id="result" style="font-size: large; cursor: pointer;">카메라 켜기를 눌러 주세요</div>
         </div>
         <div id="coachTip" style="display:none; margin:10px 16px 16px; padding:10px 14px; border:1px solid; border-radius:8px; font-size:14px; line-height:1.5;"></div>
       </div>
     </div>
 
-    <!-- 자음 섹션 -->
+
     <div class="jamo-section active" id="section-consonant">
       <div class="result-count">기본 자음 ${fn:length(consonants)}개</div>
       <c:choose>
@@ -89,7 +94,7 @@
       </c:choose>
     </div>
 
-    <!-- 모음 섹션 -->
+
     <div class="jamo-section" id="section-vowel">
       <div class="result-count">기본 모음 ${fn:length(vowels)}개</div>
       <c:choose>
@@ -118,12 +123,12 @@
 <jsp:include page="../includes/footer.jsp" />
 
 <script>
-// 카메라 시작 상태를 저장하는 전역 변수
+
 window.jamoCamStarted = false;
-// 현재 선택된 지문자 (module 스크립트에서도 참조하므로 전역으로 관리)
+
 window.currentJamoChar = null;
 
-// 탭 전환
+
 const tabs = document.querySelectorAll('.jamo-tab');
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
@@ -136,14 +141,14 @@ tabs.forEach(tab => {
     window.currentJamoChar = null;
 
     const resultEl = document.getElementById('result');
-    resultEl.textContent = '클릭해서 시작';
-    resultEl.style.cursor = 'pointer';
+    resultEl.textContent = '카메라 켜기를 눌러 주세요';
+    resultEl.style.cursor = 'default';
     resultEl.style.color = '';
     document.getElementById('coachTip').style.display = 'none';
   });
 });
 
-/// 카드 클릭 -> 상세 표시
+
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.jamo-card');
   if (!card) return;
@@ -159,8 +164,8 @@ document.addEventListener('click', (e) => {
     resultEl.textContent = '-';
     resultEl.style.cursor = 'default';
   } else {
-    resultEl.textContent = '클릭해서 시작';
-    resultEl.style.cursor = 'pointer';
+    resultEl.textContent = '카메라 켜기를 눌러 주세요';
+    resultEl.style.cursor = 'default';
   }
   resultEl.style.color = '';
   document.getElementById('coachTip').style.display = 'none';
@@ -180,15 +185,15 @@ document.addEventListener('click', (e) => {
   document.getElementById('jamoDetail').scrollIntoView({behavior:'smooth', block:'center'});
 });
 
-// 닫기 버튼 클릭 시 카메라도 꺼주기
+
 document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('jamoDetail').classList.remove('show');
   window.stopJamoCam?.();
   window.currentJamoChar = null;
 
   const resultEl = document.getElementById('result');
-  resultEl.textContent = '클릭해서 시작';
-  resultEl.style.cursor = 'pointer';
+  resultEl.textContent = '카메라 켜기를 눌러 주세요';
+  resultEl.style.cursor = 'default';
   resultEl.style.color = '';
   document.getElementById('coachTip').style.display = 'none';
 });

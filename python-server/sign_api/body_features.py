@@ -1,4 +1,4 @@
-"""Versioned hands + shoulder-relative upper-body features shared by train/inference."""
+
 import numpy as np
 from .sign_model import normalize_hands
 from .hand_tracking import HandTracker, candidates, recover_candidates, expected_missing, VERSION
@@ -60,7 +60,7 @@ class Extractor:
         pose=np.array([[v.x,v.y,v.visibility] for v in p.pose_landmarks.landmark],np.float32) if p.pose_landmarks else None
         detected=candidates(h)
         labels=[d[1] for d in detected if d[1] is not None]
-        # A probe must not advance the persistent assignment state twice.
+
         probe=HandTracker();probe.previous=self.tracker.previous.copy();probe.age=self.tracker.age.copy()
         hands=probe.assign(detected,pose,image.shape[1]/image.shape[0])
         recovered=0; attempted=False

@@ -23,7 +23,7 @@ def load_dataset(csv_path=CSV_PATH):
 
 def backup_current_model():
     if not (os.path.exists(MODEL_PATH) or os.path.exists(LABEL_ENCODER_PATH)):
-        return  # 처음 학습이라 이전 모델이 없는 경우
+        return
     ts = time.strftime("%Y%m%d_%H%M%S")
     backup_dir = os.path.join(MODEL_OLD_DIR, ts)
     os.makedirs(backup_dir, exist_ok=True)

@@ -52,6 +52,11 @@
             <div class="cam-target-word" id="cam-target-word">🚑 구급차</div>
           </div>
 
+          <div style="display:flex;gap:8px;margin:12px 0;">
+            <button id="motion-camera-on" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button>
+            <button id="motion-camera-off" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button>
+          </div>
+          <p id="motion-camera-status" role="status">카메라를 켜면 손을 인식합니다.</p>
           <div class="cam-wrap-exam">
             <video id="video-word" autoplay playsinline muted></video>
             <canvas id="canvas-word"></canvas>

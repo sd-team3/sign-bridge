@@ -43,17 +43,17 @@ public class MemberService {
         member.setMemberPassword(dbPassword);
         memberMapper.insertMember(member);
     }
-    // 전체 멤버 수
+
     @Transactional
     public int getMemberCount() {
         return memberMapper.countAll();
     }
-    // 오늘 등록한 회원 수
+
     @Transactional
     public int newUserToday() {
         return memberMapper.countTodayMember();
     }
-    // 주간 일별 추가 회원
+
     @Transactional
     public List<Integer> getWeeklySignupCounts() {
         List<DailySignupVO> raw = memberMapper.getWeeklySignupList();
@@ -72,46 +72,46 @@ public class MemberService {
         }
         return new ArrayList<>(countMap.values());
     }
-    // 어드민 유저 수 필터 거치기
+
     @Transactional
     public int adminGetMemberCount(String role, String status, String keyword) {
         return memberMapper.getMemberCount(role, status, keyword);
     }
 
-    // 어드민 멤버 리스트 뽑아오기
+
     @Transactional
     public List<MemberVO> getMemberList(int page, int pageSize, String role, String status, String keyword, String sort) {
         int start = (page - 1) * pageSize;
         return memberMapper.getAllMembers(start, pageSize, role, status, keyword, sort);
     }
 
-    // 특정 회원 정보 가져오기
+
     @Transactional
     public MemberVO getMemberInfo(int memberId) {
         MemberVO member = memberMapper.findById(memberId);
         checkAndReleaseIfExpired(member);
         return member;
     }
-    // ID로 특정 회원 정보 가져오기
+
     @Transactional
     public MemberVO getMemberById(int memberId) {
         MemberVO member = memberMapper.findById(memberId);
         return member;
     }
 
-    // 이메일로 특정 회원 찾기
+
     @Transactional
     public MemberVO getMemberByEmail(String adminEmail) {
         return memberMapper.getMemberByEmail(adminEmail);
     }
 
-    // 정지상태 변경
+
     @Transactional
     public void suspendMember(int memberId) {
         memberMapper.suspendStatus(memberId);
     }
 
-    // 정지된 회원을 검사해서 풀어준다.
+
     @Transactional
     public void checkAndReleaseIfExpired(MemberVO member) {
         if (!"SUSPEND".equals(member.getStatus())) return;
@@ -119,11 +119,11 @@ public class MemberService {
         LocalDateTime latestEndDate = suspendMapper.findLatestEndDate(member.getMemberId());
         if (latestEndDate != null && latestEndDate.isBefore(LocalDateTime.now())) {
             memberMapper.updateStatus(member.getMemberId(), "ACTIVE");
-            member.setStatus("ACTIVE"); // 방금 조회해둔 객체도 동기화
+            member.setStatus("ACTIVE");
         }
     }
 
-    // 멤버 삭제
+
     @Transactional
     public void deleteMember(int memberId) {
         boardService.anonymizeMemberBoards(memberId);
@@ -131,13 +131,13 @@ public class MemberService {
         memberMapper.deleteMember(memberId);
     }
 
-    // 멤버 이름 변경 처리
+
     @Transactional
     public void updateMemberName(int memberId, String memberName) {
         memberMapper.updateMemberName(memberId, memberName);
     }
 
-    // 비밀번호 변경 처리
+
     @Transactional
     public void updatePassword(int memberId, String encodedPassword) {
         memberMapper.updatePassword(memberId, encodedPassword);

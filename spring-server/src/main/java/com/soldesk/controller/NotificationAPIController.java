@@ -25,7 +25,7 @@ public class NotificationAPIController {
     @Autowired
     private NotificationService notificationService;
     
-    // 헤더에서 api로 받아오는 멤버 아이디
+
     @GetMapping("/me")
     public Map<String, Object> getMyInfo(@AuthenticationPrincipal CustomUserDetail userDetails) {
         Map<String, Object> result = new HashMap<>();

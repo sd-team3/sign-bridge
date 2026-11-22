@@ -1,7 +1,7 @@
+import math
 import os
 
 import pandas as pd
-import requests
 
 import config
 
@@ -145,112 +145,28 @@ def detect_deviation(label, feat_vec, reference_df, z_threshold=config.COACH_Z_T
     return best
 
 
-def fallback_tip(deviation) -> str:
+def feedback_tip(deviation) -> str:
     key = (deviation["name"], deviation["direction"])
     if key in ADVICE_TEMPLATES:
         return ADVICE_TEMPLATES[key]
     return "손모양을 기준 동작과 조금 더 비교해보세요."
 
 
-def _call_groq(label, deviation, fallback) -> str:
-    if not config.GROQ_API_KEY:
-        return fallback
-
-    direction_text = "많이 넓거나 큽니다"
-    if deviation["direction"] == "-":
-        direction_text = "많이 좁거나 작습니다"
-
-    system_prompt = (
-        "당신은 한국 수어(한국어 지문자) 초보자를 돕는 다정한 코치입니다. "
-        "입력으로는 이미 정답으로 인식된 손모양이 기준 동작과 어떻게 다른지에 대한 "
-        "관찰 정보가 주어집니다. 이를 바탕으로 30자 이내의 짧고 친절한 한국어 조언을 "
-        "한 문장으로만 답하세요. 인사말, 따옴표, 부연설명은 넣지 마세요."
-    )
-    user_prompt = (
-        f"목표 자모: '{label}'. "
-        f"관찰된 편차: '{deviation['desc']}'이(가) 기준보다 {direction_text} "
-        f"(기준 대비 약 {round(deviation['pct_diff'])}% 차이). "
-        f"참고용 기본 조언: '{fallback}'"
-    )
-
-    try:
-        res = requests.post(
-            config.GROQ_API_URL,
-            headers={
-                "Authorization": f"Bearer {config.GROQ_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": config.GROQ_MODEL,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.5,
-                "max_tokens": 60,
-            },
-            timeout=config.GROQ_TIMEOUT_SEC,
-        )
-        res.raise_for_status()
-        content = res.json()["choices"][0]["message"]["content"].strip()
-        return content if content else fallback
-    except Exception:
-        return fallback
-
-
-def _call_groq_mismatch(target_label, predicted_label, fallback) -> str:
-    if not config.GROQ_API_KEY:
-        return fallback
-
-    system_prompt = (
-        "당신은 한국 수어(한국어 지문자) 초보자를 돕는 다정한 코치입니다. "
-        "사용자가 목표로 하는 자모와 지금 카메라에 인식되는 자모가 서로 다릅니다. "
-        "두 자모의 관계만 짧게 짚어서, 지금 손모양이 목표와 얼마나 다른지를 "
-        "20자 이내의 짧고 친절한 한국어 한 문장으로 알려주세요. "
-        "인사말, 따옴표, 부연설명은 넣지 마세요."
-    )
-    user_prompt = (
-        f"목표 자모: '{target_label}'. "
-        f"지금 인식되는 자모: '{predicted_label}'. "
-        f"참고용 기본 문구: '{fallback}'"
-    )
-
-    try:
-        res = requests.post(
-            config.GROQ_API_URL,
-            headers={
-                "Authorization": f"Bearer {config.GROQ_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": config.GROQ_MODEL,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.5,
-                "max_tokens": 40,
-            },
-            timeout=config.GROQ_TIMEOUT_SEC,
-        )
-        res.raise_for_status()
-        content = res.json()["choices"][0]["message"]["content"].strip()
-        return content if content else fallback
-    except Exception:
-        return fallback
-
-
 def generate_feedback(target_label, predicted_label, predicted_confidence, feat_vec):
+    if not all(math.isfinite(value) for value in feat_vec) or not any(feat_vec):
+        return {"tip": "손가락이 화면에 잘 보이도록 다시 보여 주세요.", "kind": "advice", "predicted_label": predicted_label}
+
     if predicted_label != target_label:
-        fallback = f"지금은 '{predicted_label}'에 가까운 손모양이에요. '{target_label}'과는 많이 달라요."
-        tip = _call_groq_mismatch(target_label, predicted_label, fallback)
+        tip = f"지금은 ‘{predicted_label}’에 가까운 손 모양이에요. ‘{target_label}’의 시범을 다시 확인해 주세요."
         return {"tip": tip, "kind": "mismatch", "predicted_label": predicted_label}
 
     reference_df = load_reference()
+    if reference_df is None or target_label not in reference_df["label"].values:
+        return {"tip": "이 지문자의 기준 손 모양을 아직 불러오지 못했어요.", "kind": "advice", "predicted_label": predicted_label}
+
     deviation = detect_deviation(target_label, feat_vec, reference_df)
     if deviation is None:
-        return {"tip": "완벽합니다!", "kind": "perfect", "predicted_label": predicted_label}
+        return {"tip": "기준 손 모양과 뚜렷한 차이가 보이지 않아요.", "kind": "perfect", "predicted_label": predicted_label}
 
-    fallback = fallback_tip(deviation)
-    tip = _call_groq(target_label, deviation, fallback)
+    tip = feedback_tip(deviation)
     return {"tip": tip, "kind": "advice", "predicted_label": predicted_label}

@@ -44,7 +44,7 @@
         </where> 
     </select>
 
-    <!-- 오늘 추가된 게시판 개수 -->
+
     <select id="countTodayBoard" resultType="int">
         SELECT COUNT(*) 
         FROM member 

@@ -394,8 +394,6 @@
   "mirror_ensemble": true,
   "hand_extractor_version": "hands_tracking_v2",
   "reference_tracking_audit": "reference_quality.json",
-  "preprocessing_audit": "D:/sign-lang/data/curriculum100_tracking_v2/audit.json",
-  "activation_decision": "v8_user_requested_test",
   "model_weights_retrained": true,
   "preprocessing_version": "hands_tracking_v2",
   "extractor_dependencies": {
@@ -403,6 +401,5 @@
     "mediapipe": "0.10.14",
     "numpy": "2.4.6"
   },
-  "extractor_code_id": "ba451460ec368fc4f58a37dac3b4fcc8b9ce9b8e4d209cbdcadc978fafd13fac",
-  "authorization": "User explicitly requested v8 activation for personal testing; prior failed automatic evaluation gates retained."
+  "extractor_code_id": "ba451460ec368fc4f58a37dac3b4fcc8b9ce9b8e4d209cbdcadc978fafd13fac"
 }

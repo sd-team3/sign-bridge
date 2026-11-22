@@ -72,7 +72,7 @@
   <noscript><p class="sl-alert">단어 목록과 웹캠 피드백을 이용하려면 JavaScript를 켜 주세요.</p></noscript>
 </main>
 <jsp:include page="../includes/footer.jsp" />
-<script src="<c:url value='/resources/js/sign-coaching.js'/>?v=highlight-notes-2" defer></script>
+<script src="<c:url value='/resources/js/sign-coaching.js'/>?v=exam-comparison-1" defer></script>
 <script src="<c:url value='/resources/js/sign-auto-capture.js'/>" defer></script>
 <script src="<c:url value='/resources/js/sign-learning.js'/>" defer></script>
 </body>

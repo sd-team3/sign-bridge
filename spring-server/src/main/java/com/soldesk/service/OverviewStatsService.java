@@ -74,7 +74,7 @@ public class OverviewStatsService {
             if (allDone) badges.add("complete_all");
         }
 
-        // 올스타: 위에서 계산된 뱃지가 7개(올스타 자기 자신 제외 전부) 다 모이면 획득
+
         if (badges.size() >= 7) badges.add("allstar");
         
         return badges;

@@ -7,7 +7,7 @@ params = {
     "serviceKey": SERVICE_KEY,
     "numOfRows": 3,
     "pageNo": 1,
-    "keyword": ""  # 문서에 명시된 대로 빈 값이라도 파라미터 자체는 꼭 포함
+    "keyword": ""
 }
 
 res = requests.get(BASE_URL, params=params)

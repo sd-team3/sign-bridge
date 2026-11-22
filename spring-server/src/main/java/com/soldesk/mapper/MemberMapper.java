@@ -14,16 +14,16 @@ public interface MemberMapper {
     MemberVO findByProviderAndProviderId(@Param("provider") String provider, @Param("providerId") String providerId);
     void insertMemberOAuthMember(MemberVO member);
     
-    // 전체 멤버 수
+
     int countAll();
 
-    // 오늘 추가된 회원 수
+
     int countTodayMember();
 
-    // 주간 일별 추가 유저 수
+
     List<DailySignupVO> getWeeklySignupList();
 
-    // 어드민 페이지 멤버 리스트
+
     List<MemberVO> getAllMembers(
             @Param("start") int start,
             @Param("count") int count,
@@ -32,10 +32,10 @@ public interface MemberMapper {
             @Param("keyword") String keyword,
             @Param("sort") String sort
     );
-    // 어드민 필터 거쳐서 멤버 수 세기
+
     int getMemberCount(@Param("role") String role, @Param("status") String status, @Param("keyword") String keyword);
 
-    // 특정 회원 정보 가져오기
+
     MemberVO findById(int memberId);
 
     MemberVO getMemberByEmail(String email);
@@ -50,7 +50,7 @@ public interface MemberMapper {
 
     void updatePassword(@Param("memberId") int memberId, @Param("encodedPassword") String encodedPassword);
 
-    // 끝말잇기 등에서 획득한 점수를 회원 누적 점수(point)에 더함
+
     void addPoint(@Param("memberId") int memberId, @Param("delta") int delta);
 
 }

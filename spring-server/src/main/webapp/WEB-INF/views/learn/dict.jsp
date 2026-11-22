@@ -31,13 +31,13 @@
 
     <div class="dict-layout">
 
-      <!-- 좌측: 초성 아코디언 -->
+
       <aside class="cho-sidebar" id="choSidebar">
         <div class="cho-sidebar-title">초성으로 찾기</div>
-        <!-- 그룹 내용은 JS가 ALL_WORDS 로드 후 채움 -->
+
       </aside>
 
-      <!-- 우측: 메인 영역 -->
+
       <div class="dict-main">
         <div class="search-row">
           <input type="text" id="searchInput" placeholder="단어를 검색하세요 (예: 사과, 병원, ㄱ)">
@@ -60,7 +60,7 @@
 
 <%@ include file="/WEB-INF/views/includes/footer.jsp" %>
 
-<!-- 수어 인식 모달 -->
+
 <dialog id="camModal" class="cam-modal">
   <div class="cam-modal-inner">
     <button class="cam-modal-close" id="camCloseBtn">✕</button>
@@ -95,14 +95,14 @@
   </div>
 </dialog>
 
-<!-- 영상클릭시 설명 모달(description) -->
+
 <dialog id="detailModal" class="detail-modal">
   <div class="detail-modal-inner">
 
-    <!-- 오류신고 -->
+
     <button class="detail-report-btn" id="detailReportBtn">⚠ 오류 신고</button>
 
-    <!-- 닫기버튼-->
+
     <div class="detail-top-actions">
       <button class="detail-modal-close" id="detailCloseBtn">✕</button>
     </div>
@@ -144,7 +144,7 @@
   </div>
 </dialog>
 
-<!-- 오류 신고 모달 -->
+
 <dialog id="reportModal" class="report-modal">
   <div class="report-modal-inner">
     <button class="report-modal-close" id="reportCloseBtn">✕</button>
@@ -165,7 +165,7 @@
   </div>
 </dialog>
 
-<!-- 신고 접수 결과 안내 모달 (성공/실패 공용) -->
+
 <dialog id="reportStatusModal" class="report-status-modal">
   <div class="report-status-inner">
     <div class="report-status-icon" id="reportStatusIcon">✓</div>
@@ -180,7 +180,7 @@ const CTX = "${pageContext.request.contextPath}";
 <script src="${pageContext.request.contextPath}/resources/js/sign-word.js?v=dictionary-layout-6"></script>
 
 <script>
-// 오답노트 등에서 word 파라미터로 진입 시 해당 단어 상세 모달 자동 오픈
+
 (function () {
   const params = new URLSearchParams(location.search);
   const targetWordName = params.get("word");
@@ -193,7 +193,7 @@ const CTX = "${pageContext.request.contextPath}";
 })();
 </script>
 
-<!-- 수어 인식 모듈 -->
+
 <script type="module">
   import { initDictCamera } from "${pageContext.request.contextPath}/resources/js/dict-camera.js";
 

@@ -33,10 +33,10 @@ public class LearnService {
     @Autowired
     private RecognitionConfirmLogMapper recognitionConfirmLogMapper;
 
-    // 사전 전체 목록(필터 없는 경우) 캐시.
-    // 페이지 이동할 때마다 3696건을 매번 새로 긁어오면 너무 느려서
-    // 서버 메모리에 한 번만 담아두고 재사용.
-    // 어드민이 단어 수정하면 clearWordCache()로 비움.
+
+
+
+
     private volatile List<SignWordVO> allWordsCache = null;
 
     public List<JamoVO> getConsonants() {
@@ -48,7 +48,7 @@ public class LearnService {
     }
 
     public List<SignWordVO> getDictWords(String choseong, String keyword) {
-        // 필터 없는 전체 조회일 때만 캐시 사용 (choseong/keyword 검색은 그대로 DB 조회)
+
         boolean noFilter = (choseong == null || choseong.isBlank())
                 && (keyword == null || keyword.isBlank());
 
@@ -66,7 +66,7 @@ public class LearnService {
         return signWordMapper.findList(choseong, keyword);
     }
 
-    // 캐시 비우기 - 어드민이 단어 수정했을 때 호출해서 다음 조회 때 최신 데이터로 다시 채워지게 함
+
     public void clearWordCache() {
         allWordsCache = null;
     }
@@ -83,8 +83,8 @@ public class LearnService {
         return signWordMapper.findRandom();
     }
 
-    // 국립수어사전 원본 영상은 Referer 헤더 체크로 핫링크를 막고 있어
-    // 서버가 대신 요청해서 (정상적인 Referer를 붙여서) 스트림만 그대로 전달한다
+
+
     public void proxyVideo(String videoUrl, HttpServletResponse response) throws IOException {
         URL url = new URL(videoUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -111,17 +111,17 @@ public class LearnService {
         }
     }
 
-    // 어드민 간단한 단어 리스트 (페이징)
+
     public List<SignWordVO> getWordList(String keyword, int offset, int pageSize) {
         return signWordMapper.getWordList(keyword, offset, pageSize);
     }
 
-    // 단어 개수
+
     public int getWordCount(String keyword) {
         return signWordMapper.getCount(keyword);
     }
 
-    // 아이디로 단어 이름 가져오기
+
     public SignWordVO getDictWordDetailById(int signWordId) {
         return signWordMapper.getDictWordDetailById(signWordId);
     }
@@ -133,15 +133,15 @@ public class LearnService {
             String signWordThumbnail,
             String description) {
         signWordMapper.updateWord(signWordId, signWordName, choseong, signWordVideo, signWordThumbnail, description);
-        clearWordCache(); // 어드민이 단어 수정했으니 캐시된 목록도 최신화 필요
+        clearWordCache();
     }
 
     public int countAll() {
         return jamoMapper.countAll();
     }
 
-    // 학습 메인페이지 "나의 학습 기록" 카드에 쓸 "최근 학습: N" 라벨.
-    // 학습 기록이 없으면 null 반환 -> jsp에서 문구를 다르게 보여줌.
+
+
     public String getLastLearningLabel(int memberId) {
         LocalDateTime lastRegDate = recognitionConfirmLogMapper.findLastRegDateByMemberId((long) memberId);
         if (lastRegDate == null) {

@@ -133,7 +133,7 @@ function updateCount(){ charCountEl.textContent = contentEl.value.length; }
 contentEl.addEventListener('input', updateCount);
 updateCount();
 
-// 이미지 첨부 (최대 1장)
+
 const MAX_IMAGES = 1;
 const imagesInput = document.getElementById('images');
 const uploadZone = document.getElementById('uploadZone');
@@ -202,7 +202,7 @@ uploadZone.addEventListener('drop', (e) => {
 
 document.getElementById('writeForm').addEventListener('submit', function(e){
   e.preventDefault();
-  // TODO: 실제 등록 로직 연결
+
   window.location.href = 'board_list.html';
 });
 </script>

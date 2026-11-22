@@ -68,7 +68,7 @@
 <main>
   <div class="container page-body">
 
-    <!-- ══ PHASE 1: 설정 ══ -->
+
     <div id="phase-setup" class="phase active">
       <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:28px;">
         <div>
@@ -79,7 +79,7 @@
       </div>
 
       <div class="setup-grid">
-        <!-- 시험 방식 -->
+
         <div class="option-group" style="grid-column: 1 / -1;">
           <h3>⚙️ 시험 방식</h3>
           <div class="mode-cards">
@@ -107,7 +107,7 @@
           </div>
         </div>
 
-        <!-- 문제 수 -->
+
         <div class="option-group">
           <h3>🔢 문제 수</h3>
           <div class="count-control" style="margin-bottom:10px;">
@@ -119,7 +119,7 @@
           <p style="font-size:13px; font-weight:500; color:var(--text-sub);">최소 5 · 최대 30문제<br><span id="both-note" style="display:none; color:var(--primary); font-weight:700;">※ "모두" 선택 시 퀴즈 + 수어 인식 각각 해당 수만큼 출제</span></p>
         </div>
 
-        <!-- 시험 범위 -->
+
         <div class="option-group">
           <h3>📚 시험 범위</h3>
           <div class="scope-chips">
@@ -144,7 +144,7 @@
     </div>
 
 
-    <!-- ══ PHASE 2: 퀴즈 문제 ══ -->
+
     <div id="phase-quiz" class="phase">
       <div class="exam-header">
         <div class="exam-progress-wrap">
@@ -177,7 +177,7 @@
             <p>수어 동작 영상 — 클릭해서 재생</p>
           </div>
 
-          <!-- 객관식 -->
+
           <div id="multiple-choice-area">
             <p style="font-size:14px; font-weight:700; color:var(--text-sub); margin-bottom:14px;">이 수어가 나타내는 단어는 무엇인가요?</p>
             <div class="choices">
@@ -188,7 +188,7 @@
             </div>
           </div>
 
-          <!-- 주관식 -->
+
           <div id="subjective-area" style="display:none;">
             <p style="font-size:14px; font-weight:700; color:var(--text-sub); margin-bottom:14px;">이 수어가 나타내는 단어를 직접 입력하세요.</p>
             <div class="subjective-input-wrap">
@@ -211,9 +211,9 @@
     </div>
 
 
-    <!-- ══ PHASE 3: 카메라 수어 인식 ══ -->
+
     <div id="phase-cam" class="phase">
-      <!-- "both" 모드일 때 구분 배너 -->
+
       <div class="phase-divider" id="cam-phase-divider" style="display:none;">
         <span>퀴즈 완료 → 이제 수어 인식 시험입니다</span>
       </div>
@@ -270,7 +270,7 @@
     </div>
 
 
-    <!-- ══ PHASE 4: 결과 ══ -->
+
     <div id="phase-result" class="phase">
       <div class="result-hero">
         <div class="result-icon" id="r-icon">🎉</div>
@@ -327,20 +327,20 @@
 <footer>© 2025 SignBridge. 청각장애인과 세상을 잇는 다리.</footer>
 
 <script>
-// ── 상태 ──
-let examMode = 'quiz';   // 'quiz' | 'cam' | 'both'
+
+let examMode = 'quiz';
 let totalCount = 10;
 let timerInterval = null;
 let quizAnswered = false;
 let isSubjective = false;
 
-// ── 문제 수 ──
+
 const minQ = 5, maxQ = 30;
 const countEl = document.getElementById('count-display');
 document.getElementById('count-minus').onclick = () => { if (totalCount > minQ) { totalCount--; countEl.textContent = totalCount; updateSummary(); } };
 document.getElementById('count-plus').onclick  = () => { if (totalCount < maxQ) { totalCount++; countEl.textContent = totalCount; updateSummary(); } };
 
-// ── 방식 변경 시 요약 갱신 ──
+
 document.querySelectorAll('input[name="exam-mode"]').forEach(r => {
   r.addEventListener('change', () => { examMode = r.value; updateSummary(); });
 });
@@ -352,14 +352,14 @@ function updateSummary() {
   document.getElementById('both-note').style.display = examMode === 'both' ? 'inline' : 'none';
 }
 
-// ── 페이즈 전환 ──
+
 function showPhase(id) {
   document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ── 시험 시작 ──
+
 function startExam() {
   examMode = document.querySelector('input[name="exam-mode"]:checked').value;
   if (examMode === 'cam') {
@@ -369,7 +369,7 @@ function startExam() {
   }
 }
 
-// ── 퀴즈 시작 ──
+
 function startQuizPhase() {
   updateQuizProgress(1, totalCount);
   startTimer('quiz-timer', 600, endQuizPhase);
@@ -384,7 +384,7 @@ function updateQuizProgress(cur, total) {
   document.getElementById('quiz-q-badge').textContent = `문제 ${cur}`;
 }
 
-// ── 카메라 시작 ──
+
 function startCamPhase(fromBoth) {
   document.getElementById('cam-phase-divider').style.display = fromBoth ? 'block' : 'none';
   updateCamProgress(1, totalCount);
@@ -400,7 +400,7 @@ function updateCamProgress(cur, total) {
   document.getElementById('cam-q-badge').textContent = `문제 ${cur}`;
 }
 
-// ── 타이머 ──
+
 function startTimer(elemId, seconds, onEnd) {
   clearInterval(timerInterval);
   let s = seconds;
@@ -416,7 +416,7 @@ function startTimer(elemId, seconds, onEnd) {
   timerInterval = setInterval(tick, 1000);
 }
 
-// ── 퀴즈: 객관식/주관식 전환 ──
+
 function toggleQuizType() {
   isSubjective = !isSubjective;
   document.getElementById('multiple-choice-area').style.display = isSubjective ? 'none' : 'block';
@@ -428,7 +428,7 @@ function toggleQuizType() {
   quizAnswered = false;
 }
 
-// ── 퀴즈: 객관식 선택 ──
+
 function selectChoice(btn, isCorrect) {
   if (quizAnswered) return;
   quizAnswered = true;
@@ -448,11 +448,11 @@ function selectChoice(btn, isCorrect) {
   document.getElementById('quiz-next-btn').style.display = 'inline-flex';
 }
 
-// ── 퀴즈: 주관식 제출 ──
+
 function submitSubjective() {
   const val = document.getElementById('subjective-input').value.trim();
   if (!val) return;
-  const correct = val === '병원'; // 실제 구현에서 정답 비교
+  const correct = val === '병원';
   const fb = document.getElementById('quiz-feedback');
   if (correct) {
     fb.className = 'feedback-box show ok';
@@ -467,17 +467,17 @@ function submitSubjective() {
   quizAnswered = true;
 }
 
-// ── 퀴즈: 다음 문제 ──
+
 function nextQuizQuestion() {
   quizAnswered = false;
   document.querySelectorAll('.choice-btn').forEach(b => { b.classList.remove('correct','wrong'); b.disabled = false; });
   document.getElementById('quiz-feedback').className = 'feedback-box';
   document.getElementById('quiz-next-btn').style.display = 'none';
   document.getElementById('subjective-input').value = '';
-  // 실제로는 문제 인덱스 증가 처리
+
 }
 
-// ── 퀴즈 완료 ──
+
 function endQuizPhase() {
   clearInterval(timerInterval);
   if (examMode === 'both') {
@@ -487,12 +487,12 @@ function endQuizPhase() {
   }
 }
 
-// ── 카메라 제출 ──
+
 function submitCam() {
   finishExam();
 }
 
-// ── 최종 종료 ──
+
 function finishExam() {
   clearInterval(timerInterval);
   showPhase('phase-result');

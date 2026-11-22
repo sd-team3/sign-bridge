@@ -40,7 +40,7 @@
                 <option value="REPORT" ${param.category == 'REPORT' ? 'selected' : ''}>오류 신고</option>
               </select>
           </div>
-          <!-- 신고 카테고리 한정 -->
+
           <div class="form-group report-extra-fields" id="reportExtraFields" style="display:none;">
             <label class="form-label" for="errorType">오류 유형</label>
             <select id="errorType" name="errorType" class="form-input">
@@ -170,7 +170,7 @@ const errorTypeSelect = document.getElementById('errorType');
 function toggleReportFields() {
   const isReport = categorySelect.value === 'REPORT';
   reportExtraFields.style.display = isReport ? 'block' : 'none';
-  errorTypeSelect.required = isReport; // REPORT일 때만 필수 처리
+  errorTypeSelect.required = isReport;
 }
 
 categorySelect.addEventListener('change', toggleReportFields);

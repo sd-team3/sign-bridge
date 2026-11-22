@@ -29,7 +29,7 @@
     const res = await fetch(url, options);
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
-      // 세션 만료 등으로 로그인 페이지 HTML이 대신 온 경우
+
       alert('로그인이 필요합니다. 다시 로그인해주세요.');
       location.href = '/member/login';
       throw new Error('Not JSON response — likely redirected to login');
@@ -57,7 +57,7 @@
     `;
   }
 
-  // 관리자 답변이면 이름 대신 "관리자"로 표시 + 뱃지 클래스 부여
+
   function buildCommentHtml(comment, replies) {
     const isDeleted = comment.delYn === 'Y';
     const isAdmin = comment.isAdminAnswer === 'Y';
@@ -93,7 +93,7 @@
   }
 
   function renderWriteArea() {
-    if (isLoggedIn) return; // 기본 마크업(작성창) 그대로 둠
+    if (isLoggedIn) return;
     writeArea.innerHTML = '<p class="comment-login-prompt">댓글을 작성하려면 <a href="/member/login">로그인</a>이 필요합니다.</p>';
   }
 
@@ -159,7 +159,7 @@
     await loadComments();
   }
 
-  // 최상위 댓글 작성 (로그인 상태일 때만 이 버튼이 남아있음)
+
   writeArea.addEventListener('click', async (e) => {
     if (!e.target.classList.contains('btn-primary')) return;
     const textarea = writeArea.querySelector('textarea');
@@ -171,7 +171,7 @@
     }
   });
 
-  // 이벤트 위임: 답글 토글 / 답글 등록 / 삭제
+
   listEl.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;

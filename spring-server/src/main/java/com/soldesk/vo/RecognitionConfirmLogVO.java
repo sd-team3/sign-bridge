@@ -2,17 +2,17 @@ package com.soldesk.vo;
 
 import java.time.LocalDateTime;
 
-/** recognition_confirm_log 테이블 1:1 매핑. 자모 하나가 확정될 때마다 한 행씩 쌓인다. */
+
 public class RecognitionConfirmLogVO {
 
     private Long recognitionConfirmLogId;
     private String clientSessionId;
-    private Long memberId;          // 비로그인이면 null
+    private Long memberId;
     private String confirmedChar;
     private double confidence;
     private int holdDurationMs;
-    private String landmarkJson;    // 확정 시점 랜드마크 21개 좌표를 JSON 문자열로 직렬화해서 저장
-    private LocalDateTime regDate;  // INSERT 시 DB의 DEFAULT CURRENT_TIMESTAMP가 채움, 조회용
+    private String landmarkJson;
+    private LocalDateTime regDate;
 
     public Long getRecognitionConfirmLogId() { return recognitionConfirmLogId; }
     public void setRecognitionConfirmLogId(Long recognitionConfirmLogId) { this.recognitionConfirmLogId = recognitionConfirmLogId; }

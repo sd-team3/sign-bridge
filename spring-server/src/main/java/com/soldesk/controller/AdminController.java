@@ -69,12 +69,12 @@ public class AdminController {
         int totalPosts = boardService.getCategoryBoardCount(null);
         int newBoardToday = boardService.countTodayBoard();
 
-        // 주간 일별 추가 회원 수
+
         List<Integer> weeklySignups = memberService.getWeeklySignupCounts();
-        // 주간 회원 수 max값
+
         int weeklyMax = Collections.max(weeklySignups);
 
-        // 오류 신고 개수
+
         int errorCount = adminService.getErrorCount();
         model.addAttribute("todayLabel", today);
         model.addAttribute("totalUsers", totalUsers);
@@ -108,7 +108,7 @@ public class AdminController {
             }
         }
 
-        // 모든 회원
+
         int pageSize = 10;
         int count = memberService.adminGetMemberCount(role, status, keyword);
         PageBean pageBean = new PageBean(page, count, pageSize);
@@ -148,7 +148,7 @@ public class AdminController {
         return "redirect:/admin/user/info?memberId=" + memberId;
     }
 
-    // 연쇄 삭제는 회의 후 결정
+
     @PostMapping("/user/delete")    
     public String userDelete(@RequestParam int memberId) {
 

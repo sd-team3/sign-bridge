@@ -14,7 +14,7 @@
 
 <main>
   <div class="container page-body">
-    <!-- 상단 요약 배너 -->
+
     <div class="learn-hero">
       <div class="learn-hero-text">
         <c:choose>
@@ -29,19 +29,19 @@
       </div>
     </div>
 
-    <!-- 이어하기 -->
-    <!-- <div class="continue-banner">
-      <div class="cb-left">
-        <div class="cb-icon">🍎</div>
-        <div>
-          <div class="cb-title">기초 어휘 · '사과' 이어서 학습하기</div>
-          <div class="cb-sub">최근 정확도 94% · 다음 단어까지 3개 남음</div>
-        </div>
-      </div>
-      <a href="learn_word_detail.html" class="btn btn-primary btn-sm">이어서 하기 →</a>
-    </div> -->
 
-    <!-- 카테고리 -->
+
+
+
+
+
+
+
+
+
+
+
+
     <div class="section-title">학습 카테고리</div>
     <div class="cat-grid">
       <a href="<c:url value='/learn/signs'/>" class="cat-card">
@@ -55,44 +55,44 @@
         <div class="cat-card-desc">수어의 기초, 지문자 ${jamoCount}개를 처음부터 차근차근 익혀요.</div>
       </a>
 
-      <!-- <a href="learn_basic.html" class="cat-card">
-        <div class="cat-card-icon">📚</div>
-        <div class="cat-card-title">기초 어휘 학습</div>
-        <div class="cat-card-desc">일상에서 자주 쓰는 기본 단어 124개를 분야별로 학습해요.</div>
-        <div class="cat-card-meta">
-          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:68%"></div></div></div>
-          <span class="cat-card-pct">68%</span>
-        </div>
-      </a> -->
 
-      <!-- <a href="learn_list.html" class="cat-card purple">
-        <div class="cat-card-icon">🗂️</div>
-        <div class="cat-card-title">상황별 수어 학습</div>
-        <div class="cat-card-desc">인사, 학교, 자연 등 35개 주제로 구성된 상황별 회화 수업.</div>
-        <div class="cat-card-meta">
-          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:22%"></div></div></div>
-          <span class="cat-card-pct">22%</span>
-        </div>
-      </a> -->
 
-      <!-- <a href="learn_emergency.html" class="cat-card danger">
-        <div class="cat-card-icon">🚨</div>
-        <div class="cat-card-title">비상 상황 어휘</div>
-        <div class="cat-card-desc">화재, 지진, 응급 상황에서 꼭 필요한 핵심 수어를 배워요.</div>
-        <div class="cat-card-meta">
-          <div class="cat-card-progress"><div class="prog-track"><div class="prog-fill" style="width:35%"></div></div></div>
-          <span class="cat-card-pct">35%</span>
-        </div>
-      </a> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       <a href="/learn/dict" class="cat-card">
         <div class="cat-card-icon">🔍</div>
         <div class="cat-card-title">개별 어휘 검색</div>
         <div class="cat-card-desc">초성별로 찾거나 검색·수어 인식으로 원하는 단어를 학습하세요.</div>
-        <!-- <div class="cat-card-meta">
-          <span style="font-size:13px; font-weight:700; color:var(--text-muted);">총 124개 단어</span>
-          <span class="cat-card-arrow">›</span>
-        </div> -->
+
+
+
+
       </a>
 
       <a href="/member/mypage" class="cat-card">
@@ -116,7 +116,7 @@
       </a>
     </div>
 
-    <!-- 플레이존 유도 배너 -->
+
     <div class="play-banner">
       <div>
         <h3>🎮 배운 단어, 게임으로 복습해볼까요?</h3>

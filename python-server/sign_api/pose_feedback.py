@@ -161,19 +161,20 @@ def compare(reference, actual, ignore_resting=False, similarity_threshold=70.0):
             median=float(np.median(delta)); support=float((delta*np.sign(median)>threshold).mean())
             if abs(median)<threshold or support<.65: continue
             if column==0:
-                text=f'{name}이 모범 동작보다 몸 {"바깥쪽" if median>0 else "안쪽"}에 있어요. 손을 조금 {"몸 쪽으로 모아" if median>0 else "몸 바깥쪽으로 옮겨"} 주세요.'
+                text=f'{name}을 조금 {"몸 쪽으로 모아" if median>0 else "몸 바깥쪽으로 옮겨"} 주세요.'
                 measure='어깨 너비에 대한 손의 몸 중심 거리 차이'
             elif column==1:
-                text=f'{name}의 위치가 모범 동작보다 {"낮게" if median>0 else "높게"} 보여요. 모범 영상과 비교하며 손을 조금 {"올려" if median>0 else "내려"} 주세요.'
+                text=f'{name}을 조금 {"올려" if median>0 else "내려"} 주세요.'
                 measure='어깨 너비에 대한 손 높이 차이'
             else:
                 finger=FINGERS[column-2][0]
-                text=f'{name} {finger}가 모범 동작보다 {"굽혀져" if median<0 else "펴져"} 보여요. 손가락을 조금 더 {"펴서" if median<0 else "굽혀서"} 따라 해 주세요.'
+                particle = "을" if finger.endswith("락") else "를"
+                text = f'{name} {finger}{particle} 조금 더 {"펴" if median < 0 else "굽혀"} 주세요.'
                 measure='손가락 관절 각도 차이(도)'
             candidates.append({'text':text,'measure':measure,'difference':round(median,2),
                                'support':round(support,2),'valid_frames':int(valid.sum()),
                                'priority':abs(median)/threshold})
-    result['corrections']=sorted(candidates,key=lambda c:c['priority'],reverse=True)[:3]
+    result['corrections']=sorted(candidates,key=lambda c:c['priority'],reverse=True)[:2]
     result['summary']=' '.join(c['text'] for c in result['corrections'])
     low = result['similarity_score'] <= similarity_threshold
     result['reason']='low_similarity' if low else 'correction' if result['corrections'] else 'no_clear_difference'

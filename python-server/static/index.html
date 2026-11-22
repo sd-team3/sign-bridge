@@ -255,7 +255,7 @@
 
 <main>
 
-  <!-- ── 탭 1: 데이터 수집 ─────────────────────────── -->
+
   <section class="tab active" id="tab-collect">
     <div class="grid">
       <div class="panel">
@@ -309,7 +309,7 @@
     </div>
   </section>
 
-  <!-- ── 탭 2: 병합 & 학습 ─────────────────────────── -->
+
   <section class="tab" id="tab-train">
     <div class="grid">
       <div class="panel">
@@ -344,7 +344,7 @@
     </div>
   </section>
 
-  <!-- ── 탭 3: 실시간 인식 ─────────────────────────── -->
+
   <section class="tab" id="tab-predict">
     <div class="grid">
       <div class="panel">
@@ -379,13 +379,13 @@
 import { HandCameraWidget } from "/static/js/hand-camera.js";
 import { JamoApiClient } from "/static/js/api-client.js";
 
-const api = new JamoApiClient(""); // 같은 오리진(python-server가 이 페이지도 서빙)
+const api = new JamoApiClient("");
 
-// ── 공통: 탭 전환 ──────────────────────────────────────
-// 탭마다 카메라를 켜고 끄는 실제 처리는 switchTab()에서 담당한다 (아래쪽에서 정의).
-// 두 탭의 카메라를 동시에 켜두면(webcam 1개를 두 <video>가 동시에 열려고 시도 + 같은
-// HandLandmarker 인스턴스에 동시에 detectForVideo를 호출) 브라우저에 따라 예외가 나면서
-// 페이지가 아예 멈추는 원인이 되므로, 항상 "현재 보이는 탭의 카메라만" 켜져 있게 한다.
+
+
+
+
+
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -396,7 +396,7 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
-// ── 공통: 서버 상태 ────────────────────────────────────
+
 async function checkHealth() {
   try {
     const data = await api.health();
@@ -410,7 +410,7 @@ async function checkHealth() {
 }
 checkHealth();
 
-// ── 공통: 라벨 목록 로딩 ────────────────────────────────
+
 let LABELS = [];
 let LABEL_IMAGES = {};
 async function loadLabels() {
@@ -446,16 +446,16 @@ function updateReferenceImage() {
   img.src = `/static/image/${code}.jpg`;
 }
 
-// ═══════════════════════════════════════════════════════
-// 탭 1: 데이터 수집
-// ═══════════════════════════════════════════════════════
+
+
+
 let continuousOn = false;
 let frameBuffer = [];
 let lastCaptureTime = 0;
-const CAPTURE_INTERVAL_MS = 90;   // 연속 저장 시 최소 간격
-const FLUSH_EVERY_MS = 1500;      // 이 주기마다 서버로 배치 전송
+const CAPTURE_INTERVAL_MS = 90;
+const FLUSH_EVERY_MS = 1500;
 
-// 데이터를 넣는 사람 이름: 브라우저에 기억해뒀다가 다음에 열 때도 유지
+
 const collectorInput = document.getElementById("collectorInput");
 collectorInput.value = localStorage.getItem("jamo_collector_name") || "";
 collectorInput.addEventListener("change", () => {
@@ -531,7 +531,7 @@ setInterval(() => {
   }
 }, FLUSH_EVERY_MS);
 
-// ── 통계 테이블 ─────────────────────────────────────────
+
 function renderStatsTable(tbodyEl, stats) {
   const maxVal = Math.max(1, ...LABELS.map(l => Math.max(stats.merged_counts[l] || 0, stats.pending_counts[l] || 0)));
   tbodyEl.innerHTML = LABELS.map(label => {
@@ -556,9 +556,9 @@ async function refreshStats() {
 document.getElementById("refreshStatsBtn1").addEventListener("click", refreshStats);
 document.getElementById("refreshStatsBtn2").addEventListener("click", refreshStats);
 
-// ═══════════════════════════════════════════════════════
-// 탭 2: 병합 & 학습
-// ═══════════════════════════════════════════════════════
+
+
+
 const trainLog = document.getElementById("trainLog");
 function log(text) {
   trainLog.textContent = `[${new Date().toLocaleTimeString()}] ${text}\n` + trainLog.textContent;
@@ -597,9 +597,9 @@ document.getElementById("trainBtn").addEventListener("click", async () => {
   }
 });
 
-// ═══════════════════════════════════════════════════════
-// 탭 3: 실시간 인식
-// ═══════════════════════════════════════════════════════
+
+
+
 let predictOn = false;
 let lastPredictCall = 0;
 const PREDICT_INTERVAL_MS = 200;
@@ -646,11 +646,11 @@ document.getElementById("togglePredictBtn").addEventListener("click", async (e) 
   }
 });
 
-// ═══════════════════════════════════════════════════════
-// 탭 전환 시 카메라 시작/정지
-// 한 번에 한 탭의 카메라만 켜져 있어야 한다 (동시에 두 개를 켜면 웹캠 자원 경합/
-// MediaPipe 인스턴스 동시 호출로 인해 페이지 전체가 멈추는 문제가 있었음).
-// ═══════════════════════════════════════════════════════
+
+
+
+
+
 function showCameraError(rowId, msgId, err) {
   const row = document.getElementById(rowId);
   const msg = document.getElementById(msgId);
@@ -691,17 +691,17 @@ async function switchTab(tabName) {
     collectCam.stopCamera();
     await startPredictCam();
   } else {
-    // 병합 & 학습 탭에서는 카메라가 필요 없으므로 둘 다 꺼서 자원을 아낀다.
+
     collectCam.stopCamera();
     predictCam.stopCamera();
   }
 }
 
-// ── 초기화 ──────────────────────────────────────────────
+
 (async function init() {
   await loadLabels();
   await refreshStats();
-  await switchTab("collect"); // 기본으로 보이는 탭(데이터 수집)의 카메라만 켠다
+  await switchTab("collect");
 })();
 </script>
 </body>

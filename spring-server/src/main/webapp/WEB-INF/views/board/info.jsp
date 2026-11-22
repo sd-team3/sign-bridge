@@ -22,9 +22,9 @@
   <div class="container page-body">
 
     <div class="detail-layout">
-      <!-- 메인 -->
+
       <div>
-      <!-- 오류 신고 부분 -->
+
       <c:if test="${board.categoryIdx == 'REPORT'}">
         <div class="report-detail-box">
           <div class="report-detail-row">
@@ -42,7 +42,7 @@
           </div>
         </div>
       </c:if>
-        <!-- 게시글 헤더 -->
+
         <div class="detail-header">
           <div class="detail-badge-row">
             <c:choose>
@@ -57,7 +57,7 @@
           <div class="detail-title">${board.boardTitle}</div>
           <div class="detail-meta">
             <div class="detail-author">
-              <!-- 이름 첫번째 글자만 -->
+
               <div class="author-avatar">${fn:substring(board.memberName, 0, 1)}</div>
               <div>
                 <div class="author-name">${board.memberName}</div>
@@ -74,7 +74,7 @@
           </div>
         </div>
 
-        <!-- 게시글 본문 -->
+
         <div class="detail-content">
           ${board.boardContent}
           <c:if test="${not empty boardFiles}">
@@ -100,7 +100,7 @@
           </div>
         </c:if>
 
-        <!-- 댓글 섹션 -->
+
         <div class="comment-section" data-board-id="${board.boardId}">
           <div class="comment-count-title">댓글 <span>0</span></div>
 
@@ -127,7 +127,7 @@
 
 <jsp:include page="../includes/footer.jsp" />
 
-<!-- 게시글 삭제 확인 모달 -->
+
 <div class="modal-backdrop" id="deleteModal">
   <div class="modal">
     <div class="modal-header">

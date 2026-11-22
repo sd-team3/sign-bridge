@@ -15,7 +15,7 @@
         <result column="reply_cnt" property="replyCnt" />
         <result column="is_admin_answer" property="isAdminAnswer" />
     </resultMap>
-    <!-- 변경 -->
+
     <insert id="insertComment" parameterType="com.soldesk.vo.CommentVO" useGeneratedKeys="true" keyProperty="commentId">
         insert into comment (comment_content, board_id, member_id, parent_comment_id, is_admin_answer)
         values (#{commentContent}, #{boardId}, #{memberId}, #{parentCommentId}, #{isAdminAnswer})

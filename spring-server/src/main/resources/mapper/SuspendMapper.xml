@@ -7,7 +7,7 @@
         VALUES (#{memberId}, #{adminId}, #{reason}, #{startDate}, #{endDate, jdbcType=TIMESTAMP})
     </insert>
 
-    <!-- 정지 기한 찾기 -->
+
     <select id="findLatestEndDate" resultType="java.time.LocalDateTime">
         SELECT end_date FROM member_suspension
         WHERE member_id = #{memberId}

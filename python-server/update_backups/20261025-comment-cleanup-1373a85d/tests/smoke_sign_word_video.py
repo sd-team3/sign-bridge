@@ -52,7 +52,7 @@ def main():
             assert uploaded['model_id'] == 'curriculum100_seated_active_v2'
             assert uploaded['feedback']['status'] != 'reference_unavailable'
             assert raw['recognition']['predicted_label'] == uploaded['recognition']['predicted_label']
-            # Independent desktop preprocessing/model path on the same decoded frames.
+
             desktop=Path('D:/sign-lang')
             if (desktop/'practice50.py').is_file():
                 sys.path.insert(0,str(desktop))

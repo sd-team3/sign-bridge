@@ -143,7 +143,7 @@ public class WordExamService {
             if (q.has("verdict") && !q.path("verdict").asText().equals("pending")) return;
             if (attempt.equals(q.path("attempt_id").asText())) return;
             if (q.path("attempts").asInt() >= 3) throw new ApiException(409, "세 번 촬영했어요. 이 단어는 나중에 다시 연습하고 다음 문제로 넘어가 주세요.");
-            JsonNode result = learning.evaluate(q.path("word_id").asText(), attempt, video);
+            JsonNode result = learning.evaluateWithComparison(q.path("word_id").asText(), attempt, video);
             String modelId = result.path("model_id").asText();
             if (modelId.isBlank()) throw new ApiException(502, "평가 모델 정보를 확인하지 못했습니다.");
             if (exam.has("model_id") && !exam.path("model_id").asText().equals(modelId))

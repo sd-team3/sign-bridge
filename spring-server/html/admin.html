@@ -9,7 +9,7 @@
 </head>
 <body>
 
-<!-- ═══════════ SIDEBAR ═══════════ -->
+
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="sidebar-logo-icon">✋</div>
@@ -80,10 +80,10 @@
   </div>
 </aside>
 
-<!-- ═══════════ MAIN ═══════════ -->
+
 <div class="main">
 
-  <!-- TOPBAR -->
+
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
       <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;background:none;border:none;font-size:20px;cursor:pointer" id="menu-toggle">☰</button>
@@ -96,7 +96,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: DASHBOARD ══════════ -->
+
   <div class="content page active" id="page-dashboard">
     <div class="page-header">
       <div>
@@ -142,7 +142,7 @@
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-      <!-- 주간 가입자 -->
+
       <div class="card">
         <div class="card-title"><span class="ct-icon">📈</span> 주간 신규 가입자</div>
         <div class="mini-chart" id="mini-chart"></div>
@@ -157,7 +157,7 @@
         </div>
       </div>
 
-      <!-- 최근 활동 -->
+
       <div class="card">
         <div class="card-title"><span class="ct-icon">⚡</span> 최근 활동</div>
         <div class="feed">
@@ -190,7 +190,7 @@
       </div>
     </div>
 
-    <!-- 빠른 접근 -->
+
     <div class="card">
       <div class="card-title"><span class="ct-icon">⚡</span> 빠른 작업</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -202,7 +202,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: USER LIST ══════════ -->
+
   <div class="content page" id="page-user-list">
     <div class="page-header">
       <div>
@@ -257,7 +257,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: USER INFO ══════════ -->
+
   <div class="content page" id="page-user-info">
     <div class="page-header">
       <div>
@@ -272,7 +272,7 @@
     </div>
 
     <div style="display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start">
-      <!-- 프로필 카드 -->
+
       <div class="card" style="text-align:center">
         <div style="width:72px;height:72px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;margin:0 auto 14px">김</div>
         <div style="font-size:17px;font-weight:800;color:var(--ink);margin-bottom:4px">김지수</div>
@@ -298,7 +298,7 @@
         </div>
       </div>
 
-      <!-- 상세 정보 -->
+
       <div style="display:flex;flex-direction:column;gap:16px">
         <div class="card">
           <div class="card-title"><span class="ct-icon">📋</span> 계정 정보</div>
@@ -328,7 +328,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: WORD ADD ══════════ -->
+
   <div class="content page" id="page-word-add">
     <div class="page-header">
       <div>
@@ -386,7 +386,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: WORD UPDATE ══════════ -->
+
   <div class="content page" id="page-word-update">
     <div class="page-header">
       <div>
@@ -448,7 +448,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: WORD DELETE ══════════ -->
+
   <div class="content page" id="page-word-delete">
     <div class="page-header">
       <div>
@@ -487,7 +487,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: BOARD LIST ══════════ -->
+
   <div class="content page" id="page-board-list">
     <div class="page-header">
       <div>
@@ -532,7 +532,7 @@
     </div>
   </div>
 
-  <!-- ══════════ PAGE: QUESTION ERROR ══════════ -->
+
   <div class="content page" id="page-question-error">
     <div class="page-header">
       <div>
@@ -549,7 +549,7 @@
     <div style="display:flex;flex-direction:column;gap:12px" id="error-list"></div>
   </div>
 
-  <!-- ══════════ PAGE: QUESTION ADD ══════════ -->
+
   <div class="content page" id="page-question-add">
     <div class="page-header">
       <div>
@@ -566,9 +566,9 @@
     <div style="display:flex;flex-direction:column;gap:12px" id="request-list"></div>
   </div>
 
-</div><!-- /main -->
+</div>
 
-<!-- ═══════════ MODALS ═══════════ -->
+
 <div class="modal-overlay" id="modal-stop">
   <div class="modal">
     <div class="modal-title">⏸ 유저 정지</div>
@@ -631,11 +631,11 @@
   </div>
 </div>
 
-<!-- TOAST CONTAINER -->
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script>
-// ═══════════ DATA ═══════════
+
 const USERS = [
   {uid:'USR-00284',name:'김지수',email:'jisu.kim@email.com',role:'user',joined:'2025-04-11',last:'2025-06-29',status:'active'},
   {uid:'USR-00271',name:'이민준',email:'minjun.lee@email.com',role:'deaf',joined:'2025-05-02',last:'2025-06-28',status:'active'},
@@ -680,7 +680,7 @@ const REQUESTS = [
   {id:'REQ-006',word:'응급실',cat:'의료',desc:'의료 카테고리에 꼭 필요합니다.',user:'이민준',date:'2025-06-24',status:'미처리'},
 ];
 
-// ═══════════ RENDER ═══════════
+
 function roleLabel(role){
   const map={user:['pill-green','일반'],deaf:['pill-blue','청각장애인'],suspended:['pill-red','정지됨'],admin:['pill-purple','관리자']};
   const [cls,txt]=map[role]||['pill-gray',role];
@@ -795,7 +795,7 @@ function renderRequests(){
   </div>`).join('');
 }
 
-// ═══════════ MINI CHART ═══════════
+
 function renderMiniChart(){
   const vals=[8,14,6,20,11,18,23];
   const max=Math.max(...vals);
@@ -803,7 +803,7 @@ function renderMiniChart(){
   el.innerHTML=vals.map(v=>`<div class="mc-bar" style="height:${Math.round((v/max)*100)}%" title="${v}명"></div>`).join('');
 }
 
-// ═══════════ NAVIGATION ═══════════
+
 const PAGE_META={
   'dashboard':{title:'대시보드',path:'/admin'},
   'user-list':{title:'유저 목록',path:'/admin/user/list'},
@@ -854,14 +854,14 @@ function switchTab(el,id){
   }
 }
 
-// ═══════════ MODAL ═══════════
+
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 document.querySelectorAll('.modal-overlay').forEach(o=>{
   o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')});
 });
 
-// ═══════════ TOAST ═══════════
+
 function showToast(msg,color='#2d9b6f'){
   const wrap=document.getElementById('toast-wrap');
   const t=document.createElement('div');
@@ -872,7 +872,7 @@ function showToast(msg,color='#2d9b6f'){
   setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),350)},2800);
 }
 
-// ═══════════ INIT ═══════════
+
 renderUsers(USERS);
 renderBoards();
 renderWordDelete();

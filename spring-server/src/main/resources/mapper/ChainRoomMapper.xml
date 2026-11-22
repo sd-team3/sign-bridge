@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.soldesk.mapper.ChainRoomMapper">
 
-    <!-- ================= chain_room ================= -->
+
 
     <insert id="insertRoom" parameterType="com.soldesk.vo.ChainRoomVO" useGeneratedKeys="true" keyProperty="chainRoomId">
         insert into chain_room
@@ -85,7 +85,7 @@
         delete from chain_room where chain_room_id = #{chainRoomId}
     </delete>
 
-    <!-- ================= chain_room_member ================= -->
+
 
     <insert id="insertRoomMember" parameterType="com.soldesk.vo.ChainRoomMemberVO">
         insert into chain_room_member
@@ -161,7 +161,7 @@
         where chain_room_id = #{chainRoomId} and member_id = #{memberId}
     </update>
 
-    <!-- ================= 마이페이지 전적 ================= -->
+
 
     <select id="findEndedRoomsByMember" resultType="com.soldesk.vo.ChainRoomVO">
         select
@@ -192,7 +192,7 @@
         where chain_room_id = #{chainRoomId} and member_id = #{memberId}
     </select>
 
-    <!-- ================= 서버 재시작 시 진행 중이던 방 정리 ================= -->
+
 
     <select id="findRoomIdsByStatus" resultType="java.lang.Long">
         select chain_room_id from chain_room where status = #{status}

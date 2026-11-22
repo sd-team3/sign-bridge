@@ -2,7 +2,7 @@ package com.soldesk.vo;
 
 import java.time.LocalDateTime;
 
-/** chain_word 테이블 매핑. 끝말잇기 검증 완료된 단어집 (sign_word 와 별개). */
+
 public class ChainWordVO {
 
     private Long chainWordId;

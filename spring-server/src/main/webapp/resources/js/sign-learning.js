@@ -40,7 +40,7 @@
     el('camera-frame').classList.toggle('sl-is-recording', phase === 'recording');
     el('auto-state').textContent = phase === 'recording' ? '녹화 중 · 동작을 마치면 양손을 화면 밖으로 내려 주세요.'
       : phase === 'evaluating' || phase === 'finalizing' ? '촬영한 동작을 확인하고 있어요.'
-      : phase === 'error' ? '평가를 마치지 못했어요. 같은 영상으로 다시 평가해 주세요.'
+      : phase === 'error' ? '같은 영상으로 다시 평가하거나, 손을 내렸다 보여주고 새로 촬영해 주세요.'
       : cameraPending ? '자동 손 감지를 준비하고 있어요…'
       : stream ? '자동 녹화 대기 · 손을 내렸다 보여주면 시작해요.' : '카메라를 켜면 손을 감지해 자동으로 녹화해요.';
     const index = current ? current.chapter.words.findIndex(w => w.word_id === current.word.word_id) : -1;
@@ -337,7 +337,6 @@
     const form = new FormData();
     form.append('target_word_id', attempt.wordId);
     form.append('attempt_id', attempt.attemptId);
-    form.append('use_llm', 'false');
     form.append('video', attempt.blob, 'attempt.' + (attempt.blob.type.startsWith('video/mp4') ? 'mp4' : 'webm'));
     const headers = {};
     const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
@@ -354,7 +353,10 @@
       status('피드백을 확인하고 다시 연습하거나 다음 단어로 이동해 보세요.');
     } catch (error) {
       if (disposed || attempt.revision !== revision) return;
-      phase = 'error';
+      const needsRetake = [413, 415, 422].includes(error.status);
+      phase = needsRetake ? 'idle' : 'error';
+      if (needsRetake) recording = null;
+      autoGate.reset(true);
       if (error.status === 401) { signedIn = false; el('login-notice').hidden = false; stopCamera(); }
       status(error.name === 'AbortError' ? '응답 시간이 초과되어 결과를 확인하지 못했습니다. 잠시 후 같은 영상으로 다시 평가해 주세요.' : error.message, true);
     } finally { clearTimeout(timeout); requestAbort = null; updateControls(); }

@@ -3,13 +3,13 @@ let FAVORITE_IDS = new Set();
 let currentPage = 1;
 const PAGE_SIZE = 6;
 
-// 상세모달 이전/이후 이동용 히스토리 - 열었던 단어들을 순서대로 쌓음
+
 let detailHistory = [];
 let detailHistoryIndex = -1;
 
-/* ─────────────────────────────────────────────
-   1) 전체 단어 로드 (API 연동)
-───────────────────────────────────────────── */
+
+
+
 function loadAllWords() {
   return fetch(CTX + "/learn/dict/search")
     .then(response => {
@@ -24,15 +24,15 @@ function loadAllWords() {
     });
 }
 
-/* ─────────────────────────────────────────────
-   2) 한글 초성 유틸
-───────────────────────────────────────────── */
+
+
+
 const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
 const JONG = ['', 'ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 const BASIC_CHO = ['ㄱ','ㄴ','ㄷ','ㄹ','ㅁ','ㅂ','ㅅ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
 
-// 완성형 음절이 아닌 단독 자모(호환 자모) 판별용 유니코드 범위
+
 function isConsonantJamo(ch) {
   const code = ch.charCodeAt(0);
   return code >= 0x3131 && code <= 0x314E;
@@ -42,7 +42,7 @@ function isVowelJamo(ch) {
   return code >= 0x314F && code <= 0x3163;
 }
 
-// 단어 안 모든 음절의 초성 배열 (검색/필터용)
+
 function choseongListOf(word) {
   const result = [];
   if (!word) return result;
@@ -51,26 +51,26 @@ function choseongListOf(word) {
     if (code >= 0 && code <= 11171) {
       result.push(CHO[Math.floor(code / (21 * 28))]);
     } else if (isConsonantJamo(ch)) {
-      // 단독 자음 낱자(예: "ㄱ" 자체) 도 초성 검색/분류 대상에 포함
+
       result.push(ch);
     }
   }
   return result;
 }
 
-// 첫 글자 초성 (사전 그룹핑용)
+
 function firstChoseongOf(word) {
   const list = choseongListOf(word);
   return list.length ? list[0] : null;
 }
 
-// 단어가 괄호로 시작하면(예: "(가스불을)켜다") 분류 불가로 보고 기타로 보냄
+
 function startsWithParenthesis(word) {
   return /^[(（]/.test(word);
 }
 
-// 쉼표(,)로 구분된 여러 표현 중, 괄호로 시작하지 않는 조각들의 초성/모음 그룹을 전부 뽑아냄
-// 예: "뽀뽀,입맞춤,키스,맞추다" -> ["ㅃ","ㅇ","ㅋ","ㅁ"]
+
+
 function classifyGroups(word) {
   if (!word) return ["기타"];
 
@@ -94,7 +94,7 @@ function classifyGroups(word) {
   return [...keys];
 }
 
-// 완성형 음절 한 글자 -> 초성 낱자 하나. 단독 자음이면 자기 자신 리턴. 그 외 null.
+
 function choseongOfChar(ch) {
   const code = ch.charCodeAt(0) - 0xAC00;
   if (code >= 0 && code <= 11171) {
@@ -104,9 +104,9 @@ function choseongOfChar(ch) {
   return null;
 }
 
-// 단어 속 한 글자(nameCh)가 검색어 한 글자(keyCh)와 매칭되는지 판단
-// keyCh가 초성 낱자면: nameCh의 초성만 뽑아 비교(완성형이든 초성낱자든 상관없이)
-// keyCh가 완성형 글자면: nameCh와 그대로 비교
+
+
+
 function charMatches(nameCh, keyCh) {
   if (isConsonantJamo(keyCh)) {
     return choseongOfChar(nameCh) === keyCh;
@@ -114,8 +114,8 @@ function charMatches(nameCh, keyCh) {
   return nameCh === keyCh;
 }
 
-// name 안에서 keyword 시퀀스가 "연속으로(순서 그대로, 건너뛰기 없이)" 등장하는지 탐색
-// 완성형 글자, 초성 낱자가 섞인 검색어도 처리 가능 (예: "사ㄱ")
+
+
 function matchesSequential(name, keyword) {
   if (!keyword) return true;
   if (!name) return false;
@@ -131,28 +131,28 @@ function matchesSequential(name, keyword) {
   return false;
 }
 
-// 검색창에 초성만 입력해도, 완성형+초성 섞어 입력해도, 일반 단어 입력해도 다 처리
+
 function matchesQuery(name, keyword) {
   if (!keyword) return true;
   if (!name) return false;
   return matchesSequential(name, keyword);
 }
 
-/* ─────────────────────────────────────────────
-   3) 좌측 초성 아코디언 렌더링
-───────────────────────────────────────────── */
+
+
+
 function renderChoSidebar() {
   const sidebar = document.getElementById("choSidebar");
   if (!sidebar) return;
   sidebar.querySelectorAll(".cho-group").forEach(el => el.remove());
 
-  // CHO 19개(된소리 포함) + 모음 + 기타 로 그룹 구성
+
   const groupKeys = [...CHO, "모음", "기타"];
   const groups = {};
   groupKeys.forEach(k => groups[k] = []);
 
-  // classifyGroups로 분류 (단독모음->모음, 단독자음/완성형 초성->해당 초성, 괄호로 시작->기타, 못찾으면->기타)
-  // 쉼표(,)로 여러 표현이 묶인 단어는 각 표현의 초성마다 전부 걸리도록 배열로 리턴받음
+
+
   ALL_WORDS.forEach(w => {
     const keys = classifyGroups(w.signWordName);
     keys.forEach(key => {
@@ -160,21 +160,21 @@ function renderChoSidebar() {
     });
   });
 
-  // 그룹별 가나다순 정렬
+
   groupKeys.forEach(key => {
     const words = groups[key].sort((a, b) => a.signWordName.localeCompare(b.signWordName, "ko"));
-    // 모음/기타 그룹은 비어있으면 아예 렌더링 스킵
+
     if (words.length === 0 && (key === "기타" || key === "모음")) return;
 
     const details = document.createElement("details");
     details.className = "cho-group";
 
-    // 개수 표시
+
     const summary = document.createElement("summary");
     summary.innerHTML = "<span>" + key + "</span><span class=\"cho-count\">" + words.length + "</span>";
     details.appendChild(summary);
 
-    // 그룹 비었을시 안내, 있으면 클릭가능 항목 제공.
+
     const list = document.createElement("div");
     list.className = "cho-group-list";
     if (words.length === 0) {
@@ -198,16 +198,16 @@ function selectExactWord(word) {
   currentPage = 1;
   renderMainResults([word], word.signWordName + " 검색 결과");
   
-  // 서버에 비디오 및 조회수 증가 요청
+
   fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
     .then(r => r.json())
     .then(updatedVo => {})
     .catch(() => {});
 }
 
-/* ─────────────────────────────────────────────
-   4) 메인 영역 렌더링
-───────────────────────────────────────────── */
+
+
+
 function wordCard(w) {
   const card = document.createElement("div");
   card.className = "word-card";
@@ -219,7 +219,7 @@ function wordCard(w) {
       '</div>' +
       '<div class="word-card-name"></div>';
 
-  // 페이지가 https로 서빙되기에 강제 치환(안전 장치)
+
   let videoUrl = w.signWordVideo || '';
   if (videoUrl.startsWith("http://")) {
     videoUrl = videoUrl.replace("http://", "https://");
@@ -234,7 +234,7 @@ function wordCard(w) {
   const videoEl = card.querySelector("video");
   const fallbackEl = card.querySelector(".video-unavailable");
 
-  // mp4가 아니면(-광처럼 jpg가 잘못 들어간 경우 포함) 영상 자체가 없는 걸로 간주
+
   const hasVideo = videoUrl.toLowerCase().endsWith(".mp4");
 
   if (thumbUrl) {
@@ -243,21 +243,21 @@ function wordCard(w) {
     wrapEl.classList.add("no-thumb");
   }
 
-  // 애초에 영상이 없으면 호버 전에도 바로 안내 문구 표시
+
   if (!hasVideo) {
     fallbackEl.style.display = "flex";
   }
 
   card.querySelector(".word-card-name").textContent = w.signWordName || '';
 
-  // 영상 자체가 로드 실패하면 대체 문구 표시
+
   videoEl.addEventListener("error", () => {
     if (!videoEl.getAttribute("src")) return;
     videoEl.style.display = "none";
     fallbackEl.style.display = "flex";
   });
 
-  // 영상이 실제로 재생 가능해지면 fallback 숨기고 영상 보이기
+
   videoEl.addEventListener("loadeddata", () => {
     videoEl.style.display = "block";
     fallbackEl.style.display = "none";
@@ -267,13 +267,13 @@ function wordCard(w) {
   let isLoaded = false;
 
   card.addEventListener("mouseenter", () => {
-    if (!hasVideo) return; // 영상 없으면 프록시 요청 자체를 안 보냄
+    if (!hasVideo) return;
     if (isLoaded) {
       videoEl.play().catch(() => {});
       return;
     }
 
-    // 1.5초 마우스 호버시 실행.
+
     hoverTimer = setTimeout(() => {
       videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl);
       isLoaded = true;
@@ -281,7 +281,7 @@ function wordCard(w) {
     }, 150);
   });
 
-  // 이탈시... 영상타이머 취소 및 일시정지(처음으로)
+
   card.addEventListener("mouseleave", () => {
     if (hoverTimer) {
       clearTimeout(hoverTimer);
@@ -303,14 +303,14 @@ function wordCard(w) {
     starEl.classList.add("active");
   }
   starEl.addEventListener("click", (e) => {
-    e.stopPropagation(); // 카드 클릭(상세모달 열기)이랑 안 겹치게
+    e.stopPropagation();
     toggleFavorite(w.signWordId, starEl);
   });
 
   return card;
 }
 
-// 모달
+
 function resizeDetailVideo() {
   const modal = document.getElementById("detailModal");
   if (!modal.open) return;
@@ -335,7 +335,7 @@ const detailVideoElement = document.getElementById("detailVideo");
 detailVideoElement.addEventListener("loadedmetadata", resizeDetailVideo);
 new ResizeObserver(resizeDetailVideo).observe(document.querySelector("#detailModal .detail-scroll-content"));
 
-// fromHistory=true면 이전/이후 버튼으로 이동한 경우라 히스토리에 새로 안쌓고 그대로 재생만 함
+
 function openDetailModal(word, fromHistory) {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
@@ -350,7 +350,7 @@ function openDetailModal(word, fromHistory) {
 
 
   if (!fromHistory) {
-    // 히스토리 중간에서 새단어(관련단어 클릭 등) 열면 그 뒤 기록은 버리고 새로 이어붙임
+
     detailHistory = detailHistory.slice(0, detailHistoryIndex + 1);
     detailHistory.push(word);
     detailHistoryIndex = detailHistory.length - 1;
@@ -360,9 +360,9 @@ function openDetailModal(word, fromHistory) {
   nameEl.textContent = word.signWordName || '';
   currentDetailWord = word.signWordName;
   descEl.textContent = word.description || '등록된 설명이 없습니다.';
-  // 조회수 안뜨던 문제 - fetch 응답 기다리기 전에 일단 목록에서 이미 갖고있는 viewCount로 먼저 채워놓음
-  // (fetch 끝나면 밑에서 최신값으로 다시 덮어씀. word.viewCount 없으면 일단 빈칸)
-  console.log("word 객체 확인:", word); // viewCount 필드가 실제로 있는지 여기서 확인
+
+
+  console.log("word 객체 확인:", word);
 
 
   let videoUrl = word.signWordVideo || '';
@@ -370,23 +370,23 @@ function openDetailModal(word, fromHistory) {
     videoUrl = videoUrl.replace("http://", "https://");
   }
 
-  // 재생속도 버튼 초기 상태 리셋
-  // 재생속도 슬라이더 초기 상태 리셋 (index 3 = 1x)
+
+
   videoEl.playbackRate = 1;
   document.getElementById("detailSpeedSlider").value = 3;
   document.getElementById("detailSpeedLabel").textContent = "1x";
 
-  videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl); // 모달 열릴 때 로딩 시작
+  videoEl.src = CTX + "/learn/dict/video-proxy?url=" + encodeURIComponent(videoUrl);
 
   modal.showModal();
   modal.querySelector(".detail-scroll-content").scrollTop = 0;
   videoEl.play().catch(() => {});
 
-  // 다른 단어 목록 갱신
+
   renderRelatedWords(word);
   resizeDetailVideo();
 
-  // 영상설명 최신정보 요청
+
   fetch(CTX + "/learn/dict/video?word=" + encodeURIComponent(word.signWordName))
     .then(r => r.json())
     .then(updatedVo => {
@@ -398,7 +398,7 @@ function openDetailModal(word, fromHistory) {
     .catch(() => {});
 }
 
-// 재생속도, 다시보기 버튼
+
 const SPEED_STEPS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
 document.getElementById("detailSpeedSlider").addEventListener("input", (e) => {
@@ -414,21 +414,21 @@ document.getElementById("detailReplayBtn").addEventListener("click", () => {
   videoEl.play().catch(() => {});
 });
 
-// 현재 상세모달에 열려있는 단어 추적 (신고 시 word 파라미터로 사용)
+
 let currentDetailWord = null;
 
-// 오류신고 전용 모달 
+
 document.getElementById("detailReportBtn").addEventListener("click", () => {
   if (!currentDetailWord) return;
 
   document.getElementById("reportTargetWord").innerHTML = "대상 단어: <b>" + currentDetailWord + "</b>";
   document.getElementById("reportReasonInput").value = "";
-  // 신고 모달 다시 열 때마다 유형 선택 초기값으로 리셋
+
   document.getElementById("reportCategorySelect").selectedIndex = 0;
   document.getElementById("reportModal").showModal();
 });
 
-// 신고 접수 결과 안내 모달 표시 (성공/실패 공용)
+
 function showReportStatus(success, message) {
   const iconEl = document.getElementById("reportStatusIcon");
   const msgEl = document.getElementById("reportStatusMsg");
@@ -441,14 +441,14 @@ document.getElementById("reportStatusOkBtn").addEventListener("click", () => {
   document.getElementById("reportStatusModal").close();
 });
 
-// 신고 모달 - 취소/닫기
+
 function closeReportModal() {
   document.getElementById("reportModal").close();
 }
 document.getElementById("reportCancelBtn").addEventListener("click", closeReportModal);
 document.getElementById("reportCloseBtn").addEventListener("click", closeReportModal);
 
-// 신고 모달 - 접수 제출
+
 document.getElementById("reportSubmitBtn").addEventListener("click", () => {
   if (!currentDetailWord) return;
 
@@ -485,32 +485,32 @@ document.getElementById("reportSubmitBtn").addEventListener("click", () => {
     .finally(() => { submitBtn.disabled = false; });
 });
 
-// 이전 단어로 이동 - 히스토리 인덱스만 앞으로 옮기고 fromHistory=true로 재오픈(중복기록 방지)
+
 function goDetailPrev() {
   if (detailHistoryIndex <= 0) return;
   detailHistoryIndex--;
   openDetailModal(detailHistory[detailHistoryIndex], true);
 }
 
-// 이후 단어로 이동
+
 function goDetailNext() {
   if (detailHistoryIndex >= detailHistory.length - 1) return;
   detailHistoryIndex++;
   openDetailModal(detailHistory[detailHistoryIndex], true);
 }
 
-// 이전/이후 없으면 버튼 자체를 숨김
+
 function updateDetailNavButtons() {
   document.getElementById("detailPrevBtn").style.display = detailHistoryIndex > 0 ? "flex" : "none";
   document.getElementById("detailNextBtn").style.display = detailHistoryIndex < detailHistory.length - 1 ? "flex" : "none";
 }
 
-// 현재 단어를 제외한 다른 단어 추천
+
 function renderRelatedWords(word) {
   const box = document.getElementById("detailRelated");
   box.innerHTML = "";
 
-  // 초성 상관없이 전체 단어 풀에서 완전 랜덤 (자기 자신만 제외)
+
   const pool = ALL_WORDS.filter(w => w.signWordName !== word.signWordName);
   const related = [...pool].sort(() => Math.random() - 0.5).slice(0, 4);
 
@@ -544,7 +544,7 @@ function renderRelatedWords(word) {
     item.append(thumbnail, name);
 
     item.addEventListener("click", () => {
-      openDetailModal(r); // 관련 단어 클릭 시 그 단어 상세로 전환
+      openDetailModal(r);
     });
 
     box.appendChild(item);
@@ -554,17 +554,17 @@ function renderRelatedWords(word) {
 document.getElementById("detailPrevBtn").addEventListener("click", goDetailPrev);
 document.getElementById("detailNextBtn").addEventListener("click", goDetailNext);
 
-// 모달 닫기 시 src제거 ... 백그라운드에서 영상재생되는거 막기
+
 document.getElementById("detailCloseBtn").addEventListener("click", () => {
   const modal = document.getElementById("detailModal");
   const videoEl = document.getElementById("detailVideo");
   videoEl.pause();
-  videoEl.removeAttribute("src"); // 로딩 중단
+  videoEl.removeAttribute("src");
   videoEl.load();
   modal.close();
 });
 
-// 카드, 페이지, 라벨 텍스트 정리. 
+
 function renderMainResults(list, label) {
   document.getElementById("mainResultsLabel").textContent = label;
   const container = document.getElementById("mainResults");
@@ -576,7 +576,7 @@ function renderMainResults(list, label) {
     return;
   }
 
-  // 서버에 요청이아닌 가지고 있는 list배열 (slice) 보여주기.
+
   const totalPages = Math.ceil(list.length / PAGE_SIZE);
   if (currentPage > totalPages) currentPage = 1;
   const start = (currentPage - 1) * PAGE_SIZE;
@@ -586,7 +586,7 @@ function renderMainResults(list, label) {
   renderPagination(totalPages, list, label);
 }
 
-// 페이지 끊기.
+
 function renderPagination(totalPages, list, label) {
   const box = document.getElementById("pagination");
   box.innerHTML = "";
@@ -596,7 +596,7 @@ function renderPagination(totalPages, list, label) {
   const blockStart = Math.floor((currentPage - 1) / BLOCK_SIZE) * BLOCK_SIZE + 1;
   const blockEnd = Math.min(blockStart + BLOCK_SIZE - 1, totalPages);
 
-  // 이전 블록으로 이동하는 "..."
+
   if (blockStart > 1) {
     const prevDots = document.createElement("button");
     prevDots.textContent = "...";
@@ -608,7 +608,7 @@ function renderPagination(totalPages, list, label) {
     box.appendChild(prevDots);
   }
 
-  // 현재 블록의 페이지 번호들 (최대 5개)
+
   for (let p = blockStart; p <= blockEnd; p++) {
     const btn = document.createElement("button");
     btn.textContent = p;
@@ -620,7 +620,7 @@ function renderPagination(totalPages, list, label) {
     box.appendChild(btn);
   }
 
-  // 다음 블록으로 이동하는 "..."
+
   if (blockEnd < totalPages) {
     const nextDots = document.createElement("button");
     nextDots.textContent = "...";
@@ -633,14 +633,14 @@ function renderPagination(totalPages, list, label) {
   }
 }
 
-// 처음 페이지 조회시 랜덤 6개 추출
-// xml에서 한번에 처리시 api 2번호출(사이드바, sql조회) >> db과부하
+
+
 function showRandomSix() {
-  const shuffled = [...ALL_WORDS].sort(() => Math.random() - 0.5); // 배열복사(원본 훼손 방지)
+  const shuffled = [...ALL_WORDS].sort(() => Math.random() - 0.5);
   renderMainResults(shuffled.slice(0, 6), "오늘의 추천 단어");
 }
 
-// 검색 창 비어있을 시 다시 랜덤
+
 function runSearch() {
   const keyword = document.getElementById("searchInput").value.trim();
   if (!keyword) {
@@ -692,13 +692,13 @@ function toggleFavorite(signWordId, starEl) {
 
 
 
-/* ─────────────────────────────────────────────
-   6) 초기 진입
-───────────────────────────────────────────── */
+
+
+
 Promise.all([loadAllWords(), loadFavoriteIds()]).then(() => {
   renderChoSidebar();
 
-  // 마이페이지 오답노트 탭에서 다시 학습하기 버튼 클릭 시 즉시 모달 띄우기
+
   const params = new URLSearchParams(location.search);
   const targetWordName = params.get("word");
 

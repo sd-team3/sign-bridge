@@ -3,10 +3,10 @@
 
 <jsp:include page="sidebar.jsp" />
 
-<!-- ═══════════ MAIN ═══════════ -->
+
 <div class="main">
 
-  <!-- TOPBAR -->
+
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:12px">
       <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;background:none;border:none;font-size:20px;cursor:pointer" id="menu-toggle">☰</button>

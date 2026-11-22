@@ -1,4 +1,4 @@
-  </div><!-- /content -->
-</div><!-- /main -->
+  </div>
+</div>
 
 <div class="toast-wrap" id="toast-wrap"></div>

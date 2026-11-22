@@ -1,10 +1,12 @@
-# 1단계: Maven으로 war 빌드
+
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
+ARG GRADUATION=false
+RUN if [ "$GRADUATION" = "true" ]; then mkdir -p src/main/resources/properties && cp graduation-properties/*.properties src/main/resources/properties/; fi
 RUN mvn clean package -q -DskipTests
 
-# 2단계: Tomcat 9(JDK17) 위에 war 배포
+
 FROM tomcat:9.0-jdk17
 RUN rm -rf /usr/local/tomcat/webapps/ROOT
 COPY --from=build /app/target/*.war /usr/local/tomcat/webapps/ROOT.war

@@ -45,13 +45,13 @@ class FeedbackPolicyTests(unittest.TestCase):
         self.assertFalse(result['feedback_required'])
         self.assertEqual(result['observations']['corrections'],[])
 
-    def test_matching_word_without_tracking_correction_receives_encouragement(self):
+    def test_matching_word_with_insufficient_tracking_requests_retake(self):
         a=self.sequence(); result=evaluate_feedback(a,np.full_like(a,np.nan),'밥','밥',.99)
         self.assertTrue(result['feedback_required'])
         self.assertIsNone(result['similarity']['score'])
         self.assertTrue(result['message']); self.assertTrue(result['actions'])
         self.assertEqual(result['observations']['corrections'],[])
-        self.assertEqual(result['message'],'잘하셨어요. 다음 단어를 연습해 볼까요?')
+        self.assertIn('다시 촬영',result['message'])
 
     def test_wrong_word_without_tracking_correction_is_not_praised(self):
         a=self.sequence()
@@ -65,14 +65,15 @@ class FeedbackPolicyTests(unittest.TestCase):
         self.assertIn('영화',result['message']); self.assertIn('밥',result['message'])
         self.assertNotIn('뚜렷한 차이가 보이지',result['message'])
 
-    def test_generic_encouragement_requires_matching_word(self):
+    def test_low_confidence_and_wrong_word_do_not_receive_encouragement(self):
         ref=self.sequence(); actual=ref.copy()
         actual[:,:,0]+=np.where(np.arange(30)%2==0,.4,-.4)[:,None]
         for predicted in ('밥','영화'):
             with self.subTest(predicted=predicted):
                 result=evaluate_feedback(ref,actual,'밥',predicted,.4)
                 if predicted == '밥':
-                    self.assertEqual(result['message'],'잘하셨어요. 다음 단어를 연습해 볼까요?')
+                    self.assertTrue(result['feedback_required'])
+                    self.assertNotIn('잘하셨어요',result['message'])
                 else:
                     self.assertIn('영화',result['message'])
                     self.assertNotIn('잘하셨어요',result['message'])
@@ -86,8 +87,8 @@ class FeedbackPolicyTests(unittest.TestCase):
     def test_observed_side_and_direction_preserved(self):
         ref=self.sequence(); user=ref.copy(); user[:,1,1]+=.3; user[:,1,2]-=40
         result=evaluate_feedback(ref,user,'밥','밥',.99)
-        self.assertIn('오른손의 위치',result['message']); self.assertIn('올려',result['message'])
-        self.assertIn('검지',result['message']); self.assertIn('펴서',result['message'])
+        self.assertIn('오른손',result['message']); self.assertIn('올려',result['message'])
+        self.assertIn('검지',result['message']); self.assertIn('펴 주세요',result['message'])
         self.assertNotIn('왼손',result['message'])
 
     def test_missing_reference_and_short_clip_always_have_guidance(self):

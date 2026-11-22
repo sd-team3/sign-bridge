@@ -40,7 +40,7 @@
             </select>
           </div>
 
-          <!-- 신고 카테고리 한정 -->
+
           <div class="form-group report-extra-fields" id="reportExtraFields" style="display:none;">
             <label class="form-label" for="errorType">오류 유형</label>
             <select id="errorType" name="errorType" class="form-input">
@@ -201,7 +201,7 @@ uploadZone.addEventListener('drop', (e) => {
   addFiles(e.dataTransfer.files);
 });
 
-// 기존 첨부파일 삭제 마킹
+
 function markExistingFileForDelete(fileId, btn) {
   const item = btn.closest('.upload-preview-item');
   item.remove();

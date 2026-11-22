@@ -24,9 +24,9 @@ public class MemberUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        MemberVO member = memberMapper.findByEmail(username); // DB에서 사용자 조회
+        MemberVO member = memberMapper.findByEmail(username);
         if(member == null) throw new UsernameNotFoundException(username + "의 회원정보를 찾을 수 없습니다.");
-        // email과 일치하는 회원 정보 없음
+
 
         System.out.println("### status = [" + member.getStatus() + "]");
 
@@ -42,8 +42,8 @@ public class MemberUserDetailsService implements UserDetailsService {
                                     List.of(new SimpleGrantedAuthority("ROLE_" + resolveRole(member.getRole()))));
     }
 
-    // 정지된 회원을 검사해서 풀어준다. 
-    // MemberServie와 동일로직. root와 servlet 분리로 서비스 주입불가로 중복
+
+
     private void checkAndReleaseIfExpired(MemberVO member) {
         if (!"SUSPENDED".equals(member.getStatus())) return;
 
@@ -53,7 +53,7 @@ public class MemberUserDetailsService implements UserDetailsService {
             member.setStatus("ACTIVE");
         }
     }
-    // 권한 설정(단순 문자열을 관리자 또는 유저 권한 부여)
+
     private String resolveRole(String role) {
         if("ADMIN".equalsIgnoreCase(role)) return "ADMIN";
         return "USER";

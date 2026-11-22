@@ -65,6 +65,7 @@ class Clip(StrictModel):
     aspect: float = Field(gt=.2, lt=5)
     target_word_id: str | None = Field(default=None, pattern=r'^WORD\d{4}$')
     frames: list[Frame] = Field(min_length=16, max_length=300)
+    # Older clients may send this field. Coaching is generated locally.
     use_llm: bool = False
 
     @model_validator(mode='after')
@@ -264,21 +265,6 @@ class Runtime:
                     policy=self.ckpt.get('feedback_policy','geometry_v1'), recognition=result['recognition'])
         finally:
             self.gate.release()
-        if evaluate and clip.use_llm and result['feedback'].get('policy') != 'semantic_v1' and result['feedback'].get('observations',{}).get('corrections'):
-            key = os.environ.get('GROQ_API_KEY', '')
-            model_id = os.environ.get('GROQ_MODEL', '')
-            if key and model_id:
-                try:
-                    from .groq_feedback import generate_feedback
-                    explanation = generate_feedback(
-                        {'pose_feedback': result['feedback']['observations']}, {'api_key': key, 'model': model_id})
-                    if explanation.strip():
-                        result['feedback']['explanation'] = explanation.strip()
-                        result['feedback']['explanation_source'] = 'groq'
-                except ValueError:
-                    result['feedback']['llm_status'] = 'fallback'
-            else:
-                result['feedback']['llm_status'] = 'not_configured'
         return result
 
 runtime = Runtime()

@@ -2,14 +2,14 @@ package com.soldesk.vo;
 
 import java.time.LocalDateTime;
 
-/** chain_word_log 테이블 매핑. 끝말잇기 단어 시도 기록 (게임 종료 후 "전적"의 진행 로그로 그대로 사용됨). */
+
 public class ChainWordLogVO {
 
-    // invalid_reason_code 값
+
     public static final String REASON_WRONG_START_CHAR = "WRONG_START_CHAR";
     public static final String REASON_DUPLICATE = "DUPLICATE";
     public static final String REASON_NOT_FOUND = "NOT_FOUND";
-    public static final String REASON_INVALID_FORM = "INVALID_FORM"; // ~하다/~되다 등 범용 어미
+    public static final String REASON_INVALID_FORM = "INVALID_FORM";
     public static final String REASON_TIMEOUT = "TIMEOUT";
 
     private Long chainWordLogId;
@@ -18,11 +18,11 @@ public class ChainWordLogVO {
     private Long chainWordId;
     private String attemptedWord;
     private Integer turnNo;
-    private String isValid; // Y/N
+    private String isValid;
     private String invalidReasonCode;
     private LocalDateTime regDate;
 
-    // 화면 표시용
+
     private String memberName;
 
     public Long getChainWordLogId() { return chainWordLogId; }

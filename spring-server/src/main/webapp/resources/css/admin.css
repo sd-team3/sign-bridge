@@ -137,7 +137,7 @@ textarea.fi{resize:vertical;min-height:100px}
   .test-grid{grid-template-columns:1fr}
 }
 
-/* 여기 밖으로 뺀 부분 */
+
 .modal-backdrop{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
   align-items:center;justify-content:center;z-index:999;

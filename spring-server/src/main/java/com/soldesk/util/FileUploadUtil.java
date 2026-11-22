@@ -26,8 +26,8 @@ public class FileUploadUtil {
     public static class SavedFileInfo {
         public String origName;
         public String savedName;
-        public String filePath;   // /uploads/... URL로 쓸 상대경로
-        public String fileType;   // IMAGE / VIDEO
+        public String filePath;
+        public String fileType;
         public long fileSize;
     }
 
@@ -44,7 +44,7 @@ public class FileUploadUtil {
             throw new IllegalArgumentException("허용되지 않는 파일 형식입니다: " + ext);
         }
 
-        // 날짜별 서브폴더
+
         String dateFolder = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
         Path dirPath = Paths.get(uploadPath, dateFolder);
         Files.createDirectories(dirPath);
@@ -56,7 +56,7 @@ public class FileUploadUtil {
         SavedFileInfo info = new SavedFileInfo();
         info.origName = origName;
         info.savedName = savedName;
-        info.filePath = "/uploads/" + dateFolder + "/" + savedName; // JSP에서 그대로 src로 사용 가능
+        info.filePath = "/uploads/" + dateFolder + "/" + savedName;
         info.fileType = fileType;
         info.fileSize = file.getSize();
         return info;
@@ -69,7 +69,7 @@ public class FileUploadUtil {
 
     public void delete(String filePath) {
         try {
-            // filePath 예: /uploads/2026/08/21/xxxx.png -> uploadPath 기준 상대경로로 변환
+
             String relative = filePath.replaceFirst("^/uploads/", "");
             Path target = Paths.get(uploadPath, relative);
             Files.deleteIfExists(target);

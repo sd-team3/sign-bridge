@@ -89,7 +89,7 @@
   <a class="pg-btn" href="${pageContext.request.contextPath}/admin/board/list?page=${pageBean.nextPage}&category=${param.category}">›</a>
 </div>
 
-<!-- 게시글 삭제 모달 -->
+
 <div class="modal-overlay" id="modal-board-delete">
   <div class="modal">
     <form method="post" action="${pageContext.request.contextPath}/admin/board/delete">

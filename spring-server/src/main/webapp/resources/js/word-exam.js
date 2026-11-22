@@ -205,7 +205,7 @@
       const row = make('article', undefined, 'we-result-row');
       row.append(make('h3', (i + 1) + '. ' + q.label + ' · ' + ({correct:'정답', incorrect:'재연습', pending:'확인 필요'}[q.verdict])));
       if (q.type === 'motion') {
-        const feedback = make('div'); window.SignCoaching.render(feedback, q.evaluation?.feedback); row.append(feedback);
+        const feedback = make('div'); window.SignCoaching.render(feedback, q.evaluation?.feedback, { openComparison: true }); row.append(feedback);
       } else if (q.answer) row.append(make('p', '선택한 답: ' + (q.choices.find(c => c.id === q.answer)?.label || '선택하지 않음'), 'we-muted'));
       const details = make('details'); details.append(make('summary', '모범 동작 보기'));
       details.addEventListener('toggle', () => {

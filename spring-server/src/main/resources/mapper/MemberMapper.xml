@@ -40,20 +40,20 @@
         values(#{memberEmail}, #{memberPassword}, #{memberName}, #{provider}, #{providerId})
     </insert>
 
-    <!-- 전체 회원 수 -->
+
     <select id="countAll" resultType="int">
         select count(*)
         from member
     </select>
 
-    <!-- 오늘 추가된 회원 수 -->
+
     <select id="countTodayMember" resultType="int">
         SELECT COUNT(*) 
         FROM member 
         WHERE DATE(reg_date) = CURDATE();
     </select>
 
-    <!-- 주간 일별 유저 추가 수 -->
+
     <select id="getWeeklySignupList" resultMap="dailySignupResultMap">
         SELECT DATE(reg_date) AS reg_day, COUNT(*) AS cnt
         FROM member
@@ -61,7 +61,7 @@
         GROUP BY DATE(reg_date)
         ORDER BY reg_day
     </select>
-    <!-- role에 따라 검색 기능 -->
+
     <select id="getAllMembers" resultMap="memberResultMap">
         SELECT
             m.member_id,
@@ -127,21 +127,21 @@
         where member_email = #{email}
     </select>
 
-    <!-- 로그인 전에 정지 기한 검사하고 풀어주기 -->
+
     <update id="updateStatus">
         update member
         set status = #{status}
         where member_id = #{memberId}   
     </update>
 
-    <!-- 정지 추가하면 정지 때리기 -->
+
     <update id="suspendStatus">
         update member
         set status = 'SUSPEND'
         where member_id = #{memberId}
     </update>
 
-    <!-- 회원만 삭제 -->
+
     <delete id="deleteMember">
         delete 
         from member
@@ -160,7 +160,7 @@
         where member_id = #{memberId}
     </update>
 
-    <!-- 끝말잇기 등에서 획득한 점수를 누적 -->
+
     <update id="addPoint">
         update member
         set point = point + #{delta}

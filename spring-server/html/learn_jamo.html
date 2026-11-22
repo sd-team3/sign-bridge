@@ -83,7 +83,7 @@
       <button class="jamo-tab" data-target="vowel">모음 (10)</button>
     </div>
 
-    <!-- 선택된 지문자 상세 -->
+
     <div class="jamo-detail" id="jamoDetail">
       <div class="jd-panel">
         <div class="jd-header"><span>지문자 정보</span><span class="jd-close" id="jdClose">✕ 닫기</span></div>
@@ -109,13 +109,13 @@
       </div>
     </div>
 
-    <!-- 자음 섹션 -->
+
     <div class="jamo-section active" id="section-consonant">
       <div class="result-count">기본 자음 14개</div>
       <div class="jamo-grid" id="grid-consonant"></div>
     </div>
 
-    <!-- 모음 섹션 -->
+
     <div class="jamo-section" id="section-vowel">
       <div class="result-count">기본 모음 10개</div>
       <div class="jamo-grid" id="grid-vowel"></div>
@@ -171,7 +171,7 @@ function renderGrid(list, targetId) {
 renderGrid(consonants, 'grid-consonant');
 renderGrid(vowels, 'grid-vowel');
 
-// 탭 전환
+
 const tabs = document.querySelectorAll('.jamo-tab');
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
@@ -183,7 +183,7 @@ tabs.forEach(tab => {
   });
 });
 
-// 카드 클릭 -> 상세 표시
+
 document.addEventListener('click', (e) => {
   const card = e.target.closest('.jamo-card');
   if (!card) return;

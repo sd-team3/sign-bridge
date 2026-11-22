@@ -19,7 +19,7 @@
 <main>
   <div class="mp-wrap">
 
-    <!-- 프로필 히어로 -->
+
     <c:choose>
       <c:when test="${member.point >= 100000}">
         <c:set var="tierClass" value="tier-platinum" />
@@ -62,7 +62,7 @@
       <button class="mp-hero-edit" onclick="mpTab('settings')">프로필 수정</button>
     </div>
 
-    <!-- 요약 통계 -->
+
     <div class="mp-stats">
       <div class="mp-stat"><div class="mp-stat-num">${overviewStats.learnedWordCount}</div><div class="mp-stat-lbl">학습한 단어</div></div>
       <div class="mp-stat"><div class="mp-stat-num">${overviewStats.avgAccuracy}%</div><div class="mp-stat-lbl">평균 정확도</div></div>
@@ -70,7 +70,7 @@
       <div class="mp-stat"><div class="mp-stat-num">${overviewStats.earnedBadges.size()} / 8</div><div class="mp-stat-lbl">획득 뱃지</div></div>
     </div>
 
-    <!-- 탭 -->
+
     <div class="mp-tabs">
       <button class="mp-tab active" data-tab="overview" onclick="mpTab('overview')">학습 현황</button>
       <button class="mp-tab" data-tab="learninghistory" onclick="mpTab('learninghistory')">학습 기록</button>
@@ -81,7 +81,7 @@
       <button class="mp-tab" data-tab="settings" onclick="mpTab('settings')">계정 설정</button>
     </div>
 
-    <!-- 학습 현황 -->
+
     <div class="mp-panel active" id="mp-panel-overview">
       <div class="mp-card">
         <div class="mp-card-title">초성별 진행률</div>
@@ -119,14 +119,14 @@
       <div class="pagination" id="fav-pagination"></div>
     </div>
 
-    <!-- 학습 기록 -->
+
     <div class="mp-panel" id="mp-panel-learninghistory">
       <div class="mp-subtabs">
         <button class="mp-subtab active" data-subtab="jamo" onclick="lhSubTab('jamo')">자모</button>
         <button class="mp-subtab" data-subtab="word" onclick="lhSubTab('word')">단어</button>
       </div>
 
-      <!-- 자모 서브탭 -->
+
       <div class="mp-subpanel active" id="mp-subpanel-jamo">
         <div class="mp-card">
           <div class="mp-filter-row" data-scope="jamohistory">
@@ -140,7 +140,7 @@
         <div class="pagination"></div>
       </div>
 
-      <!-- 단어 서브탭 -->
+
       <div class="mp-subpanel" id="mp-subpanel-word">
         <div class="mp-card">
           <div class="history-table-header"><div>단어</div><div>날짜</div><div>결과</div></div>
@@ -150,17 +150,17 @@
       </div>
     </div>
 
-    <!-- 오답노트 -->
+
     <div class="mp-panel" id="mp-panel-wronganswer">
       <div class="mp-wrongnote-summary">
         <span class="badge badge-danger" id="wa-total-badge">틀린 단어 0개</span>
       </div>
-      <!-- <div class="mp-filter-row" data-scope="wronganswer">
-        <button class="mp-filter-chip active" data-category="">전체</button>
-        <button class="mp-filter-chip" data-category="CONSONANT">자음</button>
-        <button class="mp-filter-chip" data-category="VOWEL">모음</button>
-        <button class="mp-filter-chip" data-category="WORD">단어</button>
-      </div> -->
+
+
+
+
+
+
       <div class="wrong-list-card">
         <h3>⚠️ 틀린 단어 모음</h3>
         <table class="wrong-table">
@@ -173,7 +173,7 @@
       <div class="pagination"></div>
     </div>
 
-    <!-- 뱃지 -->
+
     <div class="mp-panel" id="mp-panel-badges">
       <div class="mp-card">
         <div class="mp-card-title">획득한 뱃지 ${overviewStats.earnedBadges.size()} / 8</div>
@@ -214,14 +214,14 @@
       </div>
     </div>
     
-<!-- 작성물 관리 -->
+
 <div class="mp-panel" id="mp-panel-mycontent">
   <div class="mp-subtabs">
     <button class="mp-subtab active" data-subtab="myposts" onclick="mcSubTab('myposts')">게시글 관리</button>
     <button class="mp-subtab" data-subtab="mycomments" onclick="mcSubTab('mycomments')">댓글 관리</button>
   </div>
 
-    <!-- 게시글 서브탭 -->
+
     <div class="mp-subpanel active" id="mp-subpanel-myposts">
       <div class="mp-card">
         <div class="mp-filter-row" data-scope="myposts">
@@ -238,7 +238,7 @@
       <div class="pagination"></div>
     </div>
 
-    <!-- 댓글 서브탭 -->
+
     <div class="mp-subpanel" id="mp-subpanel-mycomments">
       <div class="mp-card">
         <div class="mp-filter-row" data-scope="mycomments">
@@ -256,7 +256,7 @@
     </div>
   </div>
 
-    <!-- 게임 전적 -->
+
     <div class="mp-panel" id="mp-panel-chainhistory">
       <div class="mp-card">
         <div class="history-table-header"><div>방 이름</div><div>순위</div><div>날짜</div></div>
@@ -265,7 +265,7 @@
       <div class="pagination" id="chain-history-pagination"></div>
     </div>
 
-    <!-- 계정 설정 -->
+
     <div class="mp-panel" id="mp-panel-settings">
       <div class="mp-card">
         <form id="basicInfoForm">

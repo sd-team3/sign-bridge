@@ -2,7 +2,7 @@ package com.soldesk.vo;
 
 import java.time.LocalDateTime;
 
-/** chain_room_member 테이블 매핑. 끝말잇기 게임방 참여자. */
+
 public class ChainRoomMemberVO {
 
     private Long chainRoomId;
@@ -11,12 +11,12 @@ public class ChainRoomMemberVO {
     private LocalDateTime joinedDate;
     private LocalDateTime leftDate;
     private Integer lives;
-    private String eliminatedYn; // Y/N
+    private String eliminatedYn;
     private Integer score;
     private Integer finalRank;
     private LocalDateTime eliminatedDate;
 
-    // join 해서 같이 조회할 때 채워지는 표시용 필드 (member 테이블)
+
     private String memberName;
     private String memberProfileImage;
 

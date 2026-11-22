@@ -12,7 +12,7 @@ public class BoardDocument {
     private int memberId;	
     private String boardTitle;
     private String boardContent;
-    private String categoryIdx; // 게시판 유형 (enum: BoardType, NOTICE/FREE/INFO/QNA/REPORT) - 조회 시 이 값으로 필터링
+    private String categoryIdx;
     private int viewCount;
     private String noticeYn;
     private LocalDateTime regDate;

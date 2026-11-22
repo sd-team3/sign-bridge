@@ -1,6 +1,6 @@
 .dict-layout { display:flex; gap:24px; align-items:flex-start; }
 
-  /* 좌측 초성 아코디언 사이드바 */
+
   .cho-sidebar { flex:0 0 220px; position:sticky; top:16px; max-height:calc(100vh - 32px); overflow-y:auto; border:1px solid #eee; border-radius:12px; }
   .cho-sidebar-title { font-size:13px; color:var(--text-sub); font-weight:700; padding:12px 14px 8px; }
   .cho-group { border-top:1px solid #f0f0f0; }
@@ -13,7 +13,7 @@
   .cho-word-item:hover { background:#f2f8f5; }
   .cho-group-empty { padding:6px 4px; font-size:13px; color:var(--text-sub); }
 
-  /* 메인 영역 */
+
   .dict-main { flex:1; min-width:0; }
   .search-row { display:flex; gap:8px; margin-bottom:16px; }
   .search-row input { flex:1; padding:10px 14px; border:1px solid #ddd; border-radius:8px; }
@@ -52,7 +52,7 @@
   .word-card video { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; display:block; }
 
   
-  /* error */
+
   .word-video-wrap { position:relative; width:100%; aspect-ratio:4/3; background:#000; }
   .word-video-wrap video { width:100%; height:100%; object-fit:cover; display:block; }
   .word-video-wrap.no-thumb { background:#f0f0f0; }
@@ -85,7 +85,7 @@
 .sort-btn { border:1px solid #ddd; background:#fff; border-radius:6px; padding:5px 12px; font-size:13px; cursor:pointer; color:#333; }
 .sort-btn.active { background:var(--brand,#1e8e5a); color:#fff; border-color:var(--brand,#1e8e5a); }
 
-  /* 수어 인식 모달 */
+
   .cam-modal {
     border:none; border-radius:20px; padding:0; max-width:480px; width:92vw; max-height:85vh;
     position: fixed;
@@ -126,7 +126,7 @@
   .cam-wrap video, .cam-wrap canvas { position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transform:scaleX(-1); }
   .cam-result { font-size:26px; font-weight:800; text-align:center; margin:14px 0; min-height:36px; }
  .cam-modal-btns { display:flex; gap:8px; justify-content:center; }
- /* 오류 신고 모달 - cam-modal/detail-modal과 톤 맞춤 */
+
   .report-modal {
     border:none; border-radius:20px; padding:0; max-width:420px; width:90vw;
     position: fixed;
@@ -149,7 +149,7 @@
   }
   .report-reason-input:focus { border-color:#d99; }
   .report-modal-btns { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
-  /* 신고 접수 결과 안내 모달 */
+
   .report-status-modal {
     border:none; border-radius:18px; padding:0; max-width:320px; width:86vw;
     position: fixed;
@@ -170,7 +170,7 @@
   .report-status-msg { font-size:14px; font-weight:600; color:#333; line-height:1.5; margin-bottom:18px; }
   .report-status-inner .btn { width:100%; justify-content:center; }
  
-  /* 단어 상세 모달 (강의식) */
+
   .detail-modal {
     border:none; border-radius:24px; padding:0; max-width:920px; width:calc(100vw - 32px); height:min(92vh, 940px); max-height:calc(100vh - 24px); overflow:hidden;
     position: fixed;
@@ -182,7 +182,7 @@
 .detail-modal::backdrop { background:rgba(0,0,0,.65); }
 .detail-modal-inner { padding:0; position:relative; height:100%; overflow:hidden; display:flex; flex-direction:column; align-items:stretch; }
 
-/* 상세 모달 본문 */
+
 .detail-scroll-content { flex:1; min-height:0; overflow:hidden; width:100%; display:flex; flex-direction:column; align-items:stretch; margin-top:48px; padding:0 28px 28px; }
 .detail-scroll-content > * { flex-shrink:0; }
 .detail-video-row { position:relative; width:100%; display:flex; justify-content:center; flex:1; min-height:0; }
@@ -195,18 +195,18 @@
 .detail-description { font-size:16px; line-height:1.8; color:#333; text-align:left; max-width:100%; width:100%; flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; background:#f7faf8; border:1px solid #e6efe9; border-radius:14px; padding:16px 20px; box-sizing:border-box; }
  .page-dots { color:var(--text-sub); font-weight:700; }
 
-  /* 오류신고 왼쪽위로 뺐음, 닫기랑 분리 */
+
 
   .detail-report-btn:hover {
     background: #fde8e8;
   }
 
-/* 이제 닫기버튼만 남음 (오른쪽위) */
+
 .detail-report-btn { position:absolute; top:14px; left:18px; height:24px; display:flex; align-items:center; box-sizing:border-box; z-index:5; border:1px solid #e2c4c4; background:#fff5f5; color:#b23b3b; font-size:12px; font-weight:700; padding:0 5px; border-radius:8px; cursor:pointer; white-space:nowrap; }
 
 .detail-top-actions { position:absolute; top:14px; right:16px; display:flex; align-items:center; gap:8px; z-index:5; }
 
-/* 영상 양옆의 이전/다음 단어 버튼 */
+
 .detail-nav-btn {
   position: absolute;
   top: 50%;
@@ -218,7 +218,7 @@
   color: #999;
   font-size: 30px;
   cursor: pointer;
-  display: none; /* 기본은 숨김, updateDetailNavButtons에서 flex로 전환 */
+  display: none;
   align-items: center;
   justify-content: center;
   z-index: 6;
@@ -233,9 +233,9 @@
 
 .detail-modal-close { width:32px; height:32px; display:flex; align-items:center; justify-content:center; box-sizing:border-box; border:none; background:none; font-size:20px; cursor:pointer; line-height:1; color:var(--text-sub); padding:0; border-radius:8px; transition:background 0.15s ease, color 0.15s ease; }
 .detail-modal-close:hover { background:#f2f2f2; color:#333; }
-/* 조회수 이 라인 왼쪽끝에 넣기로해서 space-between으로 바꾸고, 영상이랑 너비 맞춤(520px) */
+
 .detail-video-controls { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; max-width:340px; margin:8px auto 0; flex-shrink:0; }
-/* 배속/다시보기는 여기 오른쪽으로 묶음 */
+
 .detail-video-controls-right {
   display: flex;
   gap: 8px;
@@ -262,7 +262,7 @@
   color: #fff;
 }
 
-/* 스피드 버튼 */
+
 .detail-speed-control {
   display: flex;
   align-items: center;
@@ -310,7 +310,7 @@
   cursor: pointer;
 }
 
-/* 조회수 메타 - 이름 밑 별도줄이었는데 컨트롤라인 왼쪽으로 옮김 */
+
 .detail-meta {
   font-size: 13px;
   color: var(--text-sub);
@@ -398,7 +398,7 @@
   color: #dc2626;
 }
 
-/* 확신도 게이지 */
+
 .cam-confidence-row {
   display: flex;
   justify-content: center;

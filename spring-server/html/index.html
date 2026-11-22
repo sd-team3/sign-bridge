@@ -7,7 +7,7 @@
 </head>
 <body class="page-index">
 
-<!-- NAV -->
+
 <nav>
   <a href="index.html" class="nav-logo">
     <div class="nav-logo-icon">✋</div>
@@ -78,7 +78,7 @@
   </div>
 </nav>
 
-<!-- HERO -->
+
 <section class="hero">
   <div class="hero-bg">
     <div class="hero-blob hero-blob-1"></div>
@@ -134,7 +134,7 @@
   </div>
 </section>
 
-<!-- STATS BAR -->
+
 <div class="stats-bar">
   <div class="stat-item">
     <span class="stat-num">1,240+</span>
@@ -154,7 +154,7 @@
   </div>
 </div>
 
-<!-- HOW IT WORKS -->
+
 <section class="content-section how" id="how">
   <div class="how-inner">
     <div class="how-header">
@@ -185,7 +185,7 @@
   </div>
 </section>
 
-<!-- FEATURES -->
+
 <section class="content-section" id="features" style="background:#fff">
   <div class="features-inner">
     <div class="feature-visual">
@@ -259,7 +259,7 @@
   </div>
 </section>
 
-<!-- 학습 메뉴 -->
+
 <section class="menu-section">
   <div class="menu-inner">
     <div class="menu-header">
@@ -298,7 +298,7 @@
   </div>
 </section>
 
-<!-- 플레이존 메뉴 -->
+
 <section class="content-section" style="background:#fff">
   <div class="menu-inner">
     <div class="menu-header">
@@ -329,7 +329,7 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
+
 <section class="content-section" style="background:var(--cream)">
   <div class="testimonials-inner">
     <div class="test-header">
@@ -374,7 +374,7 @@
   </div>
 </section>
 
-<!-- CTA -->
+
 <div class="cta-section">
   <div class="cta-inner">
     <div class="cta-title">지금 바로 시작해보세요<br><span>첫 단어는 오늘, SignBridge에서</span></div>
@@ -386,7 +386,7 @@
   </div>
 </div>
 
-<!-- FOOTER -->
+
 <footer>
   <div class="footer-inner">
     <div class="footer-logo">
@@ -404,18 +404,18 @@
 </footer>
 
 <script>
-// TODO: 실제로는 서버 세션/토큰 여부로 판단 (예: 서버에서 렌더링 시 분기, 또는 로그인 API 응답).
-// 데모용으로 이 값만 바꾸면 로그인/비로그인 헤더를 바로 확인할 수 있음.
+
+
 const IS_LOGGED_IN = false;
 if (IS_LOGGED_IN) document.body.classList.add('is-logged-in');
 
-// Nav scroll effect
+
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
   nav.style.boxShadow = window.scrollY > 10 ? '0 2px 20px rgba(0,0,0,.06)' : 'none';
 });
 
-// Scroll reveal
+
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(e => {
     if (e.isIntersecting) {

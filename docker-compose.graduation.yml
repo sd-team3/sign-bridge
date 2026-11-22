@@ -1,0 +1,96 @@
+name: signbridge-graduation
+
+services:
+  db:
+    image: mysql:8.4.9
+    environment:
+      MYSQL_DATABASE: signbridge
+      MYSQL_USER: signbridge
+      MYSQL_PASSWORD: signbridge_local_app
+      MYSQL_ROOT_PASSWORD: signbridge_local_root
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_PASSWORD mysql --protocol=TCP -h 127.0.0.1 -u $$MYSQL_USER -D $$MYSQL_DATABASE -Nse 'SELECT COUNT(*) FROM word_exam' >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+
+  search:
+    image: es-with-nori:8.15.0
+    build:
+      context: .
+      dockerfile: Dockerfile.es-nori
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    volumes:
+      - search_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS 'http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=3s' | grep -q '\"timed_out\":false'"]
+      interval: 5s
+      timeout: 6s
+      retries: 30
+      start_period: 20s
+
+  python-server:
+    image: signbridge-graduation-python:1
+    build: ./python-server
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PYTHONUNBUFFERED: "1"
+      SIGN_SAVE_PRACTICE_COORDS: "false"
+    volumes:
+      - python_data:/app/data
+      - python_models:/app/model
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8000/health | grep -q '\"model_loaded\":true' && curl -fsS http://localhost:8000/api/v1/signs/health | grep -q '\"ready\":true'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  spring-server:
+    image: signbridge-graduation-spring:1
+    build:
+      context: ./spring-server
+      args:
+        GRADUATION: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+      search:
+        condition: service_healthy
+      python-server:
+        condition: service_healthy
+    environment:
+      JAVA_OPTS: -Dpython.server.url=http://python-server:8000
+      KRDICT_API_KEY: ${KRDICT_API_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      NAVER_CLIENT_ID: ${NAVER_CLIENT_ID:-}
+      NAVER_CLIENT_SECRET: ${NAVER_CLIENT_SECRET:-}
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID:-}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - uploads:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "bash -ec 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET / HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3; read -r status <&3; [[ \"$$status\" == *\" 200 \"* ]]'"]
+      interval: 5s
+      timeout: 6s
+      retries: 30
+      start_period: 25s
+
+volumes:
+  mysql_data:
+  search_data:
+  python_data:
+  python_models:
+  uploads:
+

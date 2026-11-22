@@ -175,7 +175,7 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(feedback['observations']['corrections'],[])
         self.assertTrue(feedback['message']); self.assertTrue(feedback['actions'])
 
-    def test_llm_empty_or_failure_never_removes_required_feedback(self):
+    def test_legacy_llm_flag_keeps_local_correction(self):
         import torch
         ref=np.zeros((30,2,6),np.float32); ref[:,:,0]=[-.4,.4]; ref[:,:,1]=-.2; ref[:,:,2:]=170
         shapes=ref.copy(); shapes[:,1,1]+=.3; shapes[:,1,2]-=40
@@ -183,17 +183,19 @@ class ApiTests(unittest.TestCase):
         def predict(xs,masks):
             logits=torch.zeros((len(xs),len(runtime.ckpt['labels']))); logits[:,runtime.ckpt['labels'].index('커피')]=12
             return logits
-        for failure in (False,True):
-            with self.subTest(failure=failure),patch.dict(runtime.ckpt,{'feedback_policy':'geometry_v1'}),patch('sign_api.api.encode_frames',return_value=(features,shapes)), \
-                 patch.dict(runtime.references,{'0115':ref}),patch.object(runtime,'reference_banks',{}),patch.object(runtime,'model',predict), \
-                 patch.dict(os.environ,{'GROQ_API_KEY':'test-only','GROQ_MODEL':'test-only'}), \
-                 patch('sign_api.groq_feedback.generate_feedback',side_effect=ValueError('failed') if failure else None,return_value=''):
-                data=clip(); data['use_llm']=True
-                response=self.client.post('/api/v1/signs/evaluate',json=data)
-                self.assertEqual(response.status_code,200)
-                feedback=response.json()['feedback']
-                self.assertTrue(feedback['feedback_required']); self.assertTrue(feedback['message'])
-                self.assertIn('오른손',feedback['message']); self.assertTrue(feedback['actions'])
+        with patch.dict(runtime.ckpt,{'feedback_policy':'geometry_v1'}), \
+             patch('sign_api.api.encode_frames',return_value=(features,shapes)), \
+             patch.dict(runtime.references,{'0115':ref}), patch.object(runtime,'reference_banks',{}), \
+             patch.object(runtime,'model',predict):
+            data=clip()
+            data['use_llm']=True
+            response=self.client.post('/api/v1/signs/evaluate',json=data)
+            self.assertEqual(response.status_code,200)
+            feedback=response.json()['feedback']
+            self.assertEqual(feedback['source'],'rules')
+            self.assertTrue(feedback['feedback_required'])
+            self.assertIn('오른손',feedback['message'])
+            self.assertTrue(feedback['actions'])
 
 
 if __name__ == '__main__':

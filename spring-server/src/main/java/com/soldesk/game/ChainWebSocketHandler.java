@@ -61,7 +61,7 @@ public class ChainWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        // 서버 -> 클라 단방향 브로드캐스트 구조. 클라 액션은 REST(/api/playzone/chain/**)로만 받는다.
+
     }
 
     private Long extractRoomId(WebSocketSession session) {

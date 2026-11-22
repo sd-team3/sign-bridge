@@ -1,9 +1,9 @@
 package com.soldesk.dto;
 
-/** 방 생성 요청 바디 */
+
 public class ChainRoomCreateRequest {
     private String chainRoomName;
-    private Integer chainRoomCapacity; // 미지정 시 4
+    private Integer chainRoomCapacity;
 
     public String getChainRoomName() { return chainRoomName; }
     public void setChainRoomName(String chainRoomName) { this.chainRoomName = chainRoomName; }

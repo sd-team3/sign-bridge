@@ -4,7 +4,7 @@ const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
 let unreadCount = 0;
 let listLoaded = false;
 
-// 페이지 로드될때 무조건 실행
+
 document.addEventListener('DOMContentLoaded', function() {
     const btn = document.getElementById('notificationBtn');
     const dropdown = document.getElementById('notificationDropdown');
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initNotificationSSE();
 });
 
-// 뱃지 카운트만 조회 
+
 function fetchUnreadCount() {
     fetch(window.ctx + '/notification/list')
         .then(res => res.json())
@@ -48,7 +48,7 @@ function updateBadge() {
     }
 }
 
-// 드롭다운 열 때 목록 렌더링
+
 function loadNotificationList() {
     fetch(window.ctx + '/notification/list')
         .then(res => res.json())

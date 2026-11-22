@@ -1,7 +1,7 @@
-import { HandCameraWidget } from "http://localhost:8000/static/js/hand-camera.js";
-import { JamoApiClient } from "http://localhost:8000/static/js/api-client.js";
+import { HandCameraWidget, cameraErrorMessage } from "/api/sign/assets/js/hand-camera.js?v=20261113cpu";
+import { JamoApiClient } from "/api/sign/assets/js/api-client.js";
 
-const api = new JamoApiClient("http://localhost:8000");
+const api = new JamoApiClient("/api/sign/jamo");
 
 window.jamoCamStarted = false;
 window.currentJamoChar = null;
@@ -80,6 +80,7 @@ function resetHold() {
 const cam = new HandCameraWidget({
   videoEl: document.getElementById("video"),
   canvasEl: document.getElementById("canvas"),
+  onError: showCameraError,
   onFrame: async (landmarks) => {
     const resultEl = document.getElementById("result");
     if (!landmarks) {
@@ -120,33 +121,44 @@ const cam = new HandCameraWidget({
 });
 
 let started = false;
-
-document.getElementById("jdCam").addEventListener("click", async () => {
-  if (started) return;
-  started = true;
-  window.jamoCamStarted = true;
-
-  const resultEl = document.getElementById("result");
-  resultEl.style.cursor = "default";
-  resultEl.textContent = "-";
-
+let pending = false;
+let cameraAttempt = 0;
+function cameraControls() {
+  document.getElementById("jd-camera-on").disabled = started || pending;
+  document.getElementById("jd-camera-off").disabled = !started && !pending;
+}
+function showCameraError(error) {
+  window.stopJamoCam();
+  document.getElementById("jd-camera-status").textContent = cameraErrorMessage(error);
+}
+document.getElementById("jd-camera-on").addEventListener("click", async () => {
+  if (started || pending) return;
+  const attempt = ++cameraAttempt;
+  pending = true;
+  cameraControls();
+  document.getElementById("jd-camera-status").textContent = "카메라와 손 인식을 준비하고 있어요…";
   try {
     await cam.start();
+    if (attempt !== cameraAttempt) return;
+    started = true;
+    window.jamoCamStarted = true;
+    document.getElementById("result").textContent = "-";
+    document.getElementById("jd-camera-status").textContent = "카메라가 준비됐어요. 손을 화면에 보여 주세요.";
   } catch (error) {
-    console.error("카메라 시작 실패: ", error);
-    started = false;
-    window.jamoCamStarted = false;
-    resultEl.textContent = "카메라 연결 실패";
-    resultEl.style.cursor = "pointer";
-  }
+    if (attempt === cameraAttempt && error.name !== "AbortError") showCameraError(error);
+  } finally { if (attempt === cameraAttempt) { pending = false; cameraControls(); } }
 });
-
 window.stopJamoCam = () => {
+  cameraAttempt++;
   cam.stopCamera();
   started = false;
+  pending = false;
   window.jamoCamStarted = false;
+  resetHold();
+  hideCoachTip();
+  document.getElementById("result").textContent = "카메라 켜기를 눌러 주세요";
+  document.getElementById("jd-camera-status").textContent = "카메라가 꺼졌습니다.";
+  cameraControls();
 };
-
-window.addEventListener("beforeunload", () => {
-  window.stopJamoCam?.();
-});
+document.getElementById("jd-camera-off").addEventListener("click", window.stopJamoCam);
+window.addEventListener("pagehide", window.stopJamoCam);

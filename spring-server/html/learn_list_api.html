@@ -107,7 +107,7 @@
   </div>
 </main>
 
-<!-- 모달 -->
+
 <div class="modal-backdrop" id="modal">
   <div class="modal">
     <div class="modal-header">
@@ -135,20 +135,20 @@
 <footer>© 2025 SignBridge</footer>
 
 <script>
-// ============================================================
-// API 키 설정 - 공공데이터포털에서 발급받은 키 입력
-// https://www.data.go.kr/data/15105152/openapi.do
-// ============================================================
+
+
+
+
 const API_KEY = 'YOUR_API_KEY_HERE';
 const USE_MOCK = API_KEY === 'YOUR_API_KEY_HERE';
 const BASE_URL = 'https://www.culture.go.kr/openapi/rest/signlang/list';
 
-// URL 파라미터로 카테고리 키워드 받기 (learn_list에서 넘겨줌)
+
 const params = new URLSearchParams(location.search);
 const KEYWORD = params.get('keyword') || '인사';
 document.getElementById('breadcrumb-current').textContent = KEYWORD + ' 수어';
 
-// Mock 데이터
+
 const MOCK_DATA = {
   '인사': [
     { title: '안녕하세요', content: '상대방에게 인사를 전하는 표현입니다.', description: '오른손 손바닥을 상대방을 향해 펼치고 손목을 좌우로 가볍게 흔듭니다.' },
@@ -299,7 +299,7 @@ document.getElementById('modal').addEventListener('click', e => {
   if (e.target === document.getElementById('modal')) closeModal();
 });
 
-// 초기 로드
+
 renderSkeletons();
 fetchData(KEYWORD).then(renderCards);
 </script>

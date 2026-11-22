@@ -16,7 +16,7 @@
         if (this.absentAt !== null && now - this.absentAt >= 900 && now - this.recordedAt >= 2000) return 'finish';
         return null;
       }
-      if (!['idle', 'result'].includes(phase)) { this.presentAt = this.absentAt = null; return null; }
+      if (!['idle', 'result', 'error'].includes(phase)) { this.presentAt = this.absentAt = null; return null; }
       if (count === 0) {
         this.presentAt = null;
         if (this.absentAt === null) this.absentAt = now;

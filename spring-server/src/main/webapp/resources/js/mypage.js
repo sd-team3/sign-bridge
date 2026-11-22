@@ -99,7 +99,7 @@ function formatDate(arr) {
     return `${y}.${String(m).padStart(2,'0')}.${String(d).padStart(2,'0')} ${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
 }
 
-// myposts/mycomments 카테고리 필터칩
+
 document.querySelectorAll('.mp-filter-row[data-scope]').forEach(row => {
   const scope = row.dataset.scope;
   row.querySelectorAll('.mp-filter-chip').forEach(chip => {
@@ -115,7 +115,7 @@ document.querySelectorAll('.mp-filter-row[data-scope]').forEach(row => {
   });
 });
 
-// 필터 칩: 같은 .mp-filter-row 안에서만 active 토글 (탭이 여러 개라 전역으로 묶으면 서로 간섭함)
+
 document.querySelectorAll('.mp-filter-row').forEach(row => {
   row.querySelectorAll('.mp-filter-chip').forEach(chip => {
     chip.addEventListener('click', () => {
@@ -157,7 +157,7 @@ function loadWrongAnswers(page) {
         });
 }
 
-// 화면 설정: 테마 (라이트/다크/시스템)
+
 function applyTheme(value) {
   if (value === 'system') {
     const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -172,7 +172,7 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
   if ((localStorage.getItem('sb-theme') || 'light') === 'system') applyTheme('system');
 });
 
-// 화면 설정: 글자 크기 (작게/보통/크게)
+
 function applyFontSize(value) {
   document.body.classList.remove('fs-small', 'fs-large');
   if (value === 'small') document.body.classList.add('fs-small');
@@ -181,7 +181,7 @@ function applyFontSize(value) {
 const savedFontSize = localStorage.getItem('sb-fontsize') || 'normal';
 applyFontSize(savedFontSize);
 
-// 화면 설정 선택 카드 공통 처리 (그룹별로 하나만 selected, 클릭 시 저장 + 즉시 적용)
+
 document.querySelectorAll('.mp-choice-row').forEach(row => {
   const group = row.dataset.group;
   const saved = group === 'theme' ? savedTheme : savedFontSize;
