@@ -34,4 +34,4 @@ MIN_TRACKING_CONFIDENCE = 0.5
 
 COACH_REFERENCE_PATH = os.path.join(MODEL_DIR, "coach_reference.csv")
 # Allow normal differences in hand proportions and small tracking fluctuations.
-COACH_Z_THRESHOLD = 2.0
+COACH_Z_THRESHOLD = 2.5
