@@ -4,9 +4,21 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 import main
 import config
+import coaching
+import pandas as pd
 
 
 class JamoCoachingTests(unittest.TestCase):
+    def test_coaching_accepts_minor_deviations_but_still_corrects_large_ones(self):
+        reference = pd.DataFrame([dict(label='ㅏ', feature='index_extension', mean=1., std=.1)])
+        landmarks = [0.] * 63
+        landmarks[24] = 1.18
+        self.assertIsNone(coaching.detect_deviation('ㅏ', landmarks, reference))
+        landmarks[24] = 1.25
+        deviation = coaching.detect_deviation('ㅏ', landmarks, reference)
+        self.assertEqual(deviation['name'], 'index_extension')
+        self.assertEqual(deviation['direction'], '+')
+
     def setUp(self):
         self.client = TestClient(main.app)
         self.landmarks = [

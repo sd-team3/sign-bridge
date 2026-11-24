@@ -143,7 +143,7 @@ const cam = new HandCameraWidget({
 
     const isCorrect = result.label === window.currentJamoChar;
     resultEl.textContent = isCorrect
-      ? "✅ 완벽합니다!"
+      ? "✅ 정답! (" + result.label + ")"
       : "인식: " + result.label;
     resultEl.style.color = isCorrect ? "#2D9B6F" : "#D85A30";
 

@@ -199,7 +199,7 @@ document.getElementById('jdClose').addEventListener('click', () => {
   document.getElementById('coachTip').style.display = 'none';
 });
 </script>
-<script type="module" src="/resources/js/jamo-camera.js?v=20261125feedback"></script>
+<script type="module" src="/resources/js/jamo-camera.js?v=20261125feedback2"></script>
 
 </body>
 </html>

@@ -44,7 +44,7 @@ const landmarks = Array.from({length:21}, () => ({x:.2,y:.3,z:0}));
     await frame(landmarks);
     await tick();
     assert.equal(requests.at(-1), vowel);
-    assert.match(w.document.getElementById('result').textContent, /완벽합니다!/);
+    assert.equal(w.document.getElementById('result').textContent, '✅ 정답! (' + vowel + ')');
     assert.equal(w.document.getElementById('coachTip').textContent, '✨ 완벽합니다!');
   }
   failCoach = true;
