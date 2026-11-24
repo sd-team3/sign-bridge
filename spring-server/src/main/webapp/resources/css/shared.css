@@ -418,8 +418,13 @@ body.page-register .auth-box{max-width:480px}
   align-items: center;
 }
 .jd-cam {
-  flex: 1;
+  flex: none;
   padding: 0;
+}
+.jd-cam .cam-wrap {
+  flex: 1;
+  min-height: 0;
+  height: auto;
 }
 .jd-play-ring{width:60px;height:60px;border:3px solid rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
 .jd-play-triangle{width:0;height:0;border-top:11px solid transparent;border-bottom:11px solid transparent;border-left:18px solid rgba(255,255,255,.8);margin-left:3px}

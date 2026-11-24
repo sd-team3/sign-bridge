@@ -15,7 +15,7 @@ for _dir in (DATA_DIR, TEMP_DIR, ARCHIVE_DIR, MODEL_DIR, MODEL_OLD_DIR):
     os.makedirs(_dir, exist_ok=True)
 
 CONSONANTS = list("ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ")
-VOWELS_BASIC = list("ㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣㅐㅒㅖ")
+VOWELS_BASIC = list("ㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣㅐㅒㅖㅔㅚㅟㅢ")
 LABELS = CONSONANTS + VOWELS_BASIC
 
 LABEL_IMAGE_CODES = {
@@ -25,6 +25,7 @@ LABEL_IMAGE_CODES = {
     "ㅏ": "a", "ㅑ": "ya", "ㅓ": "eo", "ㅕ": "yeo", "ㅗ": "o",
     "ㅛ": "yo", "ㅜ": "u", "ㅠ": "yu", "ㅡ": "eu", "ㅣ": "i",
     "ㅐ": "ae", "ㅒ": "yae", "ㅖ": "ye",
+    "ㅔ": "e", "ㅚ": "oe", "ㅟ": "wi", "ㅢ": "ui",
 }
 
 MAX_NUM_HANDS = 1

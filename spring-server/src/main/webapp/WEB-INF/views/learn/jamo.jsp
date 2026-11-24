@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SignBridge - 자음/모음 지문자 학습</title>
-<link rel="stylesheet" href="/resources/css/shared.css">
+<link rel="stylesheet" href="/resources/css/shared.css?v=20261125jamo">
 </head>
 <body>
 
@@ -54,18 +54,18 @@
       </div>
       <div class="jd-panel">
         <div class="jd-header"><span>내 동작 인식</span></div>
-        <div style="display:flex; gap:8px; padding:12px 16px;">
-          <button id="jd-camera-on" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button>
-          <button id="jd-camera-off" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button>
-        </div>
-        <p id="jd-camera-status" role="status" style="padding:0 16px;">카메라를 켜면 손을 인식합니다.</p>
         <div class="jd-cam" id="jdCam">
           <div class="cam-wrap">
             <video id="video" autoplay playsinline muted></video>
             <canvas id="canvas"></canvas>
           </div>
-          <div id="result" style="font-size: large; cursor: pointer;">카메라 켜기를 눌러 주세요</div>
+          <div id="result" aria-live="polite" style="font-size: large;"></div>
         </div>
+        <div style="display:flex; gap:8px; padding:12px 16px;">
+          <button id="jd-camera-on" type="button" class="btn btn-ghost btn-sm">카메라 켜기</button>
+          <button id="jd-camera-off" type="button" class="btn btn-ghost btn-sm" disabled>카메라 끄기</button>
+        </div>
+        <p id="jd-camera-status" role="status" style="padding:0 16px;">카메라를 켜면 손을 인식합니다.</p>
         <div id="coachTip" style="display:none; margin:10px 16px 16px; padding:10px 14px; border:1px solid; border-radius:8px; font-size:14px; line-height:1.5;"></div>
       </div>
     </div>
@@ -141,7 +141,7 @@ tabs.forEach(tab => {
     window.currentJamoChar = null;
 
     const resultEl = document.getElementById('result');
-    resultEl.textContent = '카메라 켜기를 눌러 주세요';
+    resultEl.textContent = '';
     resultEl.style.cursor = 'default';
     resultEl.style.color = '';
     document.getElementById('coachTip').style.display = 'none';
@@ -154,6 +154,7 @@ document.addEventListener('click', (e) => {
   if (!card) return;
 
   window.currentJamoChar = card.dataset.char;
+  window.resetJamoFeedback?.();
 
   document.getElementById('jdChar').textContent = card.dataset.char;
   document.getElementById('jdName').textContent = card.dataset.name;
@@ -164,7 +165,7 @@ document.addEventListener('click', (e) => {
     resultEl.textContent = '-';
     resultEl.style.cursor = 'default';
   } else {
-    resultEl.textContent = '카메라 켜기를 눌러 주세요';
+    resultEl.textContent = '';
     resultEl.style.cursor = 'default';
   }
   resultEl.style.color = '';
@@ -192,13 +193,13 @@ document.getElementById('jdClose').addEventListener('click', () => {
   window.currentJamoChar = null;
 
   const resultEl = document.getElementById('result');
-  resultEl.textContent = '카메라 켜기를 눌러 주세요';
+  resultEl.textContent = '';
   resultEl.style.cursor = 'default';
   resultEl.style.color = '';
   document.getElementById('coachTip').style.display = 'none';
 });
 </script>
-<script type="module" src="/resources/js/jamo-camera.js"></script>
+<script type="module" src="/resources/js/jamo-camera.js?v=20261125feedback"></script>
 
 </body>
 </html>

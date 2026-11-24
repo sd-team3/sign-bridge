@@ -11,6 +11,8 @@ const STABLE_HOLD_MS = 1200;
 let lastCoachAt = 0;
 let coachInFlight = false;
 let coachTrackedJamo = null;
+let feedbackRevision = 0;
+let predictionInFlight = false;
 
 let holdLabel = null;
 let holdStartAt = null;
@@ -41,6 +43,7 @@ function resetCoachThrottleIfJamoChanged() {
   if (window.currentJamoChar !== coachTrackedJamo) {
     coachTrackedJamo = window.currentJamoChar;
     lastCoachAt = 0;
+    resetHold();
   }
 }
 
@@ -60,13 +63,18 @@ async function maybeFetchCoachTip(landmarks, targetLabel, predictedLabel, predic
   if (coachInFlight || now - lastCoachAt < COACH_INTERVAL_MS) return;
   coachInFlight = true;
   lastCoachAt = now;
+  const revision = feedbackRevision;
   try {
     const res = await api.coach(landmarks, targetLabel, predictedLabel, predictedConfidence, false);
+    if (revision !== feedbackRevision || window.currentJamoChar !== targetLabel || !started) return;
     if (res && res.tip) {
-      showCoachTip(res.tip, res.kind);
+      showCoachTip(res.kind === "perfect" ? "완벽합니다!" : res.tip, res.kind);
     }
   } catch (err) {
     console.error("코칭 팁 요청 실패:", err);
+    if (revision === feedbackRevision && window.currentJamoChar === targetLabel && started) {
+      showCoachTip("피드백을 불러오지 못했어요. 손 모양을 유지하면 다시 확인할게요.", "advice");
+    }
   } finally {
     coachInFlight = false;
   }
@@ -76,6 +84,14 @@ function resetHold() {
   holdLabel = null;
   holdStartAt = null;
 }
+
+window.resetJamoFeedback = () => {
+  feedbackRevision++;
+  lastCoachAt = 0;
+  coachTrackedJamo = window.currentJamoChar;
+  resetHold();
+  hideCoachTip();
+};
 
 const cam = new HandCameraWidget({
   videoEl: document.getElementById("video"),
@@ -88,15 +104,32 @@ const cam = new HandCameraWidget({
       resultEl.style.color = "";
       hideCoachTip();
       resetHold();
+      feedbackRevision++;
+      lastCoachAt = 0;
       return;
     }
-    const result = await api.predict(landmarks, false);
+    if (predictionInFlight) return;
+    predictionInFlight = true;
+    const revision = feedbackRevision;
+    let result;
+    try {
+      result = await api.predict(landmarks, false);
+    } catch (error) {
+      if (revision === feedbackRevision && started) {
+        resultEl.textContent = "인식 서버에 연결하지 못했어요. 잠시 후 다시 시도합니다.";
+        resultEl.style.color = "";
+        window.resetJamoFeedback();
+      }
+      return;
+    } finally {
+      predictionInFlight = false;
+    }
+    if (revision !== feedbackRevision || !started) return;
 
     if (!result || !result.label) {
       resultEl.textContent = "";
       resultEl.style.color = "";
-      hideCoachTip();
-      resetHold();
+      window.resetJamoFeedback();
       return;
     }
 
@@ -110,7 +143,7 @@ const cam = new HandCameraWidget({
 
     const isCorrect = result.label === window.currentJamoChar;
     resultEl.textContent = isCorrect
-      ? "✅ 정답! (" + result.label + ")"
+      ? "✅ 완벽합니다!"
       : "인식: " + result.label;
     resultEl.style.color = isCorrect ? "#2D9B6F" : "#D85A30";
 
@@ -142,7 +175,8 @@ document.getElementById("jd-camera-on").addEventListener("click", async () => {
     if (attempt !== cameraAttempt) return;
     started = true;
     window.jamoCamStarted = true;
-    document.getElementById("result").textContent = "-";
+    window.resetJamoFeedback();
+    document.getElementById("result").textContent = "";
     document.getElementById("jd-camera-status").textContent = "카메라가 준비됐어요. 손을 화면에 보여 주세요.";
   } catch (error) {
     if (attempt === cameraAttempt && error.name !== "AbortError") showCameraError(error);
@@ -154,9 +188,8 @@ window.stopJamoCam = () => {
   started = false;
   pending = false;
   window.jamoCamStarted = false;
-  resetHold();
-  hideCoachTip();
-  document.getElementById("result").textContent = "카메라 켜기를 눌러 주세요";
+  window.resetJamoFeedback();
+  document.getElementById("result").textContent = "";
   document.getElementById("jd-camera-status").textContent = "카메라가 꺼졌습니다.";
   cameraControls();
 };

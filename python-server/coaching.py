@@ -166,7 +166,7 @@ def generate_feedback(target_label, predicted_label, predicted_confidence, feat_
 
     deviation = detect_deviation(target_label, feat_vec, reference_df)
     if deviation is None:
-        return {"tip": "기준 손 모양과 뚜렷한 차이가 보이지 않아요.", "kind": "perfect", "predicted_label": predicted_label}
+        return {"tip": "완벽합니다!", "kind": "perfect", "predicted_label": predicted_label}
 
     tip = feedback_tip(deviation)
     return {"tip": tip, "kind": "advice", "predicted_label": predicted_label}
